@@ -7,3 +7,25 @@ IoT Bricks come with long range connectivity and a simple SDK.
 ## Hardware example
 
 ## Software example
+
+```
+class Backend {
+    setHost(string host);
+	  setUser(string user);
+    Brick getBrick(string token);
+}
+		
+class Brick {
+    getBattery();
+}
+		
+class TemperatureBrick extends Brick {
+    int getValue();
+    int getResolution();
+    DateTime getTimestamp();
+}
+
+TemperatureBrick b = new TemperatureBrick();
+b.getValue();
+b.getBattery();
+```
