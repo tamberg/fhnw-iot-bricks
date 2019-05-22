@@ -11,11 +11,11 @@ IoT Bricks come with long range connectivity and a simple SDK.
 
 ```
 class Backend {
-    setHost(string host);
-    setUser(string user);
+    void setHost(string host);
+    void setUser(string user);
     Brick getBrick(string token);
 }
-		
+
 class Brick {
     int getBatteryLevel();
 }
