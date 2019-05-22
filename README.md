@@ -20,12 +20,12 @@ public abstract class Brick {
     public int getBatteryLevel();
 }
 
-public class TemperatureBrick extends Brick {
+public final class TemperatureBrick extends Brick {
     public double getValue();
     public DateTime getTimestamp();
 }
 
-public class DisplayBrick extends Brick {
+public final class DisplayBrick extends Brick {
     public void setValue(double Value);
 }
 ```
