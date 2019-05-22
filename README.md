@@ -31,9 +31,9 @@ class DisplayBrick extends Brick {
 ```
 
 ```
-TemperatureBrick tempBrick = Backend.getBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
-DisplayBrick displayBrick = Backend.getBrick("TOKEN_PRINTED_ON_DIPLAY_BRICK");
-while (min(tempBrick.getBatteryLevel(),  displayBrick.getBatteryLevel()) > 20) {
+TemperatureBrick tempBrick = (TemperatureBrick) Backend.getBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
+DisplayBrick displayBrick = (DisplayBrick) Backend.getBrick("TOKEN_PRINTED_ON_DIPLAY_BRICK");
+while (min(tempBrick.getBatteryLevel(), displayBrick.getBatteryLevel()) > 20) {
     double temp = tempBrick.getValue();
     displayBrick.setValue(temp);
     TimeUnit.MINUTES.sleep(1);
