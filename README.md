@@ -22,8 +22,6 @@ class Brick {
 
 class TemperatureBrick extends Brick {
     double getValue();
-    int getIntValue();
-    int getIntResolution();
     DateTime getTimestamp();
 }
 ```
