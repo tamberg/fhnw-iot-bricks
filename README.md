@@ -21,14 +21,15 @@ class Brick {
 }
 
 class TemperatureBrick extends Brick {
-    int getValue();
-    int getResolution();
+    double getValue();
+    int getIntValue();
+    int getIntResolution();
     DateTime getTimestamp();
 }
 ```
 
 ```
 TemperatureBrick brick = Backend.getBrick("TOKEN_PRINTED_ON_BRICK");
-double temperature = brick.getValue() / brick.getResolution();
+double temperature = brick.getValue();
 int percent = brick.getBatteryLevel();
 ```
