@@ -10,23 +10,23 @@ IoT Bricks come with long range connectivity and a simple SDK.
 ## Software example
 
 ```
-class Backend {
-    void setHost(string host);
-    void setUser(string user);
-    Brick getBrick(string token);
+public final class Backend {
+    public static void setHost(string host);
+    public static void setUser(string user);
+    public static Brick getBrick(string token);
 }
 
-class Brick {
-    int getBatteryLevel();
+public abstract class Brick {
+    public int getBatteryLevel();
 }
 
-class TemperatureBrick extends Brick {
-    double getValue();
-    DateTime getTimestamp();
+public class TemperatureBrick extends Brick {
+    public double getValue();
+    public DateTime getTimestamp();
 }
 
-class DisplayBrick extends Brick {
-    void setValue(double Value);
+public class DisplayBrick extends Brick {
+    public void setValue(double Value);
 }
 ```
 
