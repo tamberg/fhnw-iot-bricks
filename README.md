@@ -5,6 +5,7 @@ IoT Bricks enable IoT prototyping in a room, building or city.
 ## Simple, self-contained, connected
 IoT Bricks come with long range connectivity and a simple SDK.
 ## Hardware example
+<img src="IoTBrickTemperature.jpg"/>
 
 ## Software example
 
