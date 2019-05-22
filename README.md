@@ -13,6 +13,7 @@ IoT Bricks come with long range connectivity and a simple SDK.
 public final class Backend {
     public static void setHost(string host);
     public static void setUser(string user);
+    public static void setPassword(string password);
     public static Brick getBrick(string token);
 }
 
@@ -31,8 +32,13 @@ public final class DisplayBrick extends Brick {
 ```
 
 ```
+Backend.setHost("FHNW_IOT_BRICKS_HOST");
+Backend.setUser("FHNW_IOT_BRICKS_USER");
+Backend.setPassword("FHNW_IOT_BRICKS_PASSWORD");
+
 TemperatureBrick tempBrick = (TemperatureBrick) Backend.getBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
 DisplayBrick displayBrick = (DisplayBrick) Backend.getBrick("TOKEN_PRINTED_ON_DIPLAY_BRICK");
+
 while (Math.min(tempBrick.getBatteryLevel(), displayBrick.getBatteryLevel()) > 20) {
     double temp = tempBrick.getValue();
     displayBrick.setValue(temp);
