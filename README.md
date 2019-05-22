@@ -12,21 +12,21 @@ IoT Bricks come with long range connectivity and a simple SDK.
 ```
 class Backend {
     setHost(string host);
-	  setUser(string user);
+    setUser(string user);
     Brick getBrick(string token);
 }
 		
 class Brick {
     getBattery();
 }
-		
+
 class TemperatureBrick extends Brick {
     int getValue();
     int getResolution();
     DateTime getTimestamp();
 }
 
-TemperatureBrick b = new TemperatureBrick();
-b.getValue();
-b.getBattery();
+TemperatureBrick b = Backend.getBrick("TOKEN_PRINTED_ON_BRICK");
+double temperature = b.getValue() / b.getResolution();
+int percent = b.getBattery();
 ```
