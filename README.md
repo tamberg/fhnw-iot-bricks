@@ -1,1 +1,1 @@
-# fhnw-iot-bricks
+# FHNW IoT Bricks
