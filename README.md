@@ -37,7 +37,7 @@ Backend.setUser("FHNW_IOT_BRICKS_USER");
 Backend.setPassword("FHNW_IOT_BRICKS_PASSWORD");
 
 TemperatureBrick tempBrick = (TemperatureBrick) Backend.getBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
-DisplayBrick displayBrick = (DisplayBrick) Backend.getBrick("TOKEN_PRINTED_ON_DIPLAY_BRICK");
+DisplayBrick displayBrick = (DisplayBrick) Backend.getBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
 
 while (Math.min(tempBrick.getBatteryLevel(), displayBrick.getBatteryLevel()) > 20) {
     double temp = tempBrick.getValue();
