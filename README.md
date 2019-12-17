@@ -16,20 +16,19 @@ public final class Backend {
     public static void setUser(string user);
     public static void setPassword(string password);
     // Bricks
-    public static TemperatureBrick createTemperatureBrick(string token);
+    public static ButtonBrick createButtonBrick(string token);
     public static LcdDisplayBrick createLcdDisplayBrick(string token);
-    public static LedPixelBrick createLedPixel(string token);
+    public static LedBrick createLed(string token);
     public static LedStripBrick createLedStripBrick(string token);
+    public static TemperatureBrick createTemperatureBrick(string token);
 }
 
 public abstract class Brick {
     public int getBatteryLevel();
 }
 
-public final class TemperatureBrick extends Brick {
-    public double getHumidity();
-    public double getTemperature();
-    public DateTime getTimestamp();
+public final class ButtonBrick extends Brick {
+    public boolean getPressed();
 }
 
 public final class LedPixelBrick extends Brick {
@@ -42,6 +41,12 @@ public final class LedStripBrick extends Brick {
 
 public final class LcdDisplayBrick extends Brick {
     public void setValue(double Value);
+}
+
+public final class TemperatureBrick extends Brick {
+    public double getHumidity();
+    public double getTemperature();
+    public DateTime getTimestamp();
 }
 ```
 
