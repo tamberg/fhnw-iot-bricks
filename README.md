@@ -42,7 +42,7 @@ Backend.setPassword("FHNW_IOT_BRICKS_PASSWORD");
 TemperatureBrick tempBrick = Backend.createTemperatureBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
 DisplayBrick displayBrick = Backend.createDisplayBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
 
-while (Math.min(tempBrick.getBatteryLevel(), displayBrick.getBatteryLevel()) > 20) {
+while (true) {
     double temp = tempBrick.getValue();
     displayBrick.setValue(temp);
     TimeUnit.MINUTES.sleep(1);
