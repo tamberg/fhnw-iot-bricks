@@ -16,8 +16,8 @@ public final class Backend {
     public static void setUser(string user);
     public static void setPassword(string password);
     // Bricks
-    public static DisplayBrick getDisplayBrick(string token);
-    public static TemperatureBrick getTemperatureBrick(string token);
+    public static DisplayBrick createDisplayBrick(string token);
+    public static TemperatureBrick createTemperatureBrick(string token);
 }
 
 public abstract class Brick {
@@ -39,8 +39,8 @@ Backend.setHost("FHNW_IOT_BRICKS_HOST");
 Backend.setUser("FHNW_IOT_BRICKS_USER");
 Backend.setPassword("FHNW_IOT_BRICKS_PASSWORD");
 
-TemperatureBrick tempBrick = Backend.getTemperatureBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
-DisplayBrick displayBrick = Backend.getDisplayBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
+TemperatureBrick tempBrick = Backend.createTemperatureBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
+DisplayBrick displayBrick = Backend.createDisplayBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
 
 while (Math.min(tempBrick.getBatteryLevel(), displayBrick.getBatteryLevel()) > 20) {
     double temp = tempBrick.getValue();
