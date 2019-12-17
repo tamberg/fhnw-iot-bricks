@@ -50,7 +50,7 @@ Backend.setHost("FHNW_IOT_BRICKS_HOST");
 Backend.setUser("FHNW_IOT_BRICKS_USER");
 Backend.setPassword("FHNW_IOT_BRICKS_PASSWORD");
 
-HumidityTemperatureBrick tempBrick = Backend.createHumidityTemperatureBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
+TemperatureBrick tempBrick = Backend.createTemperatureBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
 LcdDisplayBrick displayBrick = Backend.createLcdDisplayBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
 
 while (true) {
