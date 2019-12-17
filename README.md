@@ -11,10 +11,13 @@ IoT Bricks come with long range connectivity and a simple SDK.
 
 ```
 public final class Backend {
+    // Config
     public static void setHost(string host);
     public static void setUser(string user);
     public static void setPassword(string password);
-    public static Brick getBrick(string token);
+    // Bricks
+    public static DisplayBrick getDisplayBrick(string token);
+    public static TemperatureBrick getTemperatureBrick(string token);
 }
 
 public abstract class Brick {
