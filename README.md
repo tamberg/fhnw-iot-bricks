@@ -18,7 +18,7 @@ public final class Backend {
     // Bricks
     public static ButtonBrick createButtonBrick(string token);
     public static LcdDisplayBrick createLcdDisplayBrick(string token);
-    public static LedBrick createLed(string token);
+    public static LedBrick createLedBrick(string token);
     public static LedStripBrick createLedStripBrick(string token);
     public static TemperatureBrick createTemperatureBrick(string token);
 }
