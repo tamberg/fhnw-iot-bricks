@@ -8,7 +8,7 @@ IoT Bricks come with long range connectivity and a simple SDK.
 <img src="IoTBrickTemperature.jpg"/>
 
 ## Software example
-
+### Interface
 ```
 public final class Backend {
     // Config
@@ -49,12 +49,14 @@ public final class TemperatureBrick extends Brick {
     public DateTime getTimestamp();
 }
 ```
-
+### Backend Config
 ```
 Backend.setHost("FHNW_IOT_BRICKS_HOST");
 Backend.setUser("FHNW_IOT_BRICKS_USER");
 Backend.setPassword("FHNW_IOT_BRICKS_PASSWORD");
-
+```
+### Monitoring System
+```
 TemperatureBrick tempBrick = Backend.createTemperatureBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
 LcdDisplayBrick displayBrick = Backend.createLcdDisplayBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
 
@@ -62,5 +64,19 @@ while (true) {
     double temp = tempBrick.getTemperature();
     displayBrick.setValue(temp);
     TimeUnit.MINUTES.sleep(1);
+}
+```
+
+### Door Bell
+```
+ButtonBrick buttonBrick = Backend.createButtonBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
+LedBrick ledBrick = Backend.createLedBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
+
+while (true) {
+    if (buttonBrick.getPressed()) {
+        ledBrick.setColor(Color.Red);
+    } else {
+        ledBrick.setColor(Color.Black);
+    }
 }
 ```
