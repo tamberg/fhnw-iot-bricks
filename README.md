@@ -16,8 +16,10 @@ public final class Backend {
     public static void setUser(string user);
     public static void setPassword(string password);
     // Bricks
-    public static DisplayBrick createDisplayBrick(string token);
     public static TemperatureBrick createTemperatureBrick(string token);
+    public static LcdDisplayBrick createLcdDisplayBrick(string token);
+    public static LedPixelBrick createLedPixel(string token);
+    public static LedStripBrick createLedStripBrick(string token);
 }
 
 public abstract class Brick {
@@ -25,11 +27,20 @@ public abstract class Brick {
 }
 
 public final class TemperatureBrick extends Brick {
-    public double getValue();
+    public double getHumidity();
+    public double getTemperature();
     public DateTime getTimestamp();
 }
 
-public final class DisplayBrick extends Brick {
+public final class LedPixelBrick extends Brick {
+    public void setColor(Color value);
+}
+
+public final class LedStripBrick extends Brick {
+    public void setColors(Color[] values);
+}
+
+public final class LcdDisplayBrick extends Brick {
     public void setValue(double Value);
 }
 ```
@@ -39,11 +50,11 @@ Backend.setHost("FHNW_IOT_BRICKS_HOST");
 Backend.setUser("FHNW_IOT_BRICKS_USER");
 Backend.setPassword("FHNW_IOT_BRICKS_PASSWORD");
 
-TemperatureBrick tempBrick = Backend.createTemperatureBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
-DisplayBrick displayBrick = Backend.createDisplayBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
+HumidityTemperatureBrick tempBrick = Backend.createHumidityTemperatureBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
+LcdDisplayBrick displayBrick = Backend.createLcdDisplayBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
 
 while (true) {
-    double temp = tempBrick.getValue();
+    double temp = tempBrick.getTemperature();
     displayBrick.setValue(temp);
     TimeUnit.MINUTES.sleep(1);
 }
