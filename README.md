@@ -74,6 +74,23 @@ while (true) {
 }
 ```
 
+### Storage System
+```
+TemperatureBrick tempBrick = Bricks.getTemperatureBrick("TEMP_BRICK_TOKEN");
+DateTime[] timestamps = new DateTime[32];
+double[] values = new double[32];
+
+int i = 0;
+while (true) {
+    double temp = tempBrick.getTemperature();
+    DateTime timestamp = tempBrick.getLastUpdateTimestamp();
+    values[i] = temp;
+    timestamps[i] = timestamp;
+    i = (i + 1) % 32;
+    Bricks.waitForUpdate();
+}
+```
+
 ### Door Bell
 ```
 ButtonBrick buttonBrick = Backend.getButtonBrick("BUTTON_BRICK_TOKEN");
