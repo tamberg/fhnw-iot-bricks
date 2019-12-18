@@ -24,10 +24,12 @@ public final class Backend {
     public static TemperatureBrick createTemperatureBrick(string token);
 }
 
+public enum UpdateFrequency { LOW, MEDIUM, HIGH }
+
 public abstract class Brick {
     public int getBatteryLevel();
-    public int getUpdateFrequency(); // LOW, MEDIUM, HIGH
-    public void setUpdateFrequency(int s); // LOW, MEDIUM, HIGH
+    public UpdateFrequency getUpdateFrequency();
+    public void setUpdateFrequency(UpdateFrequency frequency);
     public DateTime getLastUpdateTimestamp();
 }
 
@@ -44,7 +46,7 @@ public final class LedStripBrick extends Brick {
 }
 
 public final class LcdDisplayBrick extends Brick {
-    public void setValue(double Value);
+    public void setValue(double value);
 }
 
 public final class TemperatureBrick extends Brick {
