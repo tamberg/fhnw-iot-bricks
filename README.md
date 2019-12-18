@@ -20,7 +20,7 @@ public final class Bricks {
     // Updates
     public static UpdateMode getUpdateMode();
     public static void setUpdateMode(UpdateMode mode);
-    public static void waitForUpdate();
+    public static void update(); // blocking
     // Bricks
     public static ButtonBrick getButtonBrick(String token);
     public static LcdDisplayBrick getLcdDisplayBrick(String token);
@@ -70,7 +70,7 @@ LcdDisplayBrick displayBrick = Bricks.getLcdDisplayBrick("DISPLAY_BRICK_TOKEN");
 while (true) {
     double temp = tempBrick.getTemperature();
     displayBrick.setValue(temp);
-    Bricks.waitForUpdate();
+    Bricks.update();
 }
 ```
 
@@ -84,7 +84,7 @@ while (true) {
     double temp = tempBrick.getTemperature();
     DateTime stamp = tempBrick.getLastUpdateTimestamp();
     fileWriter.append(stamp + ", " + temp + "\n");
-    Bricks.waitForUpdate();
+    Bricks.update();
 }
 ```
 
@@ -96,6 +96,6 @@ LedBrick ledBrick = Backend.getLedBrick("LED_BRICK_TOKEN");
 while (true) {
     boolean pressed = buttonBrick.getPressed();
     ledBrick.setColor(pressed ? Color.Red : Color.Black);
-    Bricks.waitForUpdate();
+    Bricks.update();
 }
 ```
