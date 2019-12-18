@@ -10,7 +10,7 @@ IoT Bricks come with long range connectivity and a simple SDK.
 ## Software example
 ### Interface
 ```
-public enum UpdateFrequency { LOW, MEDIUM, HIGH }
+public enum UpdateFrequency { HIGH, LOW, MEDIUM }
 
 public enum UpdateMode { DEMO, LIVE, MIXED }
 
