@@ -25,7 +25,7 @@ public final class Backend {
 
 public enum UpdateFrequency { LOW, MEDIUM, HIGH }
 
-public enum UpdateMode { LIVE, DEMO, MIXED }
+public enum UpdateMode { DEMO, LIVE, MIXED }
  
 public abstract class Brick {
     public int getBatteryLevel();
