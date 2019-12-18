@@ -90,7 +90,7 @@ while (true) {
 ButtonBrick buttonBrick = Backend.createButtonBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
 LedBrick ledBrick = Backend.createLedBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
 
-bricks = new BrickGroup();
+bricks = new BrickSet();
 bricks.add(buttonBrick);
 bricks.add(ledBrick);
 bricks.setUpdateMode(UpdateMode.DEMO);
