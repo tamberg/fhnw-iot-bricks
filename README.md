@@ -81,11 +81,7 @@ LedBrick ledBrick = Backend.getLedBrick("LED_BRICK_TOKEN");
 
 while (true) {
     boolean pressed = buttonBrick.getPressed();
-    if (pressed) {
-        ledBrick.setColor(Color.Red);
-    } else {
-        ledBrick.setColor(Color.Black);
-    }
+    ledBrick.setColor(pressed ? Color.Red : Color.Black);
     Bricks.waitForUpdate();
 }
 ```
