@@ -20,8 +20,7 @@ public final class Bricks {
     // Updates
     public static UpdateMode getUpdateMode();
     public static void setUpdateMode(UpdateMode mode);
-    public static void waitForAnyUpdate();
-    public static void waitForAllUpdates();
+    public static void waitForUpdate();
     // Bricks
     public static ButtonBrick getButtonBrick(String token);
     public static LcdDisplayBrick getLcdDisplayBrick(String token);
