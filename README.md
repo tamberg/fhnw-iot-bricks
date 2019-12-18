@@ -26,7 +26,7 @@ public final class Backend {
 public enum UpdateFrequency { LOW, MEDIUM, HIGH }
 
 public enum UpdateMode { DEMO, LIVE, MIXED }
- 
+
 public abstract class Brick {
     public int getBatteryLevel();
     public UpdateFrequency getUpdateFrequency();
@@ -34,6 +34,16 @@ public abstract class Brick {
     public UpdateMode getUpdateMode();
     public void setUpdateMode(UpdateMode mode);
     public DateTime getLastUpdateTimestamp();
+}
+
+public final class BrickSet implements Set<Brick> {
+    public BrickSet();
+    public addBrick(Brick brick);
+    public removeBrick(Brick brick);
+    // ...
+    public void setUpdateFrequency(UpdateFrequency frequency);
+    public void setUpdateMode(UpdateMode mode);
+    public WaitForUpdate();
 }
 
 public final class ButtonBrick extends Brick {
@@ -79,8 +89,12 @@ while (true) {
 ```
 ButtonBrick buttonBrick = Backend.createButtonBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
 LedBrick ledBrick = Backend.createLedBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
-buttonBrick.setUpdateFrequency(UpdateFrequency.HIGH);
-ledBrick.setUpdateFrequency(UpdateFrequency.HIGH);
+
+bricks = new BrickGroup();
+bricks.add(buttonBrick);
+bricks.add(ledBrick);
+bricks.setUpdateMode(UpdateMode.DEMO);
+bricks.setUpdateFrequency(UpdateFrequency.HIGH);
 
 while (true) {
     if (buttonBrick.getPressed()) {
@@ -88,5 +102,6 @@ while (true) {
     } else {
         ledBrick.setColor(Color.Black);
     }
+    bricks.WaitForUpdate();
 }
 ```
