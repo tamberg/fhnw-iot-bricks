@@ -55,11 +55,12 @@ public final class TemperatureBrick extends Brick {
     public double getTemperature();
 }
 ```
-### Backend Config
+### Backend & Update Config
 ```
 Bricks.setBackendHost("FHNW_IOT_BRICKS_HOST");
 Bricks.setBackendUser("FHNW_IOT_BRICKS_USER");
 Bricks.setBackendPassword("FHNW_IOT_BRICKS_PASSWORD");
+Bricks.setUpdateMode(UpdateMode.LIVE);
 ```
 ### Monitoring System
 ```
@@ -77,7 +78,6 @@ while (true) {
 ```
 ButtonBrick buttonBrick = Backend.getButtonBrick("BUTTON_BRICK_TOKEN");
 LedBrick ledBrick = Backend.getLedBrick("LED_BRICK_TOKEN");
-Bricks.setUpdateMode(UpdateMode.DEMO);
 
 while (true) {
     boolean pressed = buttonBrick.getPressed();
