@@ -79,6 +79,8 @@ while (true) {
 ```
 ButtonBrick buttonBrick = Backend.createButtonBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
 LedBrick ledBrick = Backend.createLedBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
+buttonBrick.setUpdateFrequency(UpdateFrequency.HIGH);
+ledBrick.setUpdateFrequency(UpdateFrequency.HIGH);
 
 while (true) {
     if (buttonBrick.getPressed()) {
