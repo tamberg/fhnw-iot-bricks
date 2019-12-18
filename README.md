@@ -85,7 +85,8 @@ Bricks.setUpdateFrequency(UpdateFrequency.HIGH);
 Bricks.setUpdateMode(UpdateMode.DEMO);
 
 while (true) {
-    if (buttonBrick.getPressed()) {
+    boolean pressed = buttonBrick.getPressed();
+    if (pressed) {
         ledBrick.setColor(Color.Red);
     } else {
         ledBrick.setColor(Color.Black);
