@@ -73,7 +73,7 @@ LcdDisplayBrick displayBrick = Bricks.getLcdDisplayBrick("TOKEN_PRINTED_ON_DISPL
 while (true) {
     double temp = tempBrick.getTemperature();
     displayBrick.setValue(temp);
-    TimeUnit.MINUTES.sleep(1);
+    Bricks.WaitForUpdate();
 }
 ```
 
