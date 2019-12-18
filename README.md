@@ -25,8 +25,8 @@ public final class Backend {
 
 public abstract class Brick {
     public int getBatteryLevel();
-    public DateTime getLastReadTimestamp();
-    public DateTime getLastWriteTimestamp();
+    public void setUpdateFrequency(int s); // LOW, HIGH, DEBUG
+    public DateTime getLastUpdateTimestamp();
 }
 
 public final class ButtonBrick extends Brick {
