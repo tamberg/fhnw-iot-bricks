@@ -67,8 +67,8 @@ Bricks.setBackendPassword("FHNW_IOT_BRICKS_PASSWORD");
 ```
 ### Monitoring System
 ```
-TemperatureBrick tempBrick = Bricks.getTemperatureBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
-LcdDisplayBrick displayBrick = Bricks.getLcdDisplayBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
+TemperatureBrick tempBrick = Bricks.getTemperatureBrick("TEMP_BRICK_TOKEN");
+LcdDisplayBrick displayBrick = Bricks.getLcdDisplayBrick("DISPLAY_BRICK_TOKEN");
 
 while (true) {
     double temp = tempBrick.getTemperature();
@@ -79,8 +79,8 @@ while (true) {
 
 ### Door Bell
 ```
-ButtonBrick buttonBrick = Backend.getButtonBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
-LedBrick ledBrick = Backend.getLedBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
+ButtonBrick buttonBrick = Backend.getButtonBrick("BUTTON_BRICK_TOKEN");
+LedBrick ledBrick = Backend.getLedBrick("LED_BRICK_TOKEN");
 Bricks.setUpdateFrequency(UpdateFrequency.HIGH);
 Bricks.setUpdateMode(UpdateMode.DEMO);
 
