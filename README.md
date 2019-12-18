@@ -77,13 +77,13 @@ while (true) {
 ### Storage System
 ```
 const int MAX_ITEMS = 32;
-double[] values = new double[MAX_ITEMS];
+double[] temperatures = new double[MAX_ITEMS];
 DateTime[] timestamps = new DateTime[MAX_ITEMS];
 TemperatureBrick tempBrick = Bricks.getTemperatureBrick("TEMP_BRICK_TOKEN");
 
 int i = 0;
 while (true) {
-    values[i] = tempBrick.getTemperature();
+    temperatures[i] = tempBrick.getTemperature();
     timestamps[i] = tempBrick.getLastUpdateTimestamp();
     i = (i + 1) % MAX_ITEMS; // wrap around
     Bricks.waitForUpdate();
