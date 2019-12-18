@@ -82,8 +82,8 @@ FileWriter fileWriter = new FileWriter("log.csv", true); // append
 int i = 0;
 while (true) {
     double temp = tempBrick.getTemperature();
-    DateTime stamp = tempBrick.getLastUpdateTimestamp();
-    fileWriter.append(stamp + ", " + temp + "\n");
+    DateTime time = tempBrick.getLastUpdateTimestamp();
+    fileWriter.append(stamp + ", " + time + "\n");
     Bricks.update();
 }
 ```
