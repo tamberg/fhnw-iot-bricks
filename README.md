@@ -12,16 +12,16 @@ IoT Bricks come with long range connectivity and a simple SDK.
 ```
 public final class Backend {
     // Config
-    public static void setHost(string host);
-    public static void setUser(string user);
-    public static void setPassword(string password);
+    public static void setHost(String host);
+    public static void setUser(String user);
+    public static void setPassword(String password);
     public static void setUpdateMode(int mode); // LIVE, DEMO, MIXED
     // Bricks
-    public static ButtonBrick createButtonBrick(string token);
-    public static LcdDisplayBrick createLcdDisplayBrick(string token);
-    public static LedBrick createLedBrick(string token);
-    public static LedStripBrick createLedStripBrick(string token);
-    public static TemperatureBrick createTemperatureBrick(string token);
+    public static ButtonBrick createButtonBrick(String token);
+    public static LcdDisplayBrick createLcdDisplayBrick(String token);
+    public static LedBrick createLedBrick(String token);
+    public static LedStripBrick createLedStripBrick(String token);
+    public static TemperatureBrick createTemperatureBrick(String token);
 }
 
 public enum UpdateFrequency { LOW, MEDIUM, HIGH }
