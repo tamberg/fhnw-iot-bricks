@@ -10,9 +10,7 @@ IoT Bricks come with long range connectivity and a simple SDK.
 ## Software example
 ### Interface
 ```
-public enum UpdateFrequency { HIGH, LOW, MEDIUM }
-
-public enum UpdateMode { DEMO, LIVE, MIXED }
+public enum UpdateMode { DEMO, LIVE }
 
 public final class Bricks {
     // Backend
@@ -20,8 +18,6 @@ public final class Bricks {
     public static void setBackendUser(String user);
     public static void setBackendPassword(String password);
     // Updates
-    public static UpdateFrequency getUpdateFrequency();
-    public static void setUpdateFrequency(UpdateFrequency frequency);
     public static UpdateMode getUpdateMode();
     public static void setUpdateMode(UpdateMode mode);
     public static void waitForUpdate();
@@ -81,7 +77,6 @@ while (true) {
 ```
 ButtonBrick buttonBrick = Backend.getButtonBrick("BUTTON_BRICK_TOKEN");
 LedBrick ledBrick = Backend.getLedBrick("LED_BRICK_TOKEN");
-Bricks.setUpdateFrequency(UpdateFrequency.HIGH);
 Bricks.setUpdateMode(UpdateMode.DEMO);
 
 while (true) {
