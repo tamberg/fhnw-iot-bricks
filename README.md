@@ -1,6 +1,6 @@
 # FHNW IoT Bricks
 > Work in progress. Interested? Contact thomas.amberg@fhnw.ch
-## Building blocks for IoT use cases
+## Building blocks for distributed IoT use cases
 IoT Bricks enable IoT prototyping in a room, building or city.
 ## Simple, self-contained, connected
 IoT Bricks come with long range connectivity and a simple SDK.
