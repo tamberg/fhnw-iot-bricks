@@ -25,6 +25,8 @@ public final class Backend {
 
 public abstract class Brick {
     public int getBatteryLevel();
+    public DateTime getLastReadTimestamp();
+    public DateTime getLastWriteTimestamp();
 }
 
 public final class ButtonBrick extends Brick {
@@ -46,7 +48,6 @@ public final class LcdDisplayBrick extends Brick {
 public final class TemperatureBrick extends Brick {
     public double getHumidity();
     public double getTemperature();
-    public DateTime getTimestamp();
 }
 ```
 ### Backend Config
