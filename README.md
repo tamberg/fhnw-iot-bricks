@@ -15,7 +15,6 @@ public final class Backend {
     public static void setHost(String host);
     public static void setUser(String user);
     public static void setPassword(String password);
-    public static void setUpdateMode(int mode); // LIVE, DEMO, MIXED
     // Bricks
     public static ButtonBrick createButtonBrick(String token);
     public static LcdDisplayBrick createLcdDisplayBrick(String token);
@@ -26,10 +25,14 @@ public final class Backend {
 
 public enum UpdateFrequency { LOW, MEDIUM, HIGH }
 
+public enum UpdateMode { LIVE, DEMO, MIXED }
+ 
 public abstract class Brick {
     public int getBatteryLevel();
     public UpdateFrequency getUpdateFrequency();
     public void setUpdateFrequency(UpdateFrequency frequency);
+    public static UpdateMode getUpdateMode();
+    public static void setUpdateMode(UpdateMode mode);
     public DateTime getLastUpdateTimestamp();
 }
 
