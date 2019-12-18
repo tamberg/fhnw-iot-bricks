@@ -15,7 +15,7 @@ public enum UpdateFrequency { LOW, MEDIUM, HIGH }
 public enum UpdateMode { DEMO, LIVE, MIXED }
 
 public final class Bricks {
-    // Config
+    // Backend
     public static void setBackendHost(String host);
     public static void setBackendUser(String user);
     public static void setBackendPassword(String password);
