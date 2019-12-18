@@ -15,6 +15,7 @@ public final class Backend {
     public static void setHost(string host);
     public static void setUser(string user);
     public static void setPassword(string password);
+    public static void setUpdateMode(int mode); // LIVE, DEMO, MIXED
     // Bricks
     public static ButtonBrick createButtonBrick(string token);
     public static LcdDisplayBrick createLcdDisplayBrick(string token);
@@ -25,7 +26,7 @@ public final class Backend {
 
 public abstract class Brick {
     public int getBatteryLevel();
-    public void setUpdateMode(int mode); // LIVE, DEMO, MIXED
+    public int getUpdateFrequency(); // LOW, MEDIUM, HIGH
     public void setUpdateFrequency(int s); // LOW, MEDIUM, HIGH
     public DateTime getLastUpdateTimestamp();
 }
