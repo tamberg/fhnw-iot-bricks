@@ -14,11 +14,11 @@ public enum UpdateFrequency { LOW, MEDIUM, HIGH }
 
 public enum UpdateMode { DEMO, LIVE, MIXED }
 
-public final class Backend {
+public final class Bricks {
     // Config
-    public static void setHost(String host);
-    public static void setUser(String user);
-    public static void setPassword(String password);
+    public static void setBackendHost(String host);
+    public static void setBackendUser(String user);
+    public static void setBackendPassword(String password);
     // Updates
     public static UpdateFrequency getUpdateFrequency();
     public static void setUpdateFrequency(UpdateFrequency frequency);
@@ -61,14 +61,14 @@ public final class TemperatureBrick extends Brick {
 ```
 ### Backend Config
 ```
-Backend.setHost("FHNW_IOT_BRICKS_HOST");
-Backend.setUser("FHNW_IOT_BRICKS_USER");
-Backend.setPassword("FHNW_IOT_BRICKS_PASSWORD");
+Bricks.setBackendHost("FHNW_IOT_BRICKS_HOST");
+Bricks.setBackendUser("FHNW_IOT_BRICKS_USER");
+Bricks.setBackendPassword("FHNW_IOT_BRICKS_PASSWORD");
 ```
 ### Monitoring System
 ```
-TemperatureBrick tempBrick = Backend.createTemperatureBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
-LcdDisplayBrick displayBrick = Backend.createLcdDisplayBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
+TemperatureBrick tempBrick = Bricks.getTemperatureBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
+LcdDisplayBrick displayBrick = Bricks.getLcdDisplayBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
 
 while (true) {
     double temp = tempBrick.getTemperature();
@@ -79,10 +79,10 @@ while (true) {
 
 ### Door Bell
 ```
-ButtonBrick buttonBrick = Backend.createButtonBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
-LedBrick ledBrick = Backend.createLedBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
-Backend.setUpdateFrequency(UpdateFrequency.HIGH);
-Backend.setUpdateMode(UpdateMode.DEMO);
+ButtonBrick buttonBrick = Backend.getButtonBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
+LedBrick ledBrick = Backend.getLedBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
+Bricks.setUpdateFrequency(UpdateFrequency.HIGH);
+Bricks.setUpdateMode(UpdateMode.DEMO);
 
 while (true) {
     if (buttonBrick.getPressed()) {
@@ -90,6 +90,6 @@ while (true) {
     } else {
         ledBrick.setColor(Color.Black);
     }
-    Backend.WaitForUpdate();
+    Bricks.WaitForUpdate();
 }
 ```
