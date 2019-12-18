@@ -31,8 +31,8 @@ public abstract class Brick {
     public int getBatteryLevel();
     public UpdateFrequency getUpdateFrequency();
     public void setUpdateFrequency(UpdateFrequency frequency);
-    public static UpdateMode getUpdateMode();
-    public static void setUpdateMode(UpdateMode mode);
+    public UpdateMode getUpdateMode();
+    public void setUpdateMode(UpdateMode mode);
     public DateTime getLastUpdateTimestamp();
 }
 
