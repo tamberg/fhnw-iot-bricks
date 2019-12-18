@@ -25,7 +25,7 @@ public final class Backend {
 
 public abstract class Brick {
     public int getBatteryLevel();
-    public void setUpdateMode(int mode); // LIVE, FAKE, MIXED
+    public void setUpdateMode(int mode); // LIVE, DEMO, MIXED
     public void setUpdateFrequency(int s); // LOW, MEDIUM, HIGH
     public DateTime getLastUpdateTimestamp();
 }
