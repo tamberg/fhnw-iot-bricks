@@ -10,40 +10,32 @@ IoT Bricks come with long range connectivity and a simple SDK.
 ## Software example
 ### Interface
 ```
+public enum UpdateFrequency { LOW, MEDIUM, HIGH }
+
+public enum UpdateMode { DEMO, LIVE, MIXED }
+
 public final class Backend {
     // Config
     public static void setHost(String host);
     public static void setUser(String user);
     public static void setPassword(String password);
+    // Updates
+    public static UpdateFrequency getUpdateFrequency();
+    public static void setUpdateFrequency(UpdateFrequency frequency);
+    public static UpdateMode getUpdateMode();
+    public static void setUpdateMode(UpdateMode mode);
+    public static WaitForUpdate();
     // Bricks
-    public static ButtonBrick createButtonBrick(String token);
-    public static LcdDisplayBrick createLcdDisplayBrick(String token);
-    public static LedBrick createLedBrick(String token);
-    public static LedStripBrick createLedStripBrick(String token);
-    public static TemperatureBrick createTemperatureBrick(String token);
+    public static ButtonBrick getButtonBrick(String token);
+    public static LcdDisplayBrick getLcdDisplayBrick(String token);
+    public static LedBrick getLedBrick(String token);
+    public static LedStripBrick getLedStripBrick(String token);
+    public static TemperatureBrick getTemperatureBrick(String token);
 }
-
-public enum UpdateFrequency { LOW, MEDIUM, HIGH }
-
-public enum UpdateMode { DEMO, LIVE, MIXED }
 
 public abstract class Brick {
     public int getBatteryLevel();
-    public UpdateFrequency getUpdateFrequency();
-    public void setUpdateFrequency(UpdateFrequency frequency);
-    public UpdateMode getUpdateMode();
-    public void setUpdateMode(UpdateMode mode);
     public DateTime getLastUpdateTimestamp();
-}
-
-public final class BrickSet implements Set<Brick> {
-    public BrickSet();
-    public addBrick(Brick brick);
-    public removeBrick(Brick brick);
-    // ...
-    public void setUpdateFrequency(UpdateFrequency frequency);
-    public void setUpdateMode(UpdateMode mode);
-    public WaitForUpdate();
 }
 
 public final class ButtonBrick extends Brick {
@@ -89,12 +81,8 @@ while (true) {
 ```
 ButtonBrick buttonBrick = Backend.createButtonBrick("TOKEN_PRINTED_ON_TEMP_BRICK");
 LedBrick ledBrick = Backend.createLedBrick("TOKEN_PRINTED_ON_DISPLAY_BRICK");
-
-BrickSet bricks = new BrickSet();
-bricks.add(buttonBrick);
-bricks.add(ledBrick);
-bricks.setUpdateMode(UpdateMode.DEMO);
-bricks.setUpdateFrequency(UpdateFrequency.HIGH);
+Backend.setUpdateFrequency(UpdateFrequency.HIGH);
+Backend.setUpdateMode(UpdateMode.DEMO);
 
 while (true) {
     if (buttonBrick.getPressed()) {
@@ -102,6 +90,6 @@ while (true) {
     } else {
         ledBrick.setColor(Color.Black);
     }
-    bricks.WaitForUpdate();
+    Backend.WaitForUpdate();
 }
 ```
