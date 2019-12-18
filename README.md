@@ -24,7 +24,7 @@ public final class Bricks {
     public static void setUpdateFrequency(UpdateFrequency frequency);
     public static UpdateMode getUpdateMode();
     public static void setUpdateMode(UpdateMode mode);
-    public static WaitForUpdate();
+    public static void waitForUpdate();
     // Bricks
     public static ButtonBrick getButtonBrick(String token);
     public static LcdDisplayBrick getLcdDisplayBrick(String token);
@@ -73,7 +73,7 @@ LcdDisplayBrick displayBrick = Bricks.getLcdDisplayBrick("TOKEN_PRINTED_ON_DISPL
 while (true) {
     double temp = tempBrick.getTemperature();
     displayBrick.setValue(temp);
-    Bricks.WaitForUpdate();
+    Bricks.waitForUpdate();
 }
 ```
 
@@ -90,6 +90,6 @@ while (true) {
     } else {
         ledBrick.setColor(Color.Black);
     }
-    Bricks.WaitForUpdate();
+    Bricks.waitForUpdate();
 }
 ```
