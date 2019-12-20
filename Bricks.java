@@ -127,14 +127,12 @@ final class TemperatureBrick extends Brick {
 
     @Override
     protected final void handleUpdate2(Message message) {
-        // MQTT SUB or HTTP Webhook PUT scenario
         nextTemp = message.getDoubleValue("temperature");
         nextHumi = message.getDoubleValue("humidity");
     }
 
     @Override
     protected final void updateCurrentValues2() {
-        // MQTT SUB or HTTP Webhook PUT scenario
         currentTemp = nextTemp;
         currentHumi = nextHumi;
     }
