@@ -29,8 +29,8 @@ final class Message {
 
 abstract class Brick {
     String token;
-    Date currentTimestamp = null;
-    Date nextTimestamp = null;
+    Date currentTimestamp = new Date(Long.MIN_VALUE);
+    Date nextTimestamp = new Date(Long.MIN_VALUE);
     int currentBatteryLevel = 0;
     int nextBatteryLevel = 0;
 
@@ -224,10 +224,89 @@ public final class Bricks {
     }
 
     // Bricks
-    public static ButtonBrick getButtonBrick(String token) { return null; }
-    public static LcdDisplayBrick getLcdDisplayBrick(String token) { return null; }
-    public static LedBrick getLedBrick(String token) { return null; }
-    public static LedStripBrick getLedStripBrick(String token) { return null; }
+    public static ButtonBrick getButtonBrick(String token) {
+        ButtonBrick result;
+        Brick brick = bricks.get(token);
+        if (brick == null) {
+            //BrickConfig config = null; // TODO: get config via token
+            //if (config.getType() == "TemperatureBrick") {
+            result = new ButtonBrick(token);
+            bricks.put(token, result);
+            //} else {
+            //    result = null;
+            //}
+        } else {
+            try {
+                result = (ButtonBrick) brick;
+            } catch (Exception e) {
+                result = null;
+            }
+        }
+        return result;
+    }
+
+    public static LcdDisplayBrick getLcdDisplayBrick(String token) {
+        LcdDisplayBrick result;
+        Brick brick = bricks.get(token);
+        if (brick == null) {
+            //BrickConfig config = null; // TODO: get config via token
+            //if (config.getType() == "TemperatureBrick") {
+            result = new LcdDisplayBrick(token);
+            bricks.put(token, result);
+            //} else {
+            //    result = null;
+            //}
+        } else {
+            try {
+                result = (LcdDisplayBrick) brick;
+            } catch (Exception e) {
+                result = null;
+            }
+        }
+        return result;
+    }
+
+    public static LedBrick getLedBrick(String token) {
+        LedBrick result;
+        Brick brick = bricks.get(token);
+        if (brick == null) {
+            //BrickConfig config = null; // TODO: get config via token
+            //if (config.getType() == "TemperatureBrick") {
+            result = new LedBrick(token);
+            bricks.put(token, result);
+            //} else {
+            //    result = null;
+            //}
+        } else {
+            try {
+                result = (LedBrick) brick;
+            } catch (Exception e) {
+                result = null;
+            }
+        }
+        return result;
+    }
+    
+    public static LedStripBrick getLedStripBrick(String token) {
+        LedStripBrick result;
+        Brick brick = bricks.get(token);
+        if (brick == null) {
+            //BrickConfig config = null; // TODO: get config via token
+            //if (config.getType() == "TemperatureBrick") {
+            result = new LedStripBrick(token);
+            bricks.put(token, result);
+            //} else {
+            //    result = null;
+            //}
+        } else {
+            try {
+                result = (LedStripBrick) brick;
+            } catch (Exception e) {
+                result = null;
+            }
+        }
+        return result;
+    }
 
     public static TemperatureBrick getTemperatureBrick(String token) {
         TemperatureBrick result;
@@ -241,7 +320,6 @@ public final class Bricks {
             //    result = null;
             //}
         } else {
-            // check it's a TemperatureBrick
             try {
                 result = (TemperatureBrick) brick;
             } catch (Exception e) {
@@ -292,17 +370,18 @@ public final class Bricks {
     }
 
     public static void main(String args[]) {
-        if (args.length == 2) {
+        System.out.println("Bricks.main()");
+        if (args.length == 1) {
             Bricks.setBackendHost("FHNW_IOT_BRICKS_HOST");
             Bricks.setBackendUser("FHNW_IOT_BRICKS_USER");
             Bricks.setBackendPassword("FHNW_IOT_BRICKS_PASSWORD");
             Bricks.setUpdateMode(UpdateMode.LIVE);
 
-            if ("m".equals(args[1])) {
+            if ("m".equals(args[0])) {
                 runMonitoringSystem();
-            } else if ("l".equals(args[1])) {
+            } else if ("l".equals(args[0])) {
                 runLoggingSystem();
-            } else if ("d".equals(args[1])) {
+            } else if ("d".equals(args[0])) {
                 runDoorBellSystem();
             }
         }
