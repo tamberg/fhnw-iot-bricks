@@ -370,7 +370,6 @@ public final class Bricks {
     }
 
     public static void main(String args[]) {
-        System.out.println("Bricks.main()");
         if (args.length == 1) {
             Bricks.setBackendHost("FHNW_IOT_BRICKS_HOST");
             Bricks.setBackendUser("FHNW_IOT_BRICKS_USER");
@@ -384,6 +383,8 @@ public final class Bricks {
             } else if ("d".equals(args[0])) {
                 runDoorBellSystem();
             }
+        } else {
+            System.out.println("usage: java Bricks m|l|d");
         }
     }
 }
