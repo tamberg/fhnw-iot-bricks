@@ -294,13 +294,12 @@ import java.util.concurrent.locks.ReentrantLock;
             if (!updated) {
                 System.out.println(".");
                 try {
-                    TimeUnit.SECONDS.sleep(1); // TODO: better heuristic?
+                    TimeUnit.MILLISECONDS.sleep(500); // >= 500ms
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }
-        System.out.println();
         // Update
         bricksLock.lock();
         try {
@@ -355,11 +354,19 @@ import java.util.concurrent.locks.ReentrantLock;
 }     
 
 /* public */ final class MockBackend extends Backend implements Runnable {
-    int updateFrequencySeconds;
+    int maxUpdateFrequencySeconds;
     Random random = new Random();
 
-    MockBackend(int updateFrequencySeconds) {
-        this.updateFrequencySeconds = updateFrequencySeconds;
+    MockBackend(int maxUpdateFrequencySeconds) {
+        this.maxUpdateFrequencySeconds = maxUpdateFrequencySeconds;
+    }
+
+    private void randomSleep() {
+        try {
+            TimeUnit.SECONDS.sleep(random.nextInt(maxUpdateFrequencySeconds));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void run() { // TODO: move inside, to hide from public
@@ -373,6 +380,7 @@ import java.util.concurrent.locks.ReentrantLock;
             message0.addDoubleValue("humidity", random.nextDouble() * 100.0);
             message0.addDoubleValue("temperature", random.nextDouble() * 50.0);
             super.handleUpdate(message0);
+            randomSleep();
 
             Message message1 = new Message();
             message1.addStringValue("token", "DISPLAY_BRICK_TOKEN");
@@ -380,6 +388,7 @@ import java.util.concurrent.locks.ReentrantLock;
             message1.addIntegerValue("battery", 50);
             message1.addDoubleValue("value", 23.0);
             super.handleUpdate(message1);
+            randomSleep();
 
             Message message2 = new Message();
             message2.addStringValue("token", "BUTTON_BRICK_TOKEN");
@@ -387,12 +396,7 @@ import java.util.concurrent.locks.ReentrantLock;
             message2.addIntegerValue("battery", 75);
             message2.addBooleanValue("pressed", true);
             super.handleUpdate(message2);
-
-            try {
-                TimeUnit.SECONDS.sleep(updateFrequencySeconds);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            randomSleep();
         }
     }
 
@@ -464,7 +468,7 @@ public final class Bricks {
             } else if ("mqtt".equals(args[0])) {
                 backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
-                backend = new MockBackend(15); // s
+                backend = new MockBackend(3); // s
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
