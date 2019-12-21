@@ -61,8 +61,8 @@ public final class MockBackend extends Backend {
 ```
 ### Backend & Update Config
 ```
-// Backend backend = new HttpBackend("TTN_HTTP_HOST", "TTN_HTTP_API_TOKEN");
-// Backend backend = new MqttBackend("TTN_MQTT_HOST", "TTN_MQTT_USER", "TTN_MQTT_PASSWORD");
+// Backend backend = new HttpBackend("HTTP_HOST", "HTTP_API_TOKEN");
+// Backend backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
 Backend backend = new MockBackend(5); // s
 ```
 ### Monitoring System
