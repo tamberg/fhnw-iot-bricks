@@ -10,43 +10,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-// https://www.planttext.com/
-//
-// @startuml
-//
-// title Relationships - Class Diagram
-//
-// class Backend {
-//   void add(Brick b)
-//   +void update()
-// }
-//
-// class Brick {
-//   +void setBackend(Backend b)
-// }
-//
-// class TempBrick {
-//   +double getTemp()
-//   static +TempBrick connect(String token)
-// }
-// class LedBrick {
-//   +setColor(Color c);
-//   static +LedBrick connect(Backend b, String token)
-// }
-// class LedStripBrick {
-//   +setColors(Color[] c);
-//   static +LedStripBrick connect(Backend b, String token)
-// }
-// class Connection
-//
-// Brick <|-down- TempBrick: Inheritance
-// Brick <|-down- LedBrick: Inheritance
-// Brick <|-down- LedStripBrick: Inheritance
-// Backend "1" -up- "1" Connection: Composition
-// Backend "1" *-down- "many" Brick: Composition 
-//
-// @enduml
-
 final class Message {
     Map<String, Boolean> booleans = new HashMap<String, Boolean>();
     Map<String, Date> dates = new HashMap<String, Date>();
@@ -280,12 +243,6 @@ final class Message {
         return brick;
     }
 }
-
-/*
-- Ist Bricks.update ein guter Name?
-- Macht getBatteryLevel in Brick Sinn? Kann es nicht auch Bricks mit Stromversorgung geben?
-- Im TemperatureBrick hat es double Werte, was ja immer etwas heikel ist. Könnte man die auch als long modellieren?
-*/
 
 /* public */ abstract class Backend {
     Lock bricksLock = new ReentrantLock(); // TODO
