@@ -76,7 +76,7 @@ import java.util.concurrent.locks.ReentrantLock;
     protected abstract void updateCurrentValues2();
 
     void updateCurrentValues() {
-        System.out.println("updateCurrentValues(), token = " + token);
+        System.out.println("Brick.updateCurrentValues(), token = " + token);
         updateCurrentValues2();
         currentBatteryLevel = nextBatteryLevel;
         currentTimestamp = nextTimestamp;
@@ -86,6 +86,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
     void handleUpdate(Message message) {
         if (token.equals(message.getStringValue("token"))) {
+            System.out.println("Brick.handleUpdate(), token = " + token);
             nextBatteryLevel = message.getIntegerValue("battery");
             nextTimestamp = message.getDateValue("timestamp");
             handleUpdate2(message);
@@ -263,6 +264,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
     // Updates
     protected final void handleUpdate(Message message) { // thread
+        //System.out.println("Backend.handleUpdate()");
         bricksLock.lock();
         try {
             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
@@ -276,7 +278,7 @@ import java.util.concurrent.locks.ReentrantLock;
     }
 
     public final void waitForUpdate() { // blocking
-        System.out.print("Backend.update()");
+        //System.out.println("Backend.waitForUpdate()");
         Date now = new Date();
         boolean updated = false;
         while (!updated) {
@@ -290,9 +292,9 @@ import java.util.concurrent.locks.ReentrantLock;
                 bricksLock.unlock();
             }
             if (!updated) {
-                System.out.print(".");
+                System.out.println(".");
                 try {
-                    TimeUnit.SECONDS.sleep(1); // TODO: better heuristic
+                    TimeUnit.SECONDS.sleep(1); // TODO: better heuristic?
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -310,18 +312,29 @@ import java.util.concurrent.locks.ReentrantLock;
             bricksLock.unlock();
         }
     }
+
+    public abstract void start();
 }
 
-/* public */ final class HttpBackend extends Backend {
+/* public */ final class HttpBackend extends Backend implements Runnable {
     HttpBackend(String host, String apiToken) {
         // create
         // run Thread that 
         //  connects to HTTP backend
         //  calls super.handleUpdate(message)
     }
+
+    public void run() {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
+    @Override
+    public void start() {
+        new Thread(this).start();
+    }
 }
 
-/* public */ final class MqttBackend extends Backend {
+/* public */ final class MqttBackend extends Backend implements Runnable {
     // private MqttConnection connection;
 
     MqttBackend(String host, String user, String password) {
@@ -329,6 +342,15 @@ import java.util.concurrent.locks.ReentrantLock;
         // run Thread that 
         //  connects to MQTT backend
         //  calls super.handleUpdate(message)
+    }
+
+    public void run() {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
+    @Override
+    public void start() {
+        new Thread(this).start();
     }
 }     
 
@@ -338,7 +360,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
     MockBackend(int updateFrequencySeconds) {
         this.updateFrequencySeconds = updateFrequencySeconds;
-        new Thread(this).start(); // TODO: bad style? Move to start() ?
     }
 
     public void run() { // TODO: move inside, to hide from public
@@ -373,6 +394,11 @@ import java.util.concurrent.locks.ReentrantLock;
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void start() {
+        new Thread(this).start();
     }
 }
 
@@ -430,6 +456,7 @@ public final class Bricks {
     }
 
     public static void main(String args[]) {
+        String usageErrorMessage = "usage: java Bricks http|mqtt|mock m|l|d";
         if (args.length == 2) {
             Backend backend = null;
             if ("http".equals(args[0])) {
@@ -437,18 +464,25 @@ public final class Bricks {
             } else if ("mqtt".equals(args[0])) {
                 backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
-                backend = new MockBackend(5); // s
+                backend = new MockBackend(15); // s
+            } else {
+                System.out.println(usageErrorMessage);
+                System.exit(-1);
             }
-
+            backend.start(); // TODO: move to end, implement setup(), loop() as upcalls? :)
             if ("m".equals(args[1])) {
                 runMonitoringSystem(backend);
             } else if ("l".equals(args[1])) {
                 runLoggingSystem(backend);
             } else if ("d".equals(args[1])) {
                 runDoorBellSystem(backend);
+            } else {
+                System.out.println(usageErrorMessage);
+                System.exit(-1);
             }
         } else {
-            System.out.println("usage: java Bricks http|mqtt|mock m|l|d");
+            System.out.println(usageErrorMessage);
+            System.exit(-1);
         }
     }
 }
