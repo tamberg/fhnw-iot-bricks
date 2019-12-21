@@ -46,20 +46,25 @@ import java.util.concurrent.TimeUnit;
 // @enduml
 
 final class Message {
+    Map<String, Boolean> booleans = new HashMap<String, Boolean>();
     Map<String, Date> dates = new HashMap<String, Date>();
     Map<String, Double> doubles = new HashMap<String, Double>();
     Map<String, Integer> integers = new HashMap<String, Integer>();
     Map<String, String> strings = new HashMap<String, String>();
 
+    void addBooleanValue(String key, Boolean value) {
+        booleans.put(key, value);
+    }
+
     void addDateValue(String key, Date value) {
         dates.put(key, value);
     }
 
-    void addDoubleValue(String key, double value) {
+    void addDoubleValue(String key, Double value) {
         doubles.put(key, value);
     }
 
-    void addIntValue(String key, int value) {
+    void addIntegerValue(String key, Integer value) {
         integers.put(key, value);
     }
 
@@ -67,15 +72,19 @@ final class Message {
         strings.put(key, value);
     }
 
+    public Boolean getBooleanValue(String key) {
+        return booleans.get(key);
+    }
+
     public Date getDateValue(String key) {
         return dates.get(key);
     }
 
-    public double getDoubleValue(String key) {
+    public Double getDoubleValue(String key) {
         return doubles.get(key);
     }
 
-    public int getIntValue(String key) {
+    public Integer getIntegerValue(String key) {
         return integers.get(key);
     }
 
@@ -85,7 +94,7 @@ final class Message {
 }
 
 abstract class Brick {
-    String token;
+    String token = null;
     Date currentTimestamp = new Date(Long.MIN_VALUE);
     Date nextTimestamp = new Date(Long.MIN_VALUE);
     int currentBatteryLevel = 0;
@@ -107,7 +116,7 @@ abstract class Brick {
 
     void handleUpdate(Message message) {
         if (token.equals(message.getStringValue("token"))) {
-            nextBatteryLevel = message.getIntValue("battery");
+            nextBatteryLevel = message.getIntegerValue("battery");
             nextTimestamp = message.getDateValue("timestamp");
             handleUpdate2(message);
         }
@@ -131,17 +140,24 @@ abstract class Brick {
 }
 
 final class ButtonBrick extends Brick {
+    boolean currentPressed;
+    boolean nextPressed;
+
     ButtonBrick(String token) {
         super(token);
     }
 
     @Override
-    protected final void handleUpdate2(Message message) {}
+    protected final void handleUpdate2(Message message) {
+        nextPressed = message.getBooleanValue("pressed");
+    }
 
     @Override
-    protected final void updateCurrentValues2() {}
+    protected final void updateCurrentValues2() {
+        currentPressed = nextPressed;
+    }
 
-    public boolean getPressed() { return false; }
+    public boolean getPressed() { return currentPressed; }
 
     public static ButtonBrick connect(Backend backend, String token) {
         ButtonBrick brick = new ButtonBrick(token);
@@ -238,6 +254,7 @@ final class LcdDisplayBrick extends Brick {
 
     @Override
     protected final void handleUpdate2(Message message) {
+        nextValue = message.getDoubleValue("value");
     }
 
     @Override
@@ -245,11 +262,14 @@ final class LcdDisplayBrick extends Brick {
         currentValue = nextValue;
     }
 
-    public void setValue(double value) {
-        // MQTT PUB or HTTP PUT later / now / thread?
+    public void setDoubleValue(double value) {
         if (targetValue != value) {
             targetValue = value;
         }
+    }
+
+    public double getDoubleValue() {
+        return currentValue;
     }
 
     public static LcdDisplayBrick connect(Backend backend, String token) {
@@ -349,20 +369,28 @@ final class MockBackend extends Backend implements Runnable {
 
     public void run() {
         while (true) {
+            // TODO: get existing tokens, brick types from base class
+
             Message message0 = new Message();
-            // TODO: get existing tokens from base class
             message0.addStringValue("token", "TEMP_BRICK_TOKEN");
             message0.addDateValue("timestamp", new Date());
-            message0.addIntValue("battery", 100);
-            message0.addDoubleValue("humidity", 42);
-            message0.addDoubleValue("temperature", 23);
+            message0.addIntegerValue("battery", 100);
+            message0.addDoubleValue("humidity", 42.0);
+            message0.addDoubleValue("temperature", 23.0);
             super.handleUpdate(message0);
 
             Message message1 = new Message();
             message1.addStringValue("token", "DISPLAY_BRICK_TOKEN");
             message1.addDateValue("timestamp", new Date());
-            message1.addIntValue("battery", 50);
+            message1.addIntegerValue("battery", 50);
             super.handleUpdate(message1);
+
+            Message message2 = new Message();
+            message2.addStringValue("token", "BUTTON_BRICK_TOKEN");
+            message2.addDateValue("timestamp", new Date());
+            message2.addIntegerValue("battery", 75);
+            message2.addBooleanValue("pressed", true);
+            super.handleUpdate(message2);
 
             try {
                 TimeUnit.SECONDS.sleep(updateFrequencySeconds);
@@ -381,7 +409,7 @@ public final class Bricks {
 
         while (true) {
             double temp = tempBrick.getTemperature();
-            displayBrick.setValue(temp);
+            displayBrick.setDoubleValue(temp);
             backend.update();
         }
     }
