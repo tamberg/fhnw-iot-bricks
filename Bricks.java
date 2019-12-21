@@ -90,6 +90,8 @@ import java.util.concurrent.locks.ReentrantLock;
             nextBatteryLevel = message.getIntegerValue("battery");
             nextTimestamp = message.getDateValue("timestamp");
             handleUpdate2(message);
+        } else {
+            System.out.println("Brick.handleUpdate(), token mismatch");
         }
     }
 
@@ -255,11 +257,16 @@ import java.util.concurrent.locks.ReentrantLock;
     Map<String, Brick> bricks = new HashMap<String, Brick>();
 
     /* package */ public void addBrick(Brick brick) {
-        // TODO: throw IllegalArgumentException ?
-        if (!bricks.containsValue(brick) && 
-            !bricks.containsKey(brick.getToken())) {
-            bricks.put(brick.getToken(), brick);
+        bricksLock.lock();
+        try {
+            if (!bricks.containsValue(brick) && 
+                !bricks.containsKey(brick.getToken())) {
+                bricks.put(brick.getToken(), brick);
+            }
+        } finally {
+            bricksLock.unlock();
         }
+        // TODO: throw IllegalArgumentException ?
     }
 
     // Updates
@@ -269,7 +276,6 @@ import java.util.concurrent.locks.ReentrantLock;
         try {
             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
                 Brick brick = entry.getValue();
-                // TODO: check if message is for this brick / token
                 brick.handleUpdate(message);
             }
         } finally {
