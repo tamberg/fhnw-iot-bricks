@@ -59,7 +59,7 @@ public final class MockBackend extends Backend {
     MockBackend(int updateFrequencySeconds);
 }
 ```
-### Backend & Update Config
+### Backend Config
 ```
 // Backend backend = new HttpBackend("HTTP_HOST", "HTTP_API_TOKEN");
 // Backend backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
