@@ -1,13 +1,49 @@
 import java.awt.Color;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.ClassCastException;
 import java.lang.String;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
-enum UpdateMode { DEMO, LIVE }
+// https://www.planttext.com/
+//
+// @startuml
+//
+// title Relationships - Class Diagram
+//
+// class Backend {
+//   void add(Brick b)
+//   +void update()
+// }
+//
+// class Brick {
+//   +void setBackend(Backend b)
+// }
+//
+// class TempBrick {
+//   +double getTemp()
+//   static +TempBrick create(String token)
+// }
+// class LedBrick {
+//   +setColor(Color c);
+//   static +LedBrick create(Backend b, String token)
+// }
+// class LedStripBrick {
+//   +setColors(Color[] c);
+//   static +LedStripBrick create(Backend b, String token)
+// }
+// class Connection
+//
+// Brick <|-down- TempBrick: Inheritance
+// Brick <|-down- LedBrick: Inheritance
+// Brick <|-down- LedStripBrick: Inheritance
+// Backend "1" -up- "1" Connection: Composition
+// Backend "1" *-down- "many" Brick: Composition 
+//
+// @enduml
 
 final class Message {
     public Date getDateValue(String key) {
@@ -85,6 +121,12 @@ final class ButtonBrick extends Brick {
     protected final void updateCurrentValues2() {}
 
     public boolean getPressed() { return false; }
+
+    public static ButtonBrick create(Backend backend, String token) {
+        ButtonBrick brick = new ButtonBrick(token);
+        backend.addBrick(brick);
+        return brick;
+    }
 }
 
 final class LedBrick extends Brick {
@@ -99,10 +141,16 @@ final class LedBrick extends Brick {
     protected final void updateCurrentValues2() {}
 
     public void setColor(Color value) {}
+
+    public static LedBrick create(Backend backend, String token) {
+        LedBrick brick = new LedBrick(token);
+        backend.addBrick(brick);
+        return brick;
+    }
 }
 
 final class LedStripBrick extends Brick {
-    LedStripBrick(String token) {
+    private LedStripBrick(String token) {
         super(token);
     }
 
@@ -113,6 +161,12 @@ final class LedStripBrick extends Brick {
     protected final void updateCurrentValues2() {}
 
     public void setColors(Color[] values) {}
+
+    public static LedStripBrick create(Backend backend, String token) {
+        LedStripBrick brick = new LedStripBrick(token);
+        backend.addBrick(brick);
+        return brick;
+    }
 }
 
 final class TemperatureBrick extends Brick {
@@ -121,7 +175,7 @@ final class TemperatureBrick extends Brick {
     double currentHumi;
     double nextHumi;
 
-    TemperatureBrick(String token) {
+    private TemperatureBrick(String token) {
         super(token);
     }
 
@@ -144,6 +198,12 @@ final class TemperatureBrick extends Brick {
     public double getTemperature() {
         return currentTemp;
     }
+
+    public static TemperatureBrick create(Backend backend, String token) {
+        TemperatureBrick brick = new TemperatureBrick(token);
+        backend.addBrick(brick);
+        return brick;
+    }
 }
 
 final class LcdDisplayBrick extends Brick {
@@ -151,7 +211,7 @@ final class LcdDisplayBrick extends Brick {
     double currentValue = 0;
     double nextValue = 0;
 
-    LcdDisplayBrick(String token) {
+    private LcdDisplayBrick(String token) {
         super(token);
     }
 
@@ -170,35 +230,43 @@ final class LcdDisplayBrick extends Brick {
             targetValue = value;
         }
     }
+
+    public static LcdDisplayBrick create(Backend backend, String token) {
+        LcdDisplayBrick brick = new LcdDisplayBrick(token);
+        backend.addBrick(brick);
+        return brick;
+    }
 }
 
-public final class Bricks {
-    static Map<String, Brick> bricks = new HashMap<String, Brick>();
-    static UpdateMode updateMode = UpdateMode.DEMO;
+/*
+- Ist Bricks.update ein guter Name?
+- Macht getBatteryLevel in Brick Sinn? Kann es nicht auch Bricks mit Stromversorgung geben?
+- Im TemperatureBrick hat es double Werte, was ja immer etwas heikel ist. Könnte man die auch als long modellieren?
+*/
 
-    // Backend
-    public static void setBackendHost(String host) {}
-    public static void setBackendUser(String user) {}
-    public static void setBackendPassword(String password) {}
+abstract class Backend {
+    Map<String, Brick> bricks = new HashMap<String, Brick>();
+
+    /* package */ public void addBrick(Brick brick) {
+        // TODO: throws IllegalArgumentException ?
+        if (!bricks.containsValue(brick) && 
+            !bricks.containsKey(brick.getToken())) {
+            bricks.put(brick.getToken(), brick);
+        }
+    }
 
     // Updates
-    public static UpdateMode getUpdateMode() {
-        return updateMode;
-    }
-
-    public static void setUpdateMode(UpdateMode mode) {
-        updateMode = mode;
-    }
-
-    public static void handleUpdate(Message message) { // thread
+    protected final void handleUpdate(Message message) { // thread
         // lock
         for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
             Brick brick = entry.getValue();
+            // TODO: check if message is for this brick / token
             brick.handleUpdate(message);
         }
     }
 
-    public static void update() { // blocking
+    public final void update() { // blocking
+        System.out.print("Backend.update()");
         Date now = new Date();
         // await handleMessage?
         // lock
@@ -210,142 +278,64 @@ public final class Bricks {
                 updated = updated || now.before(brick.getNextTimestamp());
             }
             if (!updated) {
-                int interval = (updateMode == UpdateMode.DEMO) ? 1 : 5;
+                System.out.print(".");
                 try {
-                    TimeUnit.MINUTES.sleep(interval);
-                } catch (InterruptedException e) {}
+                    TimeUnit.SECONDS.sleep(3); // TODO: better heuristic
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
         // Update
         for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
             Brick brick = entry.getValue();
-            brick.updateCurrentValues(); // updates 
+            brick.updateCurrentValues();
         }
+        System.out.println();
     }
+}
 
-    // Bricks
-    public static ButtonBrick getButtonBrick(String token) {
-        ButtonBrick result;
-        Brick brick = bricks.get(token);
-        if (brick == null) {
-            //BrickConfig config = null; // TODO: get config via token
-            //if (config.getType() == "TemperatureBrick") {
-            result = new ButtonBrick(token);
-            bricks.put(token, result);
-            //} else {
-            //    result = null;
-            //}
-        } else {
-            try {
-                result = (ButtonBrick) brick;
-            } catch (Exception e) {
-                result = null;
-            }
-        }
-        return result;
+final class HttpBackend extends Backend {
+    HttpBackend(String host, String apiToken) {
+        // create
+        // run Thread that 
+        //  connects to HTTP backend
+        //  calls super.handleUpdate(message)?
     }
+}
 
-    public static LcdDisplayBrick getLcdDisplayBrick(String token) {
-        LcdDisplayBrick result;
-        Brick brick = bricks.get(token);
-        if (brick == null) {
-            //BrickConfig config = null; // TODO: get config via token
-            //if (config.getType() == "TemperatureBrick") {
-            result = new LcdDisplayBrick(token);
-            bricks.put(token, result);
-            //} else {
-            //    result = null;
-            //}
-        } else {
-            try {
-                result = (LcdDisplayBrick) brick;
-            } catch (Exception e) {
-                result = null;
-            }
-        }
-        return result;
-    }
+final class MqttBackend extends Backend {
+    // private MqttConnection connection;
 
-    public static LedBrick getLedBrick(String token) {
-        LedBrick result;
-        Brick brick = bricks.get(token);
-        if (brick == null) {
-            //BrickConfig config = null; // TODO: get config via token
-            //if (config.getType() == "TemperatureBrick") {
-            result = new LedBrick(token);
-            bricks.put(token, result);
-            //} else {
-            //    result = null;
-            //}
-        } else {
-            try {
-                result = (LedBrick) brick;
-            } catch (Exception e) {
-                result = null;
-            }
-        }
-        return result;
+    MqttBackend(String host, String user, String password) {
+        // create
+        // run Thread that 
+        //  connects to MQTT backend
+        //  calls super.handleUpdate(message)?
     }
-    
-    public static LedStripBrick getLedStripBrick(String token) {
-        LedStripBrick result;
-        Brick brick = bricks.get(token);
-        if (brick == null) {
-            //BrickConfig config = null; // TODO: get config via token
-            //if (config.getType() == "TemperatureBrick") {
-            result = new LedStripBrick(token);
-            bricks.put(token, result);
-            //} else {
-            //    result = null;
-            //}
-        } else {
-            try {
-                result = (LedStripBrick) brick;
-            } catch (Exception e) {
-                result = null;
-            }
-        }
-        return result;
-    }
+}
 
-    public static TemperatureBrick getTemperatureBrick(String token) {
-        TemperatureBrick result;
-        Brick brick = bricks.get(token);
-        if (brick == null) {
-            //BrickConfig config = null; // TODO: get config via token
-            //if (config.getType() == "TemperatureBrick") {
-            result = new TemperatureBrick(token);
-            bricks.put(token, result);
-            //} else {
-            //    result = null;
-            //}
-        } else {
-            try {
-                result = (TemperatureBrick) brick;
-            } catch (Exception e) {
-                result = null;
-            }
-        }
-        return result;
-    }
+public final class Bricks {
 
-    public static void runMonitoringSystem() {
-        TemperatureBrick tempBrick = Bricks.getTemperatureBrick("TEMP_BRICK_TOKEN");
-        LcdDisplayBrick displayBrick = Bricks.getLcdDisplayBrick("DISPLAY_BRICK_TOKEN");
+    static void runMonitoringSystem(Backend backend) {
+        TemperatureBrick tempBrick = TemperatureBrick.create(backend, "TEMP_BRICK_TOKEN");
+        LcdDisplayBrick displayBrick = LcdDisplayBrick.create(backend, "DISPLAY_BRICK_TOKEN");
 
         while (true) {
             double temp = tempBrick.getTemperature();
             displayBrick.setValue(temp);
-            Bricks.update();
+            backend.update();
         }
     }
 
-    public static void runLoggingSystem() {
-        TemperatureBrick tempBrick = Bricks.getTemperatureBrick("TEMP_BRICK_TOKEN");
+    static void runLoggingSystem(Backend backend) {
+        TemperatureBrick tempBrick = TemperatureBrick.create(backend, "TEMP_BRICK_TOKEN");
         FileWriter fileWriter = null;
         try {
             fileWriter = new FileWriter("log.csv", true); // append
-        } catch (IOException e) {}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         int i = 0;
         while (true) {
@@ -353,38 +343,42 @@ public final class Bricks {
             Date time = tempBrick.getLastUpDatestamp();
             try {
                 fileWriter.append(time + ", " + temp + "\n");
-            } catch (IOException e) {}
-            Bricks.update();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            backend.update();
         }
     }
 
-    public static void runDoorBellSystem() {
-        ButtonBrick buttonBrick = Bricks.getButtonBrick("BUTTON_BRICK_TOKEN");
-        LedBrick ledBrick = Bricks.getLedBrick("LED_BRICK_TOKEN");
+    static void runDoorBellSystem(Backend backend) {
+        ButtonBrick buttonBrick = ButtonBrick.create(backend, "BUTTON_BRICK_TOKEN");
+        LedBrick ledBrick = LedBrick.create(backend, "LED_BRICK_TOKEN");
 
         while (true) {
             boolean pressed = buttonBrick.getPressed();
             ledBrick.setColor(pressed ? Color.RED : Color.BLACK);
-            Bricks.update();
+            backend.update();
         }
     }
 
     public static void main(String args[]) {
-        if (args.length == 1) {
-            Bricks.setBackendHost("FHNW_IOT_BRICKS_HOST");
-            Bricks.setBackendUser("FHNW_IOT_BRICKS_USER");
-            Bricks.setBackendPassword("FHNW_IOT_BRICKS_PASSWORD");
-            Bricks.setUpdateMode(UpdateMode.LIVE);
+        if (args.length == 2) {
+            Backend backend = null;
+            if ("http".equals(args[0])) {
+                backend = new HttpBackend("TTN_HTTP_HOST", "TTN_HTTP_API_TOKEN");
+            } else if ("mqtt".equals(args[0])) {
+                backend = new MqttBackend("TTN_MQTT_HOST", "TTN_MQTT_USER", "TTN_MQTT_PASSWORD");
+            }
 
-            if ("m".equals(args[0])) {
-                runMonitoringSystem();
-            } else if ("l".equals(args[0])) {
-                runLoggingSystem();
-            } else if ("d".equals(args[0])) {
-                runDoorBellSystem();
+            if ("m".equals(args[1])) {
+                runMonitoringSystem(backend);
+            } else if ("l".equals(args[1])) {
+                runLoggingSystem(backend);
+            } else if ("d".equals(args[1])) {
+                runDoorBellSystem(backend);
             }
         } else {
-            System.out.println("usage: java Bricks m|l|d");
+            System.out.println("usage: java Bricks http|mqtt m|l|d");
         }
     }
 }
