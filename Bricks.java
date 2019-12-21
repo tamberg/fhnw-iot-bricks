@@ -420,9 +420,9 @@ public final class Bricks {
         if (args.length == 2) {
             Backend backend = null;
             if ("http".equals(args[0])) {
-                backend = new HttpBackend("TTN_HTTP_HOST", "TTN_HTTP_API_TOKEN");
+                backend = new HttpBackend("HTTP_HOST", "HTTP_API_TOKEN");
             } else if ("mqtt".equals(args[0])) {
-                backend = new MqttBackend("TTN_MQTT_HOST", "TTN_MQTT_USER", "TTN_MQTT_PASSWORD");
+                backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
                 backend = new MockBackend(0); // s
             }
