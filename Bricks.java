@@ -92,7 +92,7 @@ abstract class Brick {
     int nextBatteryLevel = 0;
 
     Brick(String token) {
-        token = token;
+        this.token = token;
     }
 
     protected abstract void updateCurrentValues2();
