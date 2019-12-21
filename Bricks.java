@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-final class Message {
+/* package */ final class Message {
     Map<String, Boolean> booleans = new HashMap<String, Boolean>();
     Map<String, Date> dates = new HashMap<String, Date>();
     Map<String, Double> doubles = new HashMap<String, Double>();
@@ -335,7 +335,7 @@ final class Message {
         new Thread(this).start(); // TODO: bad style? Move to start() ?
     }
 
-    public void run() {
+    public void run() { // TODO: move inside, to hide from public
         while (true) {
             // TODO: get existing tokens, brick types from base class
 
