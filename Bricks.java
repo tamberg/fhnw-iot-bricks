@@ -435,7 +435,7 @@ public final class Bricks {
                 runDoorBellSystem(backend);
             }
         } else {
-            System.out.println("usage: java Bricks http|mqtt m|l|d");
+            System.out.println("usage: java Bricks http|mqtt|mock m|l|d");
         }
     }
 }
