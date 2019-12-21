@@ -3,9 +3,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.ClassCastException;
 import java.lang.String;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.Random;
 import java.util.HashMap;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -72,6 +76,7 @@ import java.util.concurrent.locks.ReentrantLock;
     protected abstract void updateCurrentValues2();
 
     void updateCurrentValues() {
+        System.out.println("updateCurrentValues(), token = " + token);
         updateCurrentValues2();
         currentBatteryLevel = nextBatteryLevel;
         currentTimestamp = nextTimestamp;
@@ -329,6 +334,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /* public */ final class MockBackend extends Backend implements Runnable {
     int updateFrequencySeconds;
+    Random random = new Random();
 
     MockBackend(int updateFrequencySeconds) {
         this.updateFrequencySeconds = updateFrequencySeconds;
@@ -342,9 +348,9 @@ import java.util.concurrent.locks.ReentrantLock;
             Message message0 = new Message();
             message0.addStringValue("token", "TEMP_BRICK_TOKEN");
             message0.addDateValue("timestamp", new Date());
-            message0.addIntegerValue("battery", 100);
-            message0.addDoubleValue("humidity", 42.0);
-            message0.addDoubleValue("temperature", 23.0);
+            message0.addIntegerValue("battery", random.nextInt(100));
+            message0.addDoubleValue("humidity", random.nextDouble() * 100.0);
+            message0.addDoubleValue("temperature", random.nextDouble() * 50.0);
             super.handleUpdate(message0);
 
             Message message1 = new Message();
@@ -386,18 +392,24 @@ public final class Bricks {
     static void runLoggingSystem(Backend backend) {
         TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
         FileWriter fileWriter = null;
+        TimeZone timeZone = TimeZone.getTimeZone("UTC");
+        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        format.setTimeZone(timeZone);
         try {
             fileWriter = new FileWriter("log.csv", true); // append
+            fileWriter.append("Timestamp\tTemperature\tHumidity\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         int i = 0;
         while (true) {
+            Date timestamp = tempBrick.getLastUpdateTimestamp();
+            String isoTimestamp = format.format(timestamp);
             double temp = tempBrick.getTemperature();
-            Date time = tempBrick.getLastUpdateTimestamp();
+            double humi = tempBrick.getHumidity();
             try {
-                fileWriter.append(time + ", " + temp + "\n");
+                fileWriter.append(String.format("%s\t%.2f\t%.2f\n", isoTimestamp, temp, humi));
                 fileWriter.flush();
             } catch (IOException e) {
                 e.printStackTrace();
