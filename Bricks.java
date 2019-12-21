@@ -424,7 +424,7 @@ public final class Bricks {
             } else if ("mqtt".equals(args[0])) {
                 backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
-                backend = new MockBackend(0); // s
+                backend = new MockBackend(5); // s
             }
 
             if ("m".equals(args[1])) {
