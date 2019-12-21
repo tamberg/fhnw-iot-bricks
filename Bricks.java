@@ -315,6 +315,15 @@ final class MqttBackend extends Backend {
     }
 }
 
+final class MockBackend extends Backend {
+    MockBackend(int updateFrequencySeconds) {
+        // create
+        // run Thread that 
+        //  creates Message
+        //  calls super.handleUpdate(message)?
+    }
+}
+
 public final class Bricks {
 
     static void runMonitoringSystem(Backend backend) {
@@ -368,6 +377,8 @@ public final class Bricks {
                 backend = new HttpBackend("TTN_HTTP_HOST", "TTN_HTTP_API_TOKEN");
             } else if ("mqtt".equals(args[0])) {
                 backend = new MqttBackend("TTN_MQTT_HOST", "TTN_MQTT_USER", "TTN_MQTT_PASSWORD");
+            } else if ("mock".equals(args[0])) {
+                backend = new MockBackend(1); // s
             }
 
             if ("m".equals(args[1])) {
