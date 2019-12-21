@@ -10,92 +10,105 @@ IoT Bricks come with long range connectivity and a simple SDK.
 ## Software example
 ### Interface
 ```
-public enum UpdateMode { DEMO, LIVE }
-
-public final class Bricks {
-    // Backend
-    public static void setBackendHost(String host);
-    public static void setBackendUser(String user);
-    public static void setBackendPassword(String password);
-    // Updates
-    public static UpdateMode getUpdateMode();
-    public static void setUpdateMode(UpdateMode mode);
-    public static void update(); // blocking
-    // Bricks
-    public static ButtonBrick getButtonBrick(String token);
-    public static LcdDisplayBrick getLcdDisplayBrick(String token);
-    public static LedBrick getLedBrick(String token);
-    public static LedStripBrick getLedStripBrick(String token);
-    public static TemperatureBrick getTemperatureBrick(String token);
-}
-
 public abstract class Brick {
+    public String getToken();
     public int getBatteryLevel();
-    public DateTime getLastUpdateTimestamp();
+    public Date getLastUpdateTimestamp();
 }
 
 public final class ButtonBrick extends Brick {
-    public boolean getPressed();
+    public boolean getPressed() { return currentPressed;
+    public static ButtonBrick connect(Backend backend, String token);
 }
 
-public final class LedPixelBrick extends Brick {
+public final class LedBrick extends Brick {
     public void setColor(Color value);
+    public static LedBrick connect(Backend backend, String token);
 }
 
 public final class LedStripBrick extends Brick {
     public void setColors(Color[] values);
-}
-
-public final class LcdDisplayBrick extends Brick {
-    public void setValue(double value);
+    public static LedStripBrick connect(Backend backend, String token);
 }
 
 public final class TemperatureBrick extends Brick {
     public double getHumidity();
     public double getTemperature();
+    public static TemperatureBrick connect(Backend backend, String token);
+}
+
+public final class LcdDisplayBrick extends Brick;
+    public void setDoubleValue(double value);
+    public double getDoubleValue();
+    public static LcdDisplayBrick connect(Backend backend, String token);
+}
+
+public abstract class Backend {
+    public final void update();
+}
+
+public final class HttpBackend extends Backend {
+    public HttpBackend(String host, String apiToken);
+}
+
+public final class MqttBackend extends Backend {
+    MqttBackend(String host, String user, String password);
+}     
+
+public final class MockBackend extends Backend {
+    MockBackend(int updateFrequencySeconds);
 }
 ```
 ### Backend & Update Config
 ```
-Bricks.setBackendHost("FHNW_IOT_BRICKS_HOST");
-Bricks.setBackendUser("FHNW_IOT_BRICKS_USER");
-Bricks.setBackendPassword("FHNW_IOT_BRICKS_PASSWORD");
-Bricks.setUpdateMode(UpdateMode.LIVE);
+// Backend backend = new HttpBackend("TTN_HTTP_HOST", "TTN_HTTP_API_TOKEN");
+// Backend backend = new MqttBackend("TTN_MQTT_HOST", "TTN_MQTT_USER", "TTN_MQTT_PASSWORD");
+Backend backend = new MockBackend(5); // s
 ```
 ### Monitoring System
 ```
-TemperatureBrick tempBrick = Bricks.getTemperatureBrick("TEMP_BRICK_TOKEN");
-LcdDisplayBrick displayBrick = Bricks.getLcdDisplayBrick("DISPLAY_BRICK_TOKEN");
+TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
+LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(backend, "DISPLAY_BRICK_TOKEN");
 
 while (true) {
     double temp = tempBrick.getTemperature();
-    displayBrick.setValue(temp);
-    Bricks.update();
+    displayBrick.setDoubleValue(temp);
+    backend.update();
 }
 ```
 
 ### Logging System
 ```
-TemperatureBrick tempBrick = Bricks.getTemperatureBrick("TEMP_BRICK_TOKEN");
-FileWriter fileWriter = new FileWriter("log.csv", true); // append
+TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
+FileWriter fileWriter = null;
+try {
+    fileWriter = new FileWriter("log.csv", true); // append
+} catch (IOException e) {
+    e.printStackTrace();
+}
 
 int i = 0;
 while (true) {
     double temp = tempBrick.getTemperature();
-    DateTime time = tempBrick.getLastUpdateTimestamp();
-    fileWriter.append(stamp + ", " + time + "\n");
-    Bricks.update();
+    Date time = tempBrick.getLastUpdateTimestamp();
+    try {
+        fileWriter.append(time + ", " + temp + "\n");
+        fileWriter.flush();
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+    backend.update();
 }
 ```
 
 ### Door Bell
 ```
-ButtonBrick buttonBrick = Backend.getButtonBrick("BUTTON_BRICK_TOKEN");
-LedBrick ledBrick = Backend.getLedBrick("LED_BRICK_TOKEN");
+ButtonBrick buttonBrick = ButtonBrick.connect(backend, "BUTTON_BRICK_TOKEN");
+LedBrick ledBrick = LedBrick.connect(backend, "LED_BRICK_TOKEN");
 
 while (true) {
     boolean pressed = buttonBrick.getPressed();
-    ledBrick.setColor(pressed ? Color.Red : Color.Black);
-    Bricks.update();
+    ledBrick.setColor(pressed ? Color.RED : Color.BLACK);
+    backend.update();
 }
 ```
