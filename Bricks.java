@@ -150,7 +150,9 @@ import java.util.concurrent.locks.ReentrantLock;
     @Override
     protected final void updateCurrentValues2() {}
 
-    public void setColor(Color value) {}
+    public void setColor(Color value) {
+        System.out.println(value); // TODO
+    }
 
     public static LedBrick connect(Backend backend, String token) {
         LedBrick brick = new LedBrick(token);
@@ -170,7 +172,9 @@ import java.util.concurrent.locks.ReentrantLock;
     @Override
     protected final void updateCurrentValues2() {}
 
-    public void setColors(Color[] values) {}
+    public void setColors(Color[] values) {
+        System.out.println(values); // TODO
+    }
 
     public static LedStripBrick connect(Backend backend, String token) {
         LedStripBrick brick = new LedStripBrick(token);
@@ -238,6 +242,7 @@ import java.util.concurrent.locks.ReentrantLock;
     public void setDoubleValue(double value) {
         if (targetValue != value) {
             targetValue = value;
+            System.out.println(value); // TODO
         }
     }
 
@@ -400,7 +405,7 @@ import java.util.concurrent.locks.ReentrantLock;
             message2.addStringValue("token", "BUTTON_BRICK_TOKEN");
             message2.addDateValue("timestamp", new Date());
             message2.addIntegerValue("battery", 75);
-            message2.addBooleanValue("pressed", true);
+            message2.addBooleanValue("pressed", random.nextInt(2) == 0);
             super.handleUpdate(message2);
             randomSleep();
         }
