@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 // https://www.planttext.com/
 //
@@ -93,7 +95,7 @@ final class Message {
     }
 }
 
-abstract class Brick {
+/* public */ abstract class Brick {
     String token = null;
     Date currentTimestamp = new Date(Long.MIN_VALUE);
     Date nextTimestamp = new Date(Long.MIN_VALUE);
@@ -139,7 +141,7 @@ abstract class Brick {
     }
 }
 
-final class ButtonBrick extends Brick {
+/* public */ final class ButtonBrick extends Brick {
     boolean currentPressed;
     boolean nextPressed;
 
@@ -166,7 +168,7 @@ final class ButtonBrick extends Brick {
     }
 }
 
-final class LedBrick extends Brick {
+/* public */ final class LedBrick extends Brick {
     LedBrick(String token) {
         super(token);
     }
@@ -186,7 +188,7 @@ final class LedBrick extends Brick {
     }
 }
 
-final class LedStripBrick extends Brick {
+/* public */ final class LedStripBrick extends Brick {
     private LedStripBrick(String token) {
         super(token);
     }
@@ -206,7 +208,7 @@ final class LedStripBrick extends Brick {
     }
 }
 
-final class TemperatureBrick extends Brick {
+/* public */ final class TemperatureBrick extends Brick {
     double currentTemp;
     double nextTemp;
     double currentHumi;
@@ -243,7 +245,7 @@ final class TemperatureBrick extends Brick {
     }
 }
 
-final class LcdDisplayBrick extends Brick {
+/* public */ final class LcdDisplayBrick extends Brick {
     double targetValue = 0; // TODO: naming
     double currentValue = 0;
     double nextValue = 0;
@@ -285,8 +287,8 @@ final class LcdDisplayBrick extends Brick {
 - Im TemperatureBrick hat es double Werte, was ja immer etwas heikel ist. Könnte man die auch als long modellieren?
 */
 
-abstract class Backend {
-    Object bricksLock = new Object();
+/* public */ abstract class Backend {
+    Lock bricksLock = new ReentrantLock(); // TODO
     Map<String, Brick> bricks = new HashMap<String, Brick>();
 
     /* package */ public void addBrick(Brick brick) {
@@ -299,12 +301,15 @@ abstract class Backend {
 
     // Updates
     protected final void handleUpdate(Message message) { // thread
-        synchronized (bricksLock) {
+        bricksLock.lock();
+        try {
             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
                 Brick brick = entry.getValue();
                 // TODO: check if message is for this brick / token
                 brick.handleUpdate(message);
             }
+        } finally {
+            bricksLock.unlock();
         }
     }
 
@@ -313,11 +318,14 @@ abstract class Backend {
         Date now = new Date();
         boolean updated = false;
         while (!updated) {
-            synchronized (bricksLock) {
+            bricksLock.lock();
+            try {
                 for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
                     Brick brick = entry.getValue();
                     updated = updated || now.before(brick.getNextTimestamp());
                 }
+            } finally {
+                bricksLock.unlock();
             }
             if (!updated) {
                 System.out.print(".");
@@ -330,16 +338,19 @@ abstract class Backend {
         }
         System.out.println();
         // Update
-        synchronized (bricksLock) {
+        bricksLock.lock();
+        try {
             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
                 Brick brick = entry.getValue();
                 brick.updateCurrentValues();
             }
+        } finally {
+            bricksLock.unlock();
         }
     }
 }
 
-final class HttpBackend extends Backend {
+/* public */ final class HttpBackend extends Backend {
     HttpBackend(String host, String apiToken) {
         // create
         // run Thread that 
@@ -348,7 +359,7 @@ final class HttpBackend extends Backend {
     }
 }
 
-final class MqttBackend extends Backend {
+/* public */ final class MqttBackend extends Backend {
     // private MqttConnection connection;
 
     MqttBackend(String host, String user, String password) {
@@ -359,7 +370,7 @@ final class MqttBackend extends Backend {
     }
 }     
 
-final class MockBackend extends Backend implements Runnable {
+/* public */ final class MockBackend extends Backend implements Runnable {
     int updateFrequencySeconds;
 
     MockBackend(int updateFrequencySeconds) {
@@ -456,7 +467,7 @@ public final class Bricks {
             } else if ("mqtt".equals(args[0])) {
                 backend = new MqttBackend("TTN_MQTT_HOST", "TTN_MQTT_USER", "TTN_MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
-                backend = new MockBackend(5); // s
+                backend = new MockBackend(0); // s
             }
 
             if ("m".equals(args[1])) {
