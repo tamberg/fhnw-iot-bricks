@@ -46,20 +46,41 @@ import java.util.concurrent.TimeUnit;
 // @enduml
 
 final class Message {
+    Map<String, Date> dates = new HashMap<String, Date>();
+    Map<String, Double> doubles = new HashMap<String, Double>();
+    Map<String, Integer> integers = new HashMap<String, Integer>();
+    Map<String, String> strings = new HashMap<String, String>();
+
+    void addDateValue(String key, Date value) {
+        dates.put(key, value);
+    }
+
+    void addDoubleValue(String key, double value) {
+        doubles.put(key, value);
+    }
+
+    void addIntValue(String key, int value) {
+        integers.put(key, value);
+    }
+
+    void addStringValue(String key, String value) {
+        strings.put(key, value);
+    }
+
     public Date getDateValue(String key) {
-        return new Date();
+        return dates.get(key);
     }
 
     public double getDoubleValue(String key) {
-        return 0.0;
+        return doubles.get(key);
     }
 
     public int getIntValue(String key) {
-        return 0;
+        return integers.get(key);
     }
 
     public String getStringValue(String key) {
-        return "";
+        return strings.get(key);
     }
 }
 
@@ -313,14 +334,39 @@ final class MqttBackend extends Backend {
         //  connects to MQTT backend
         //  calls super.handleUpdate(message)?
     }
-}
+}     
 
-final class MockBackend extends Backend {
+final class MockBackend extends Backend implements Runnable {
+    int updateFrequencySeconds;
+
     MockBackend(int updateFrequencySeconds) {
-        // create
-        // run Thread that 
-        //  creates Message
-        //  calls super.handleUpdate(message)?
+        this.updateFrequencySeconds = updateFrequencySeconds;
+        new Thread(this).start(); // TODO: bad style? Move to start() ?
+    }
+
+    public void run() {
+        while (true) {
+            Message message0 = new Message();
+            // TODO: get existing tokens from base class
+            message0.addStringValue("token", "TEMP_BRICK_TOKEN");
+            message0.addDateValue("timestamp", new Date());
+            message0.addIntValue("battery", 100);
+            message0.addDoubleValue("humidity", 42);
+            message0.addDoubleValue("temperature", 23);
+            super.handleUpdate(message0);
+
+            Message message1 = new Message();
+            message1.addStringValue("token", "DISPLAY_BRICK_TOKEN");
+            message1.addDateValue("timestamp", new Date());
+            message1.addIntValue("battery", 50);
+            super.handleUpdate(message1);
+
+            try {
+                TimeUnit.SECONDS.sleep(updateFrequencySeconds);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
 
