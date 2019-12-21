@@ -270,7 +270,7 @@ import java.util.concurrent.locks.ReentrantLock;
         }
     }
 
-    public final void update() { // blocking
+    public final void waitForUpdate() { // blocking
         System.out.print("Backend.update()");
         Date now = new Date();
         boolean updated = false;
@@ -312,7 +312,7 @@ import java.util.concurrent.locks.ReentrantLock;
         // create
         // run Thread that 
         //  connects to HTTP backend
-        //  calls super.handleUpdate(message)?
+        //  calls super.handleUpdate(message)
     }
 }
 
@@ -323,7 +323,7 @@ import java.util.concurrent.locks.ReentrantLock;
         // create
         // run Thread that 
         //  connects to MQTT backend
-        //  calls super.handleUpdate(message)?
+        //  calls super.handleUpdate(message)
     }
 }     
 
@@ -351,6 +351,7 @@ import java.util.concurrent.locks.ReentrantLock;
             message1.addStringValue("token", "DISPLAY_BRICK_TOKEN");
             message1.addDateValue("timestamp", new Date());
             message1.addIntegerValue("battery", 50);
+            message1.addDoubleValue("value", 23.0);
             super.handleUpdate(message1);
 
             Message message2 = new Message();
@@ -378,7 +379,7 @@ public final class Bricks {
         while (true) {
             double temp = tempBrick.getTemperature();
             displayBrick.setDoubleValue(temp);
-            backend.update();
+            backend.waitForUpdate();
         }
     }
 
@@ -401,7 +402,7 @@ public final class Bricks {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            backend.update();
+            backend.waitForUpdate();
         }
     }
 
@@ -412,7 +413,7 @@ public final class Bricks {
         while (true) {
             boolean pressed = buttonBrick.getPressed();
             ledBrick.setColor(pressed ? Color.RED : Color.BLACK);
-            backend.update();
+            backend.waitForUpdate();
         }
     }
 
