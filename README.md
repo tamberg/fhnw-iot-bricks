@@ -44,7 +44,7 @@ public final class LcdDisplayBrick extends Brick;
 }
 
 public abstract class Backend {
-    public final void update();
+    public final void waitForUpdate();
 }
 
 public final class HttpBackend extends Backend {
@@ -73,7 +73,7 @@ LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(backend, "DISPLAY_BRICK_T
 while (true) {
     double temp = tempBrick.getTemperature();
     displayBrick.setDoubleValue(temp);
-    backend.update();
+    backend.waitForUpdate();
 }
 ```
 
@@ -97,7 +97,7 @@ while (true) {
     } catch (IOException e) {
         e.printStackTrace();
     }
-    backend.update();
+    backend.waitForUpdate();
 }
 ```
 
@@ -109,6 +109,6 @@ LedBrick ledBrick = LedBrick.connect(backend, "LED_BRICK_TOKEN");
 while (true) {
     boolean pressed = buttonBrick.getPressed();
     ledBrick.setColor(pressed ? Color.RED : Color.BLACK);
-    backend.update();
+    backend.waitForUpdate();
 }
 ```
