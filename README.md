@@ -55,11 +55,11 @@ public final class HttpBackend extends Backend {
 }
 
 public final class MqttBackend extends Backend {
-    MqttBackend(String host, String user, String password);
+    public MqttBackend(String host, String user, String password);
 }     
 
 public final class MockBackend extends Backend {
-    MockBackend(int updateFrequencySeconds);
+    public MockBackend(int updateFrequencySeconds);
 }
 ```
 ### Backend Config
