@@ -443,15 +443,14 @@ import java.util.concurrent.locks.ReentrantLock;
 }
 
 public final class Bricks {
-
     static void runMonitoringSystem(Backend backend) {
         TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
         LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(backend, "DISPLAY_BRICK_TOKEN");
 
         while (true) {
-            backend.waitForUpdate();
             double temp = tempBrick.getTemperature();
             displayBrick.setDoubleValue(temp);
+            backend.waitForUpdate();
         }
     }
 
@@ -467,9 +466,7 @@ public final class Bricks {
             e.printStackTrace();
         }
 
-        int i = 0;
         while (true) {
-            backend.waitForUpdate();
             String time = tempBrick.getTimestampIsoUtc();
             double temp = tempBrick.getTemperature();
             double humi = tempBrick.getHumidity();
@@ -481,6 +478,7 @@ public final class Bricks {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            backend.waitForUpdate();
         }
     }
 
@@ -491,7 +489,6 @@ public final class Bricks {
         }
 
         while (true) {
-            backend.waitForUpdate();
             for (TemperatureBrick tempBrick : tempBricks) {
                 String token = tempBrick.getToken();
                 String time = tempBrick.getTimestampIsoUtc();
@@ -500,6 +497,7 @@ public final class Bricks {
                 String line = String.format(Locale.US, "%s\t%s\t%.2f\t%.2f", token, time, temp, humi);
                 System.out.println(line);
             }
+            backend.waitForUpdate();
         }
     }
 
@@ -508,9 +506,9 @@ public final class Bricks {
         LedBrick ledBrick = LedBrick.connect(backend, "LED_BRICK_TOKEN");
 
         while (true) {
-            backend.waitForUpdate();
             boolean pressed = buttonBrick.getPressed();
             ledBrick.setColor(pressed ? Color.RED : Color.BLACK);
+            backend.waitForUpdate();
         }
     }
 
@@ -523,9 +521,9 @@ public final class Bricks {
             } else if ("mqtt".equals(args[0])) {
                 backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
-                //backend = new MockBackend(10, 320); // $ java Bricks mock a
+                backend = new MockBackend(10, 320); // $ java Bricks mock a
                 //backend = new MockBackend(5 * 60 * 1000, 500); // $ java mock m|l|d (slow, LoRaWAN)
-                backend = new MockBackend(1000, 500); // $ java mock m|l|d (fast)
+                //backend = new MockBackend(1000, 500); // $ java mock m|l|d (fast)
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
