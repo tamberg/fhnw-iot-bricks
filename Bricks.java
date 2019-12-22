@@ -70,8 +70,18 @@ import java.util.concurrent.locks.ReentrantLock;
     int currentBatteryLevel = 0;
     int nextBatteryLevel = 0;
 
+    TimeZone timeZone;
+    DateFormat formatter;
+
     Brick(String token) {
+        timeZone = TimeZone.getTimeZone("UTC");
+        formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        formatter.setTimeZone(timeZone);
         this.token = token;
+    }
+
+    protected final String dateToIsoUtcString(Date date) {
+        return formatter.format(date);
     }
 
     protected abstract void updateCurrentValues2();
@@ -96,7 +106,7 @@ import java.util.concurrent.locks.ReentrantLock;
         }
     }
 
-    Date getNextTimestamp() {
+    /* package */ Date getNextTimestamp() {
         return nextTimestamp;
     }
 
@@ -108,8 +118,12 @@ import java.util.concurrent.locks.ReentrantLock;
         return currentBatteryLevel;
     }
 
-    public Date getLastUpdateTimestamp() {
+    public Date getTimestamp() {
         return currentTimestamp;
+    }
+
+    public String getTimestampIsoUtc() {
+        return dateToIsoUtcString(currentTimestamp);
     }
 }
 
@@ -446,9 +460,6 @@ public final class Bricks {
     static void runLoggingSystem(Backend backend) {
         TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
         FileWriter fileWriter = null;
-        TimeZone timeZone = TimeZone.getTimeZone("UTC");
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
-        format.setTimeZone(timeZone);
         try {
             fileWriter = new FileWriter("log.csv", true); // append
             fileWriter.append("Timestamp\tTemperature\tHumidity\n");
@@ -459,12 +470,11 @@ public final class Bricks {
         int i = 0;
         while (true) {
             backend.waitForUpdate();
-            Date timestamp = tempBrick.getLastUpdateTimestamp();
-            String isoTimestamp = format.format(timestamp);
+            String time = tempBrick.getTimestampIsoUtc();
             double temp = tempBrick.getTemperature();
             double humi = tempBrick.getHumidity();
             try {
-                fileWriter.append(String.format("%s\t%.2f\t%.2f\n", isoTimestamp, temp, humi));
+                fileWriter.append(String.format("%s\t%.2f\t%.2f\n", time, temp, humi));
                 fileWriter.flush();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -483,10 +493,10 @@ public final class Bricks {
             for (int i = 0; i < tempBricks.length; i++) {
                 TemperatureBrick tempBrick = tempBricks[i];
                 String token = tempBrick.getToken();
-                Date timestamp = tempBrick.getLastUpdateTimestamp();
+                String time = tempBrick.getTimestampIsoUtc();
                 double temp = tempBrick.getTemperature();
                 double humi = tempBrick.getHumidity();
-                String line = String.format("%s\t%s\t%.2f\t%.2f", token, timestamp, temp, humi);
+                String line = String.format("%s\t%s\t%.2f\t%.2f", token, time, temp, humi);
                 System.out.println(line);
             }
         }
