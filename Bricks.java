@@ -5,6 +5,7 @@ import java.lang.ClassCastException;
 import java.lang.String;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Random;
@@ -372,26 +373,41 @@ import java.util.concurrent.locks.ReentrantLock;
         this.maxUpdateFrequencySeconds = maxUpdateFrequencySeconds;
     }
 
+    Brick getRandomBrick () {
+        Brick brick = null;
+        bricksLock.lock();
+        try {
+            Collection<Brick> brickCollection = bricks.values();
+            Object[] brickArray = brickCollection.toArray();
+            int length = brickArray.length;
+            if (length > 0) {
+                int i = random.nextInt(length);
+                brick = (Brick) brickArray[i];
+            }
+        } finally {
+            bricksLock.unlock();
+        }
+        return brick; 
+    }
+
     public void run() { // TODO: move inside, to hide from public
         while (true) {
-            // TODO: get existing tokens, brick types from base class
-            Message message = new Message();
-            message.addDateValue("timestamp", new Date());
-            message.addIntegerValue("battery", random.nextInt(100));
-            int i = random.nextInt(3);
-            if (i == 0) {
-                message.addStringValue("token", "TEMP_BRICK_TOKEN");
-                message.addDoubleValue("humidity", random.nextDouble() * 100.0);
-                message.addDoubleValue("temperature", random.nextDouble() * 50.0);
-            } else if (i == 1) {
-                message.addStringValue("token", "DISPLAY_BRICK_TOKEN");
-                message.addDoubleValue("value", random.nextDouble() * 50.0);
-            } else if (i == 2) {
-                message.addStringValue("token", "BUTTON_BRICK_TOKEN");
-                message.addBooleanValue("pressed", random.nextInt(2) == 0);
+            Brick brick = getRandomBrick();
+            if (brick != null) {
+                Message message = new Message();
+                message.addStringValue("token", brick.getToken());
+                message.addDateValue("timestamp", new Date());
+                message.addIntegerValue("battery", random.nextInt(100));
+                if (brick instanceof TemperatureBrick) {
+                    message.addDoubleValue("humidity", random.nextDouble() * 100.0);
+                    message.addDoubleValue("temperature", random.nextDouble() * 50.0);
+                } else if (brick instanceof LcdDisplayBrick) {
+                    message.addDoubleValue("value", random.nextDouble() * 50.0);
+                } else if (brick instanceof ButtonBrick) {
+                    message.addBooleanValue("pressed", random.nextInt(2) == 0);
+                }
+                super.handleUpdate(message);
             }
-            super.handleUpdate(message);
-
             try {
                 TimeUnit.SECONDS.sleep(random.nextInt(maxUpdateFrequencySeconds));
             } catch (InterruptedException e) {
