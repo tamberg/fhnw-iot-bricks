@@ -20,7 +20,7 @@ public abstract class Brick {
 }
 
 public final class ButtonBrick extends Brick {
-    public boolean getPressed() { return currentPressed;
+    public boolean getPressed();
     public static ButtonBrick connect(Backend backend, String token);
 }
 
