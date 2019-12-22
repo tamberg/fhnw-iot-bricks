@@ -278,6 +278,7 @@ import java.util.concurrent.locks.ReentrantLock;
     Map<String, Brick> bricks = new HashMap<String, Brick>();
 
     /* package */ public void addBrick(Brick brick) {
+        // TODO: throw IllegalArgumentException if token type != brick type?
         bricksLock.lock();
         try {
             if (!bricks.containsValue(brick) && 
@@ -287,16 +288,14 @@ import java.util.concurrent.locks.ReentrantLock;
         } finally {
             bricksLock.unlock();
         }
-        // TODO: throw IllegalArgumentException ?
     }
 
     protected final void setUpdatePollFrequencyMs(int updatePollFrequencyMs) {
         this.updatePollFrequencyMs = updatePollFrequencyMs;
     }
 
-    // Updates
     protected final void handleUpdate(Message message) { // thread
-        ////System.out.println("Backend.handleUpdate()");
+        //System.out.println("Backend.handleUpdate()");
         bricksLock.lock();
         try {
             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
@@ -309,7 +308,7 @@ import java.util.concurrent.locks.ReentrantLock;
     }
 
     public final void waitForUpdate() { // blocking
-        ////System.out.println("Backend.waitForUpdate()");
+        //System.out.println("Backend.waitForUpdate()");
         Date now = new Date();
         boolean updated = false;
         while (!updated) {
@@ -331,7 +330,7 @@ import java.util.concurrent.locks.ReentrantLock;
                 }
             }
         }
-        // Update
+
         bricksLock.lock();
         try {
             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
@@ -490,8 +489,7 @@ public final class Bricks {
 
         while (true) {
             backend.waitForUpdate();
-            for (int i = 0; i < tempBricks.length; i++) {
-                TemperatureBrick tempBrick = tempBricks[i];
+            for (TemperatureBrick tempBrick : tempBricks) {
                 String token = tempBrick.getToken();
                 String time = tempBrick.getTimestampIsoUtc();
                 double temp = tempBrick.getTemperature();
