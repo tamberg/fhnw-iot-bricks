@@ -530,7 +530,7 @@ public final class Bricks {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
             }
-            backend.start();
+            backend.start(); // TODO: make implicit, inside waitForUpdate?
             if ("m".equals(args[1])) {
                 runMonitoringSystem(backend);
             } else if ("l".equals(args[1])) {
