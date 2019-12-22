@@ -15,7 +15,8 @@ IoT Bricks come with long range connectivity and a simple SDK.
 public abstract class Brick {
     public String getToken();
     public int getBatteryLevel();
-    public Date getLastUpdateTimestamp();
+    public Date getTimestamp();
+    public String getTimestampIsoUtc();
 }
 
 public final class ButtonBrick extends Brick {
