@@ -372,42 +372,31 @@ import java.util.concurrent.locks.ReentrantLock;
         this.maxUpdateFrequencySeconds = maxUpdateFrequencySeconds;
     }
 
-    private void randomSleep() {
-        try {
-            TimeUnit.SECONDS.sleep(random.nextInt(maxUpdateFrequencySeconds));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void run() { // TODO: move inside, to hide from public
         while (true) {
             // TODO: get existing tokens, brick types from base class
+            Message message = new Message();
+            message.addDateValue("timestamp", new Date());
+            message.addIntegerValue("battery", random.nextInt(100));
+            int i = random.nextInt(3);
+            if (i == 0) {
+                message.addStringValue("token", "TEMP_BRICK_TOKEN");
+                message.addDoubleValue("humidity", random.nextDouble() * 100.0);
+                message.addDoubleValue("temperature", random.nextDouble() * 50.0);
+            } else if (i == 1) {
+                message.addStringValue("token", "DISPLAY_BRICK_TOKEN");
+                message.addDoubleValue("value", random.nextDouble() * 50.0);
+            } else if (i == 2) {
+                message.addStringValue("token", "BUTTON_BRICK_TOKEN");
+                message.addBooleanValue("pressed", random.nextInt(2) == 0);
+            }
+            super.handleUpdate(message);
 
-            Message message0 = new Message();
-            message0.addStringValue("token", "TEMP_BRICK_TOKEN");
-            message0.addDateValue("timestamp", new Date());
-            message0.addIntegerValue("battery", random.nextInt(100));
-            message0.addDoubleValue("humidity", random.nextDouble() * 100.0);
-            message0.addDoubleValue("temperature", random.nextDouble() * 50.0);
-            super.handleUpdate(message0);
-            randomSleep();
-
-            Message message1 = new Message();
-            message1.addStringValue("token", "DISPLAY_BRICK_TOKEN");
-            message1.addDateValue("timestamp", new Date());
-            message1.addIntegerValue("battery", 50);
-            message1.addDoubleValue("value", 23.0);
-            super.handleUpdate(message1);
-            randomSleep();
-
-            Message message2 = new Message();
-            message2.addStringValue("token", "BUTTON_BRICK_TOKEN");
-            message2.addDateValue("timestamp", new Date());
-            message2.addIntegerValue("battery", 75);
-            message2.addBooleanValue("pressed", random.nextInt(2) == 0);
-            super.handleUpdate(message2);
-            randomSleep();
+            try {
+                TimeUnit.SECONDS.sleep(random.nextInt(maxUpdateFrequencySeconds));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
