@@ -7,6 +7,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.HashMap;
@@ -65,8 +66,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /* public */ abstract class Brick {
     String token = null;
-    Date currentTimestamp = new Date(Long.MIN_VALUE);
-    Date nextTimestamp = new Date(Long.MIN_VALUE);
+    Date currentTimestamp = new Date(0L);
+    Date nextTimestamp = new Date(0L);
     int currentBatteryLevel = 0;
     int nextBatteryLevel = 0;
 
@@ -75,7 +76,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
     Brick(String token) {
         timeZone = TimeZone.getTimeZone("UTC");
-        formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         formatter.setTimeZone(timeZone);
         this.token = token;
     }
@@ -166,7 +167,7 @@ import java.util.concurrent.locks.ReentrantLock;
     protected final void updateCurrentValues2() {}
 
     public void setColor(Color value) {
-        //System.out.println(value); // TODO
+        // TODO
     }
 
     public static LedBrick connect(Backend backend, String token) {
@@ -188,7 +189,7 @@ import java.util.concurrent.locks.ReentrantLock;
     protected final void updateCurrentValues2() {}
 
     public void setColors(Color[] values) {
-        //System.out.println(values); // TODO
+        // TODO
     }
 
     public static LedStripBrick connect(Backend backend, String token) {
@@ -257,7 +258,7 @@ import java.util.concurrent.locks.ReentrantLock;
     public void setDoubleValue(double value) {
         if (targetValue != value) {
             targetValue = value;
-            //System.out.println(value); // TODO
+            // TODO
         }
     }
 
@@ -307,8 +308,14 @@ import java.util.concurrent.locks.ReentrantLock;
         }
     }
 
+    // TODO ? 
+    // waitForNextUpdate();
+    // waitForUpdates(5 * 60); // s
+    // or collectUpdatesUntil(date);
+
     public final void waitForUpdate() { // blocking
         //System.out.println("Backend.waitForUpdate()");
+        // TODO: prevent unneccessary updates
         Date now = new Date();
         boolean updated = false;
         while (!updated) {
@@ -342,15 +349,12 @@ import java.util.concurrent.locks.ReentrantLock;
         }
     }
 
-    public abstract void start();
+    public abstract void start(); // TODO: rename to begin?
 }
 
 /* public */ final class HttpBackend extends Backend implements Runnable {
     HttpBackend(String host, String apiToken) {
-        // create
-        // run Thread that 
-        //  connects to HTTP backend
-        //  calls super.handleUpdate(message)
+        // TODO
     }
 
     public void run() {
@@ -364,13 +368,8 @@ import java.util.concurrent.locks.ReentrantLock;
 }
 
 /* public */ final class MqttBackend extends Backend implements Runnable {
-    // private MqttConnection connection;
-
     MqttBackend(String host, String user, String password) {
-        // create
-        // run Thread that 
-        //  connects to MQTT backend
-        //  calls super.handleUpdate(message)
+        // TODO
     }
 
     public void run() {
@@ -459,9 +458,11 @@ public final class Bricks {
     static void runLoggingSystem(Backend backend) {
         TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
         FileWriter fileWriter = null;
+        String title = "Timestamp (UTC)\tTemperature\tHumidity\n";
+        System.out.print(title);
         try {
             fileWriter = new FileWriter("log.csv", true); // append
-            fileWriter.append("Timestamp\tTemperature\tHumidity\n");
+            fileWriter.append(title);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -472,8 +473,10 @@ public final class Bricks {
             String time = tempBrick.getTimestampIsoUtc();
             double temp = tempBrick.getTemperature();
             double humi = tempBrick.getHumidity();
+            String line = String.format(Locale.US, "%s\t%.2f\t%.2f\n", time, temp, humi);
+            System.out.print(line);
             try {
-                fileWriter.append(String.format("%s\t%.2f\t%.2f\n", time, temp, humi));
+                fileWriter.append(line);
                 fileWriter.flush();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -494,7 +497,7 @@ public final class Bricks {
                 String time = tempBrick.getTimestampIsoUtc();
                 double temp = tempBrick.getTemperature();
                 double humi = tempBrick.getHumidity();
-                String line = String.format("%s\t%s\t%.2f\t%.2f", token, time, temp, humi);
+                String line = String.format(Locale.US, "%s\t%s\t%.2f\t%.2f", token, time, temp, humi);
                 System.out.println(line);
             }
         }
@@ -520,7 +523,9 @@ public final class Bricks {
             } else if ("mqtt".equals(args[0])) {
                 backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
-                backend = new MockBackend(10, 320);
+                //backend = new MockBackend(10, 320); // $ java Bricks mock a
+                //backend = new MockBackend(5 * 60 * 1000, 500); // $ java mock m|l|d (slow, LoRaWAN)
+                backend = new MockBackend(1000, 500); // $ java mock m|l|d (fast)
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
