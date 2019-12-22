@@ -424,9 +424,9 @@ public final class Bricks {
         LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(backend, "DISPLAY_BRICK_TOKEN");
 
         while (true) {
+            backend.waitForUpdate();
             double temp = tempBrick.getTemperature();
             displayBrick.setDoubleValue(temp);
-            backend.waitForUpdate();
         }
     }
 
@@ -445,6 +445,7 @@ public final class Bricks {
 
         int i = 0;
         while (true) {
+            backend.waitForUpdate();
             Date timestamp = tempBrick.getLastUpdateTimestamp();
             String isoTimestamp = format.format(timestamp);
             double temp = tempBrick.getTemperature();
@@ -455,7 +456,6 @@ public final class Bricks {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            backend.waitForUpdate();
         }
     }
 
@@ -464,9 +464,9 @@ public final class Bricks {
         LedBrick ledBrick = LedBrick.connect(backend, "LED_BRICK_TOKEN");
 
         while (true) {
+            backend.waitForUpdate();
             boolean pressed = buttonBrick.getPressed();
             ledBrick.setColor(pressed ? Color.RED : Color.BLACK);
-            backend.waitForUpdate();
         }
     }
 
