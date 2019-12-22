@@ -7,6 +7,8 @@ IoT Bricks come with long range connectivity and a simple SDK.
 ## Hardware example
 <img src="IoTBrickTemperature.jpg"/>
 
+[IoT Brick Temperature](https://www.thingiverse.com/thing:3638252) on Thingiverse.
+
 ## Software example
 ### Interface
 ```
