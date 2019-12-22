@@ -77,7 +77,7 @@ import java.util.concurrent.locks.ReentrantLock;
     protected abstract void updateCurrentValues2();
 
     void updateCurrentValues() {
-        System.out.println("Brick.updateCurrentValues(), token = " + token);
+        //System.out.println("Brick.updateCurrentValues(), token = " + token);
         updateCurrentValues2();
         currentBatteryLevel = nextBatteryLevel;
         currentTimestamp = nextTimestamp;
@@ -87,12 +87,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
     void handleUpdate(Message message) {
         if (token.equals(message.getStringValue("token"))) {
-            System.out.println("Brick.handleUpdate(), token = " + token);
+            //System.out.println("Brick.handleUpdate(), token = " + token);
             nextBatteryLevel = message.getIntegerValue("battery");
             nextTimestamp = message.getDateValue("timestamp");
             handleUpdate2(message);
         } else {
-            System.out.println("Brick.handleUpdate(), token mismatch");
+            //System.out.println("Brick.handleUpdate(), token mismatch");
         }
     }
 
@@ -152,7 +152,7 @@ import java.util.concurrent.locks.ReentrantLock;
     protected final void updateCurrentValues2() {}
 
     public void setColor(Color value) {
-        System.out.println(value); // TODO
+        //System.out.println(value); // TODO
     }
 
     public static LedBrick connect(Backend backend, String token) {
@@ -174,7 +174,7 @@ import java.util.concurrent.locks.ReentrantLock;
     protected final void updateCurrentValues2() {}
 
     public void setColors(Color[] values) {
-        System.out.println(values); // TODO
+        //System.out.println(values); // TODO
     }
 
     public static LedStripBrick connect(Backend backend, String token) {
@@ -243,7 +243,7 @@ import java.util.concurrent.locks.ReentrantLock;
     public void setDoubleValue(double value) {
         if (targetValue != value) {
             targetValue = value;
-            System.out.println(value); // TODO
+            //System.out.println(value); // TODO
         }
     }
 
@@ -282,7 +282,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
     // Updates
     protected final void handleUpdate(Message message) { // thread
-        //System.out.println("Backend.handleUpdate()");
+        ////System.out.println("Backend.handleUpdate()");
         bricksLock.lock();
         try {
             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
@@ -295,7 +295,7 @@ import java.util.concurrent.locks.ReentrantLock;
     }
 
     public final void waitForUpdate() { // blocking
-        //System.out.println("Backend.waitForUpdate()");
+        ////System.out.println("Backend.waitForUpdate()");
         Date now = new Date();
         boolean updated = false;
         while (!updated) {
@@ -309,7 +309,7 @@ import java.util.concurrent.locks.ReentrantLock;
                 bricksLock.unlock();
             }
             if (!updated) {
-                System.out.println(".");
+                //System.out.println(".");
                 try {
                     TimeUnit.MILLISECONDS.sleep(updatePollFrequencyMs);
                 } catch (InterruptedException e) {
@@ -486,7 +486,7 @@ public final class Bricks {
                 Date timestamp = tempBrick.getLastUpdateTimestamp();
                 double temp = tempBrick.getTemperature();
                 double humi = tempBrick.getHumidity();
-                String line = String.format("%s, %s, %.2f, %.2f", token, timestamp, temp, humi);
+                String line = String.format("%s\t%s\t%.2f\t%.2f", token, timestamp, temp, humi);
                 System.out.println(line);
             }
         }
@@ -512,12 +512,12 @@ public final class Bricks {
             } else if ("mqtt".equals(args[0])) {
                 backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
-                backend = new MockBackend(3000, 500);
+                backend = new MockBackend(10, 320);
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
             }
-            backend.start(); // TODO: move to end, implement setup(), loop() as upcalls? :)
+            backend.start();
             if ("m".equals(args[1])) {
                 runMonitoringSystem(backend);
             } else if ("l".equals(args[1])) {
