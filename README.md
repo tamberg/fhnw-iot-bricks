@@ -91,7 +91,7 @@ try {
 
 while (true) {
     double temp = tempBrick.getTemperature();
-    Date time = tempBrick.getLastUpdateTimestamp();
+    String time = tempBrick.getTimestampIsoUtc();
     try {
         fileWriter.append(time + ", " + temp + "\n");
         fileWriter.flush();
