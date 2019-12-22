@@ -259,6 +259,7 @@ import java.util.concurrent.locks.ReentrantLock;
 }
 
 /* public */ abstract class Backend {
+    private int updatePollFrequencyMs = 500; // >= 500
     Lock bricksLock = new ReentrantLock(); // TODO
     Map<String, Brick> bricks = new HashMap<String, Brick>();
 
@@ -273,6 +274,10 @@ import java.util.concurrent.locks.ReentrantLock;
             bricksLock.unlock();
         }
         // TODO: throw IllegalArgumentException ?
+    }
+
+    protected final void setUpdatePollFrequencyMs(int updatePollFrequencyMs) {
+        this.updatePollFrequencyMs = updatePollFrequencyMs;
     }
 
     // Updates
@@ -306,7 +311,7 @@ import java.util.concurrent.locks.ReentrantLock;
             if (!updated) {
                 System.out.println(".");
                 try {
-                    TimeUnit.MILLISECONDS.sleep(500); // >= 500ms
+                    TimeUnit.MILLISECONDS.sleep(updatePollFrequencyMs);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -366,11 +371,12 @@ import java.util.concurrent.locks.ReentrantLock;
 }     
 
 /* public */ final class MockBackend extends Backend implements Runnable {
-    int maxUpdateFrequencySeconds;
+    int maxUpdateFrequencyMs;
     Random random = new Random();
 
-    MockBackend(int maxUpdateFrequencySeconds) {
-        this.maxUpdateFrequencySeconds = maxUpdateFrequencySeconds;
+    MockBackend(int maxUpdateFrequencyMs, int updatePollFrequencyMs) {
+        this.maxUpdateFrequencyMs = maxUpdateFrequencyMs;
+        super.setUpdatePollFrequencyMs(updatePollFrequencyMs);
     }
 
     Brick getRandomBrick () {
@@ -408,10 +414,12 @@ import java.util.concurrent.locks.ReentrantLock;
                 }
                 super.handleUpdate(message);
             }
-            try {
-                TimeUnit.SECONDS.sleep(random.nextInt(maxUpdateFrequencySeconds));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (maxUpdateFrequencyMs > 0) {
+                try {
+                    TimeUnit.MILLISECONDS.sleep(random.nextInt(maxUpdateFrequencyMs));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -464,6 +472,26 @@ public final class Bricks {
         }
     }
 
+    static void runArrayLoggingSystem(Backend backend) {
+        TemperatureBrick[] tempBricks = new TemperatureBrick[32];
+        for (int i = 0; i < tempBricks.length; i++) {
+            tempBricks[i] = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN_" + i);
+        }
+
+        while (true) {
+            backend.waitForUpdate();
+            for (int i = 0; i < tempBricks.length; i++) {
+                TemperatureBrick tempBrick = tempBricks[i];
+                String token = tempBrick.getToken();
+                Date timestamp = tempBrick.getLastUpdateTimestamp();
+                double temp = tempBrick.getTemperature();
+                double humi = tempBrick.getHumidity();
+                String line = String.format("%s, %s, %.2f, %.2f", token, timestamp, temp, humi);
+                System.out.println(line);
+            }
+        }
+    }
+
     static void runDoorBellSystem(Backend backend) {
         ButtonBrick buttonBrick = ButtonBrick.connect(backend, "BUTTON_BRICK_TOKEN");
         LedBrick ledBrick = LedBrick.connect(backend, "LED_BRICK_TOKEN");
@@ -476,7 +504,7 @@ public final class Bricks {
     }
 
     public static void main(String args[]) {
-        String usageErrorMessage = "usage: java Bricks http|mqtt|mock m|l|d";
+        String usageErrorMessage = "usage: java Bricks http|mqtt|mock m|l|a|d";
         if (args.length == 2) {
             Backend backend = null;
             if ("http".equals(args[0])) {
@@ -484,7 +512,7 @@ public final class Bricks {
             } else if ("mqtt".equals(args[0])) {
                 backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
-                backend = new MockBackend(3); // s
+                backend = new MockBackend(3000, 500);
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
@@ -494,6 +522,8 @@ public final class Bricks {
                 runMonitoringSystem(backend);
             } else if ("l".equals(args[1])) {
                 runLoggingSystem(backend);
+            } else if ("a".equals(args[1])) {
+                runArrayLoggingSystem(backend);    
             } else if ("d".equals(args[1])) {
                 runDoorBellSystem(backend);
             } else {
