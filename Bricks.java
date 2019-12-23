@@ -375,6 +375,8 @@ import java.util.concurrent.locks.ReentrantLock;
 }
 
 /* public */ final class HttpBackendProxy extends BackendProxy implements Runnable {
+    //private HttpClient client;
+
     public HttpBackendProxy(String host, String apiToken) {
         // TODO
     }
@@ -390,6 +392,8 @@ import java.util.concurrent.locks.ReentrantLock;
 }
 
 /* public */ final class MqttBackendProxy extends BackendProxy implements Runnable {
+    //private MqttClient client;
+  
     public MqttBackendProxy(String host, String user, String password) {
         // TODO
     }
@@ -464,10 +468,12 @@ import java.util.concurrent.locks.ReentrantLock;
     }
 }
 
-// TODO: BLE based Bricks (same token)?    
+// TODO: BLE based Bricks (same token)? Here, the machine running this class is the "Backend". 
 
-/* public */ final class BleCentral extends BackendProxy implements Runnable {
-    public BleCentral() {
+/* public */ final class BleBackendProxy extends BackendProxy implements Runnable {
+    // private BleCentral central;
+
+    public BleBackendProxy() {
         // TODO
     }
 
@@ -479,7 +485,7 @@ import java.util.concurrent.locks.ReentrantLock;
     public void start() {
         new Thread(this).start();
     }
-}     
+}
 
 public final class Bricks {
     private Bricks() {}
@@ -574,7 +580,7 @@ public final class Bricks {
                 //proxy = new MockBackendProxy(1000, 500); // $ java mock d|l|m (fast)
                 //proxy = new MockBackendProxy(5 * 60 * 1000, 500); // $ java mock d|l|m (slow, LoRaWAN)
             } else if ("ble".equals(args[0])) {
-                proxy = new BleCentral();
+                proxy = new BleBackendProxy();
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
