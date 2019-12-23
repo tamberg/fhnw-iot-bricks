@@ -72,11 +72,14 @@ backend.start();
 ### Monitoring System
 ```
 TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
-LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(backend, "DISPLAY_BRICK_TOKEN");
+LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(backend, "LCD_DISPLAY_BRICK_TOKEN");
+LedBrick ledBrick = LedBrick.connect(backend, "LED_BRICK_TOKEN");
 
 while (true) {
     double temp = tempBrick.getTemperature();
     displayBrick.setDoubleValue(temp);
+    Color color = temp > 23 ? Color.RED : Color.GREEN;
+    ledBrick.setColor(color);
     backend.waitForUpdate();
 }
 ```
@@ -107,11 +110,11 @@ while (true) {
 ### Door Bell
 ```
 ButtonBrick buttonBrick = ButtonBrick.connect(backend, "BUTTON_BRICK_TOKEN");
-LedBrick ledBrick = LedBrick.connect(backend, "LED_BRICK_TOKEN");
+BuzzerBrick buzzerBrick = BuzzerBrick.connect(backend, "BUZZER_BRICK_TOKEN");
 
 while (true) {
     boolean pressed = buttonBrick.getPressed();
-    ledBrick.setColor(pressed ? Color.RED : Color.BLACK);
+    buzzerBrick.setEnabled(pressed);
     backend.waitForUpdate();
 }
 ```
