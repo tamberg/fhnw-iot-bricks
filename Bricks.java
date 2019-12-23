@@ -353,7 +353,7 @@ import java.util.concurrent.locks.ReentrantLock;
 }
 
 /* public */ final class HttpBackend extends Backend implements Runnable {
-    HttpBackend(String host, String apiToken) {
+    public HttpBackend(String host, String apiToken) {
         // TODO
     }
 
@@ -368,7 +368,7 @@ import java.util.concurrent.locks.ReentrantLock;
 }
 
 /* public */ final class MqttBackend extends Backend implements Runnable {
-    MqttBackend(String host, String user, String password) {
+    public MqttBackend(String host, String user, String password) {
         // TODO
     }
 
@@ -386,7 +386,7 @@ import java.util.concurrent.locks.ReentrantLock;
     int maxUpdateFrequencyMs;
     Random random = new Random();
 
-    MockBackend(int maxUpdateFrequencyMs, int updatePollFrequencyMs) {
+    public MockBackend(int maxUpdateFrequencyMs, int updatePollFrequencyMs) {
         this.maxUpdateFrequencyMs = maxUpdateFrequencyMs;
         super.setUpdatePollFrequencyMs(updatePollFrequencyMs);
     }
