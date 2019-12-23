@@ -155,6 +155,28 @@ import java.util.concurrent.locks.ReentrantLock;
     }
 }
 
+/* public */ final class BuzzerBrick extends Brick {
+    BuzzerBrick(String token) {
+        super(token);
+    }
+
+    @Override
+    protected final void handleUpdate2(Message message) {}
+
+    @Override
+    protected final void updateCurrentValues2() {}
+
+    public void setEnabled(boolean enabled) { // TODO: rename to triggerAlert(int ms)?
+        // TODO
+    }
+
+    public static BuzzerBrick connect(Backend backend, String token) {
+        BuzzerBrick brick = new BuzzerBrick(token);
+        backend.addBrick(brick);
+        return brick;
+    }
+}
+
 /* public */ final class LedBrick extends Brick {
     LedBrick(String token) {
         super(token);
@@ -255,7 +277,7 @@ import java.util.concurrent.locks.ReentrantLock;
         currentValue = nextValue;
     }
 
-    public void setDoubleValue(double value) {
+    public void setDoubleValue(double value) { // TODO: rename to showDoubleValue?
         if (targetValue != value) {
             targetValue = value;
             // TODO
@@ -446,10 +468,15 @@ public final class Bricks {
     static void runMonitoringSystem(Backend backend) {
         TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
         LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(backend, "DISPLAY_BRICK_TOKEN");
+        LedBrick ledBrick = LedBrick.connect(backend, "LED_BRICK_TOKEN");
 
         while (true) {
             double temp = tempBrick.getTemperature();
+            System.out.println(temp);
             displayBrick.setDoubleValue(temp);
+            Color color = temp > 23 ? Color.RED : Color.GREEN;
+            System.out.println(color);
+            ledBrick.setColor(color);
             backend.waitForUpdate();
         }
     }
@@ -503,11 +530,12 @@ public final class Bricks {
 
     static void runDoorBellSystem(Backend backend) {
         ButtonBrick buttonBrick = ButtonBrick.connect(backend, "BUTTON_BRICK_TOKEN");
-        LedBrick ledBrick = LedBrick.connect(backend, "LED_BRICK_TOKEN");
+        BuzzerBrick buzzerBrick = BuzzerBrick.connect(backend, "BUZZER_BRICK_TOKEN");
 
         while (true) {
             boolean pressed = buttonBrick.getPressed();
-            ledBrick.setColor(pressed ? Color.RED : Color.BLACK);
+            System.out.println(pressed);
+            buzzerBrick.setEnabled(pressed);
             backend.waitForUpdate();
         }
     }
