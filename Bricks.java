@@ -3,18 +3,26 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.ClassCastException;
 import java.lang.String;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.net.InetSocketAddress;
+import java.net.URI;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.HashMap;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import com.sun.net.httpserver.HttpServer;
 
 /* package */ final class Message {
     Map<String, Boolean> booleans = new HashMap<String, Boolean>();
@@ -371,35 +379,62 @@ import java.util.concurrent.locks.ReentrantLock;
         }
     }
 
+    /* package */ abstract void sendMessage(Message message);
+
     public abstract void start(); // TODO: rename to begin?
 }
 
 /* public */ final class HttpBackendProxy extends BackendProxy implements Runnable {
-    // private HttpService service; // local or via Relay, e.g. Yaler.net
-    // private HttpClient client;
+    private HttpServer service; // local or via Relay, e.g. Yaler.net
+    private HttpClient client;
+    private URI backendUri;
 
-    public HttpBackendProxy(String host, String apiToken) {
-        // client = HttpClient.newBuilder()
-        //     .version(Version.HTTP_1_1)
-        //     .followRedirects(Redirect.NORMAL)
-        //     .connectTimeout(Duration.ofSeconds(20))
-        //     //.proxy(ProxySelector.of(new InetSocketAddress("proxy.example.com", 80)))
-        //     .authenticator(Authenticator.getDefault())
-        //     .build();
+    public HttpBackendProxy(String backendHost, String backendApiToken) {
+        InetSocketAddress ip = new InetSocketAddress(8080);
+        try {
+            service = HttpServer.create(ip, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        // service = ...
+        client = HttpClient.newBuilder()
+        //  .version(Version.HTTP_1_1)
+        //  .followRedirects(HttpClient.Redirect.NORMAL)
+        //  .connectTimeout(Duration.ofSeconds(20))
+        //  .proxy(ProxySelector.of(new InetSocketAddress("proxy.example.com", 80)))
+        //  .authenticator(Authenticator.getDefault())
+            .build();
+
+        backendUri = URI.create("https://" + backendHost + "/");
     }
 
     public void run() {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
 
-    // @Override
-    // /* package */ sendMessage() {
-    //     HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-    //     System.out.println(response.statusCode());
-    //     System.out.println(response.body());  
-    // }
+    private String toJsonString(Message message) {
+        return ""; // TODO: enough knowledge?
+    }
+
+    @Override
+    /* package */ final void sendMessage(Message message) {
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(backendUri)
+        //  .timeout(Duration.ofMinutes(2))
+            .header("Content-Type", "application/json")
+            .POST(BodyPublishers.ofString(toJsonString(message)))
+            .build();
+
+        try {
+            HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+            System.out.println(response.statusCode());
+            System.out.println(response.body());  
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void start() {
@@ -417,6 +452,9 @@ import java.util.concurrent.locks.ReentrantLock;
     public void run() {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
+
+    @Override
+    /* package */ final void sendMessage(Message message) {}
 
     @Override
     public void start() {
@@ -479,6 +517,9 @@ import java.util.concurrent.locks.ReentrantLock;
     }
 
     @Override
+    /* package */ final void sendMessage(Message message) {}
+
+    @Override
     public void start() {
         new Thread(this).start();
     }
@@ -496,6 +537,9 @@ import java.util.concurrent.locks.ReentrantLock;
     public void run() {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
+
+    @Override
+    /* package */ final void sendMessage(Message message) {}
 
     @Override
     public void start() {
