@@ -148,9 +148,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
     public boolean getPressed() { return currentPressed; }
 
-    public static ButtonBrick connect(Backend backend, String token) {
+    public static ButtonBrick connect(BackendProxy proxy, String token) {
         ButtonBrick brick = new ButtonBrick(token);
-        backend.addBrick(brick);
+        proxy.addBrick(brick);
         return brick;
     }
 }
@@ -170,9 +170,9 @@ import java.util.concurrent.locks.ReentrantLock;
         // TODO
     }
 
-    public static BuzzerBrick connect(Backend backend, String token) {
+    public static BuzzerBrick connect(BackendProxy proxy, String token) {
         BuzzerBrick brick = new BuzzerBrick(token);
-        backend.addBrick(brick);
+        proxy.addBrick(brick);
         return brick;
     }
 }
@@ -192,9 +192,9 @@ import java.util.concurrent.locks.ReentrantLock;
         // TODO
     }
 
-    public static LedBrick connect(Backend backend, String token) {
+    public static LedBrick connect(BackendProxy proxy, String token) {
         LedBrick brick = new LedBrick(token);
-        backend.addBrick(brick);
+        proxy.addBrick(brick);
         return brick;
     }
 }
@@ -214,9 +214,9 @@ import java.util.concurrent.locks.ReentrantLock;
         // TODO
     }
 
-    public static LedStripBrick connect(Backend backend, String token) {
+    public static LedStripBrick connect(BackendProxy proxy, String token) {
         LedStripBrick brick = new LedStripBrick(token);
-        backend.addBrick(brick);
+        proxy.addBrick(brick);
         return brick;
     }
 }
@@ -251,9 +251,9 @@ import java.util.concurrent.locks.ReentrantLock;
         return currentTemp;
     }
 
-    public static TemperatureBrick connect(Backend backend, String token) {
+    public static TemperatureBrick connect(BackendProxy proxy, String token) {
         TemperatureBrick brick = new TemperatureBrick(token);
-        backend.addBrick(brick);
+        proxy.addBrick(brick);
         return brick;
     }
 }
@@ -288,16 +288,14 @@ import java.util.concurrent.locks.ReentrantLock;
         return currentValue;
     }
 
-    public static LcdDisplayBrick connect(Backend backend, String token) {
+    public static LcdDisplayBrick connect(BackendProxy proxy, String token) {
         LcdDisplayBrick brick = new LcdDisplayBrick(token);
-        backend.addBrick(brick);
+        proxy.addBrick(brick);
         return brick;
     }
 }
 
-// TODO: rename to BackendProxy or just Client?
-
-/* public */ abstract class Backend {
+/* public */ abstract class BackendProxy {
     private int updatePollFrequencyMs = 500; // >= 500
     Lock bricksLock = new ReentrantLock(); // TODO
     Map<String, Brick> bricks = new HashMap<String, Brick>();
@@ -320,7 +318,7 @@ import java.util.concurrent.locks.ReentrantLock;
     }
 
     protected final void handleUpdate(Message message) { // thread
-        //System.out.println("Backend.handleUpdate()");
+        //System.out.println("BackendProxy.handleUpdate()");
         bricksLock.lock();
         try {
             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
@@ -338,7 +336,7 @@ import java.util.concurrent.locks.ReentrantLock;
     // or collectUpdatesUntil(date);
 
     public final void waitForUpdate() { // blocking
-        //System.out.println("Backend.waitForUpdate()");
+        //System.out.println("BackendProxy.waitForUpdate()");
         // TODO: prevent unneccessary updates
         Date now = new Date();
         boolean updated = false;
@@ -376,8 +374,8 @@ import java.util.concurrent.locks.ReentrantLock;
     public abstract void start(); // TODO: rename to begin?
 }
 
-/* public */ final class HttpBackend extends Backend implements Runnable {
-    public HttpBackend(String host, String apiToken) {
+/* public */ final class HttpBackendProxy extends BackendProxy implements Runnable {
+    public HttpBackendProxy(String host, String apiToken) {
         // TODO
     }
 
@@ -391,8 +389,8 @@ import java.util.concurrent.locks.ReentrantLock;
     }
 }
 
-/* public */ final class MqttBackend extends Backend implements Runnable {
-    public MqttBackend(String host, String user, String password) {
+/* public */ final class MqttBackendProxy extends BackendProxy implements Runnable {
+    public MqttBackendProxy(String host, String user, String password) {
         // TODO
     }
 
@@ -406,11 +404,11 @@ import java.util.concurrent.locks.ReentrantLock;
     }
 }     
 
-/* public */ final class MockBackend extends Backend implements Runnable {
+/* public */ final class MockBackendProxy extends BackendProxy implements Runnable {
     int maxUpdateFrequencyMs;
     Random random = new Random();
 
-    public MockBackend(int maxUpdateFrequencyMs, int updatePollFrequencyMs) {
+    public MockBackendProxy(int maxUpdateFrequencyMs, int updatePollFrequencyMs) {
         this.maxUpdateFrequencyMs = maxUpdateFrequencyMs;
         super.setUpdatePollFrequencyMs(updatePollFrequencyMs);
     }
@@ -468,7 +466,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 // TODO: BLE based Bricks (same token)?    
 
-/* public */ final class BleCentral extends Backend implements Runnable {
+/* public */ final class BleCentral extends BackendProxy implements Runnable {
     public BleCentral() {
         // TODO
     }
@@ -486,21 +484,21 @@ import java.util.concurrent.locks.ReentrantLock;
 public final class Bricks {
     private Bricks() {}
 
-    static void runDoorbellExample(Backend backend) {
-        ButtonBrick buttonBrick = ButtonBrick.connect(backend, "BUTTON_BRICK_TOKEN");
-        BuzzerBrick buzzerBrick = BuzzerBrick.connect(backend, "BUZZER_BRICK_TOKEN");
+    static void runDoorbellExample(BackendProxy proxy) {
+        ButtonBrick buttonBrick = ButtonBrick.connect(proxy, "BUTTON_BRICK_TOKEN");
+        BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, "BUZZER_BRICK_TOKEN");
 
         while (true) {
             boolean pressed = buttonBrick.getPressed();
             String time = buttonBrick.getTimestampIsoUtc();
             System.out.println(time + ", " +  pressed);
             buzzerBrick.setEnabled(pressed);
-            backend.waitForUpdate();
+            proxy.waitForUpdate();
         }
     }
 
-    static void runLoggingExample(Backend backend) {
-        TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
+    static void runLoggingExample(BackendProxy proxy) {
+        TemperatureBrick tempBrick = TemperatureBrick.connect(proxy, "TEMP_BRICK_TOKEN");
         FileWriter fileWriter = null;
         String title = "Timestamp (UTC)\tTemperature\tHumidity\n";
         System.out.print(title);
@@ -523,14 +521,14 @@ public final class Bricks {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            backend.waitForUpdate();
+            proxy.waitForUpdate();
         }
     }
 
-    static void runLoggingArrayExample(Backend backend) {
+    static void runLoggingArrayExample(BackendProxy proxy) {
         TemperatureBrick[] tempBricks = new TemperatureBrick[32];
         for (int i = 0; i < tempBricks.length; i++) {
-            tempBricks[i] = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN_" + i);
+            tempBricks[i] = TemperatureBrick.connect(proxy, "TEMP_BRICK_TOKEN_" + i);
         }
 
         while (true) {
@@ -542,14 +540,14 @@ public final class Bricks {
                 String line = String.format(Locale.US, "%s, %s, %.2f, %.2f", token, time, temp, humi);
                 System.out.println(line);
             }
-            backend.waitForUpdate();
+            proxy.waitForUpdate();
         }
     }
 
-    static void runMonitoringExample(Backend backend) {
-        TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
-        LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(backend, "DISPLAY_BRICK_TOKEN");
-        LedBrick ledBrick = LedBrick.connect(backend, "LED_BRICK_TOKEN");
+    static void runMonitoringExample(BackendProxy proxy) {
+        TemperatureBrick tempBrick = TemperatureBrick.connect(proxy, "TEMP_BRICK_TOKEN");
+        LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, "DISPLAY_BRICK_TOKEN");
+        LedBrick ledBrick = LedBrick.connect(proxy, "LED_BRICK_TOKEN");
 
         while (true) {
             double temp = tempBrick.getTemperature();
@@ -559,37 +557,37 @@ public final class Bricks {
             String line = String.format(Locale.US, "%s, %.2f, %s\n", time, temp, color);
             System.out.print(line);
             ledBrick.setColor(color);
-            backend.waitForUpdate();
+            proxy.waitForUpdate();
         }
     }
 
     public static void main(String args[]) {
         String usageErrorMessage = "usage: java Bricks http|mqtt|mock d|l|a|m";
         if (args.length == 2) {
-            Backend backend = null;
+            BackendProxy proxy = null;
             if ("http".equals(args[0])) {
-                backend = new HttpBackend("HTTP_HOST", "HTTP_API_TOKEN");
+                proxy = new HttpBackendProxy("HTTP_HOST", "HTTP_API_TOKEN");
             } else if ("mqtt".equals(args[0])) {
-                backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
+                proxy = new MqttBackendProxy("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
-                //backend = new MockBackend(10, 320); // $ java Bricks mock a
-                //backend = new MockBackend(1000, 500); // $ java mock d|l|m (fast)
-                backend = new MockBackend(5 * 60 * 1000, 500); // $ java mock d|l|m (slow, LoRaWAN)
+                proxy = new MockBackendProxy(10, 320); // $ java Bricks mock a
+                //proxy = new MockBackendProxy(1000, 500); // $ java mock d|l|m (fast)
+                //proxy = new MockBackendProxy(5 * 60 * 1000, 500); // $ java mock d|l|m (slow, LoRaWAN)
             } else if ("ble".equals(args[0])) {
-                backend = new BleCentral();
+                proxy = new BleCentral();
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
             }
-            backend.start(); // TODO: make implicit, inside waitForUpdate?
+            proxy.start(); // TODO: make implicit, inside waitForUpdate?
             if ("d".equals(args[1])) {
-                runDoorbellExample(backend);
+                runDoorbellExample(proxy);
             } else if ("l".equals(args[1])) {
-                runLoggingExample(backend);
+                runLoggingExample(proxy);
             } else if ("a".equals(args[1])) {
-                runLoggingArrayExample(backend);    
+                runLoggingArrayExample(proxy);    
             } else if ("m".equals(args[1])) {
-                runMonitoringExample(backend);
+                runMonitoringExample(proxy);
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
