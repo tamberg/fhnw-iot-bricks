@@ -295,6 +295,8 @@ import java.util.concurrent.locks.ReentrantLock;
     }
 }
 
+// TODO: rename to BackendProxy or just Client?
+
 /* public */ abstract class Backend {
     private int updatePollFrequencyMs = 500; // >= 500
     Lock bricksLock = new ReentrantLock(); // TODO
@@ -464,6 +466,23 @@ import java.util.concurrent.locks.ReentrantLock;
     }
 }
 
+// TODO: BLE based Bricks (same token)?    
+
+/* public */ final class BleCentral extends Backend implements Runnable {
+    public BleCentral() {
+        // TODO
+    }
+
+    public void run() {
+        throw new UnsupportedOperationException("Not yet implemented.");
+    }
+
+    @Override
+    public void start() {
+        new Thread(this).start();
+    }
+}     
+
 public final class Bricks {
     private Bricks() {}
 
@@ -556,6 +575,8 @@ public final class Bricks {
                 //backend = new MockBackend(10, 320); // $ java Bricks mock a
                 //backend = new MockBackend(1000, 500); // $ java mock d|l|m (fast)
                 backend = new MockBackend(5 * 60 * 1000, 500); // $ java mock d|l|m (slow, LoRaWAN)
+            } else if ("ble".equals(args[0])) {
+                backend = new BleCentral();
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
