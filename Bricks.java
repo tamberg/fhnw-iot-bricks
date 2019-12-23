@@ -88,7 +88,7 @@ import java.util.concurrent.locks.ReentrantLock;
     protected abstract void updateCurrentValues2();
 
     void updateCurrentValues() {
-        //System.out.println("Brick.updateCurrentValues(), token = " + token);
+        // System.out.println("Brick.updateCurrentValues(), token = " + token);
         updateCurrentValues2();
         currentBatteryLevel = nextBatteryLevel;
         currentTimestamp = nextTimestamp;
@@ -98,12 +98,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
     void handleUpdate(Message message) {
         if (token.equals(message.getStringValue("token"))) {
-            //System.out.println("Brick.handleUpdate(), token = " + token);
+            // System.out.println("Brick.handleUpdate(), token = " + token);
             nextBatteryLevel = message.getIntegerValue("battery");
             nextTimestamp = message.getDateValue("timestamp");
             handleUpdate2(message);
         } else {
-            //System.out.println("Brick.handleUpdate(), token mismatch");
+            // System.out.println("Brick.handleUpdate(), token mismatch");
         }
     }
 
@@ -318,7 +318,7 @@ import java.util.concurrent.locks.ReentrantLock;
     }
 
     protected final void handleUpdate(Message message) { // thread
-        //System.out.println("BackendProxy.handleUpdate()");
+        // System.out.println("BackendProxy.handleUpdate()");
         bricksLock.lock();
         try {
             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
@@ -336,7 +336,7 @@ import java.util.concurrent.locks.ReentrantLock;
     // or collectUpdatesUntil(date);
 
     public final void waitForUpdate() { // blocking
-        //System.out.println("BackendProxy.waitForUpdate()");
+        // System.out.println("BackendProxy.waitForUpdate()");
         // TODO: prevent unneccessary updates
         Date now = new Date();
         boolean updated = false;
@@ -351,7 +351,7 @@ import java.util.concurrent.locks.ReentrantLock;
                 bricksLock.unlock();
             }
             if (!updated) {
-                //System.out.println(".");
+                // System.out.println(".");
                 try {
                     TimeUnit.MILLISECONDS.sleep(updatePollFrequencyMs);
                 } catch (InterruptedException e) {
@@ -375,16 +375,31 @@ import java.util.concurrent.locks.ReentrantLock;
 }
 
 /* public */ final class HttpBackendProxy extends BackendProxy implements Runnable {
-    //private HttpService service; // local or via Relay, e.g. Yaler.net
-    //private HttpClient client;
+    // private HttpService service; // local or via Relay, e.g. Yaler.net
+    // private HttpClient client;
 
     public HttpBackendProxy(String host, String apiToken) {
-        // TODO
+        // client = HttpClient.newBuilder()
+        //     .version(Version.HTTP_1_1)
+        //     .followRedirects(Redirect.NORMAL)
+        //     .connectTimeout(Duration.ofSeconds(20))
+        //     //.proxy(ProxySelector.of(new InetSocketAddress("proxy.example.com", 80)))
+        //     .authenticator(Authenticator.getDefault())
+        //     .build();
+
+        // service = ...
     }
 
     public void run() {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
+
+    // @Override
+    // /* package */ sendMessage() {
+    //     HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+    //     System.out.println(response.statusCode());
+    //     System.out.println(response.body());  
+    // }
 
     @Override
     public void start() {
@@ -393,7 +408,7 @@ import java.util.concurrent.locks.ReentrantLock;
 }
 
 /* public */ final class MqttBackendProxy extends BackendProxy implements Runnable {
-    //private MqttClient client; // PUB & SUB
+    // private MqttClient client; // PUB & SUB
 
     public MqttBackendProxy(String host, String user, String password) {
         // TODO
@@ -578,8 +593,8 @@ public final class Bricks {
                 proxy = new MqttBackendProxy("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
                 proxy = new MockBackendProxy(10, 320); // $ java Bricks mock a
-                //proxy = new MockBackendProxy(1000, 500); // $ java mock d|l|m (fast)
-                //proxy = new MockBackendProxy(5 * 60 * 1000, 500); // $ java mock d|l|m (slow, LoRaWAN)
+                // proxy = new MockBackendProxy(1000, 500); // $ java mock d|l|m (fast)
+                // proxy = new MockBackendProxy(5 * 60 * 1000, 500); // $ java mock d|l|m (slow, LoRaWAN)
             } else if ("ble".equals(args[0])) {
                 proxy = new BleBackendProxy();
             } else {
