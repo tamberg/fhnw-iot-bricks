@@ -375,6 +375,7 @@ import java.util.concurrent.locks.ReentrantLock;
 }
 
 /* public */ final class HttpBackendProxy extends BackendProxy implements Runnable {
+    //private HttpService service; // local or via Relay, e.g. Yaler.net
     //private HttpClient client;
 
     public HttpBackendProxy(String host, String apiToken) {
@@ -392,8 +393,8 @@ import java.util.concurrent.locks.ReentrantLock;
 }
 
 /* public */ final class MqttBackendProxy extends BackendProxy implements Runnable {
-    //private MqttClient client;
-  
+    //private MqttClient client; // PUB & SUB
+
     public MqttBackendProxy(String host, String user, String password) {
         // TODO
     }
