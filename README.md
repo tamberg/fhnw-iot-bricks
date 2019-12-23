@@ -21,72 +21,72 @@ public abstract class Brick {
 
 public final class ButtonBrick extends Brick {
     public boolean getPressed();
-    public static ButtonBrick connect(Backend backend, String token);
+    public static ButtonBrick connect(BackendProxy backend, String token);
 }
 
 public final class LedBrick extends Brick {
     public void setColor(Color value);
-    public static LedBrick connect(Backend backend, String token);
+    public static LedBrick connect(BackendProxy backend, String token);
 }
 
 public final class LedStripBrick extends Brick {
     public void setColors(Color[] values);
-    public static LedStripBrick connect(Backend backend, String token);
+    public static LedStripBrick connect(BackendProxy backend, String token);
 }
 
 public final class TemperatureBrick extends Brick {
     public double getHumidity();
     public double getTemperature();
-    public static TemperatureBrick connect(Backend backend, String token);
+    public static TemperatureBrick connect(BackendProxy backend, String token);
 }
 
 public final class LcdDisplayBrick extends Brick;
     public void setDoubleValue(double value);
     public double getDoubleValue();
-    public static LcdDisplayBrick connect(Backend backend, String token);
+    public static LcdDisplayBrick connect(BackendProxy backend, String token);
 }
 
-public abstract class Backend {
+public abstract class BackendProxy {
     public final void waitForUpdate();
 }
 
-public final class HttpBackend extends Backend {
-    public HttpBackend(String host, String apiToken);
+public final class HttpBackendProxy extends BackendProxy {
+    public HttpBackendProxy(String host, String apiToken);
 }
 
-public final class MqttBackend extends Backend {
-    public MqttBackend(String host, String user, String password);
+public final class MqttBackendProxy extends BackendProxy {
+    public MqttBackendProxy(String host, String user, String password);
 }     
 
-public final class MockBackend extends Backend {
-    public MockBackend(int updateFrequencySeconds);
+public final class MockBackendProxy extends BackendProxy {
+    public MockBackendProxy(int updateFrequencySeconds);
 }
 ```
-### Backend Config
+### BackendProxy Config
 ```
-// Backend backend = new HttpBackend("HTTP_HOST", "HTTP_API_TOKEN");
-// Backend backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
-Backend backend = new MockBackend(5); // s
-backend.start();
+// BackendProxy proxy = new HttpBackendProxy("HTTP_HOST", "HTTP_API_TOKEN");
+// BackendProxy proxy = new MqttBackendProxy("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
+BackendProxy proxy = new MockBackendProxy(5); // s
+proxy.start();
 ```
 ### Monitoring System
 ```
-TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
-LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(backend, "LCD_DISPLAY_BRICK_TOKEN");
-LedBrick ledBrick = LedBrick.connect(backend, "LED_BRICK_TOKEN");
+TemperatureBrick tempBrick = TemperatureBrick.connect(proxy, "TEMP_BRICK_TOKEN");
+LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, "LCD_DISPLAY_BRICK_TOKEN");
+LedBrick ledBrick = LedBrick.connect(proxy, "LED_BRICK_TOKEN");
 
 while (true) {
     double temp = tempBrick.getTemperature();
     displayBrick.setDoubleValue(temp);
     Color color = temp > 23 ? Color.RED : Color.GREEN;
     ledBrick.setColor(color);
-    backend.waitForUpdate();
+    proxy.waitForUpdate();
 }
 ```
 
 ### Logging System
 ```
-TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
+TemperatureBrick tempBrick = TemperatureBrick.connect(proxy, "TEMP_BRICK_TOKEN");
 FileWriter fileWriter = null;
 try {
     fileWriter = new FileWriter("log.csv", true); // append
@@ -103,18 +103,18 @@ while (true) {
     } catch (IOException e) {
         e.printStackTrace();
     }
-    backend.waitForUpdate();
+    proxy.waitForUpdate();
 }
 ```
 
 ### Door Bell
 ```
-ButtonBrick buttonBrick = ButtonBrick.connect(backend, "BUTTON_BRICK_TOKEN");
-BuzzerBrick buzzerBrick = BuzzerBrick.connect(backend, "BUZZER_BRICK_TOKEN");
+ButtonBrick buttonBrick = ButtonBrick.connect(proxy, "BUTTON_BRICK_TOKEN");
+BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, "BUZZER_BRICK_TOKEN");
 
 while (true) {
     boolean pressed = buttonBrick.getPressed();
     buzzerBrick.setEnabled(pressed);
-    backend.waitForUpdate();
+    proxy.waitForUpdate();
 }
 ```
