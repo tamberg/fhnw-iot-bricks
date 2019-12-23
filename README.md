@@ -55,11 +55,11 @@ public final class HttpBackend extends Backend {
 }
 
 public final class MqttBackend extends Backend {
-    MqttBackend(String host, String user, String password);
+    public MqttBackend(String host, String user, String password);
 }     
 
 public final class MockBackend extends Backend {
-    MockBackend(int updateFrequencySeconds);
+    public MockBackend(int updateFrequencySeconds);
 }
 ```
 ### Backend Config
@@ -67,6 +67,7 @@ public final class MockBackend extends Backend {
 // Backend backend = new HttpBackend("HTTP_HOST", "HTTP_API_TOKEN");
 // Backend backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
 Backend backend = new MockBackend(5); // s
+backend.start();
 ```
 ### Monitoring System
 ```
