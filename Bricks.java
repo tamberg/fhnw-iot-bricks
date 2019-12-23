@@ -479,6 +479,7 @@ public final class Bricks {
             backend.waitForUpdate();
         }
     }
+
     static void runLoggingExample(Backend backend) {
         TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
         FileWriter fileWriter = null;
@@ -553,8 +554,8 @@ public final class Bricks {
                 backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
                 //backend = new MockBackend(10, 320); // $ java Bricks mock a
-                //backend = new MockBackend(5 * 60 * 1000, 500); // $ java mock d|l|m (slow, LoRaWAN)
-                backend = new MockBackend(1000, 500); // $ java mock d|l|m (fast)
+                //backend = new MockBackend(1000, 500); // $ java mock d|l|m (fast)
+                backend = new MockBackend(5 * 60 * 1000, 500); // $ java mock d|l|m (slow, LoRaWAN)
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
