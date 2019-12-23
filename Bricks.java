@@ -467,24 +467,19 @@ import java.util.concurrent.locks.ReentrantLock;
 public final class Bricks {
     private Bricks() {}
 
-    static void runMonitoringSystem(Backend backend) {
-        TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
-        LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(backend, "DISPLAY_BRICK_TOKEN");
-        LedBrick ledBrick = LedBrick.connect(backend, "LED_BRICK_TOKEN");
+    static void runDoorbellExample(Backend backend) {
+        ButtonBrick buttonBrick = ButtonBrick.connect(backend, "BUTTON_BRICK_TOKEN");
+        BuzzerBrick buzzerBrick = BuzzerBrick.connect(backend, "BUZZER_BRICK_TOKEN");
 
         while (true) {
-            double temp = tempBrick.getTemperature();
-            displayBrick.setDoubleValue(temp);
-            Color color = temp > 23 ? Color.RED : Color.GREEN;
-            String time = tempBrick.getTimestampIsoUtc();
-            String line = String.format(Locale.US, "%s, %.2f, %s\n", time, temp, color);
-            System.out.print(line);
-            ledBrick.setColor(color);
+            boolean pressed = buttonBrick.getPressed();
+            String time = buttonBrick.getTimestampIsoUtc();
+            System.out.println(time + ", " +  pressed);
+            buzzerBrick.setEnabled(pressed);
             backend.waitForUpdate();
         }
     }
-
-    static void runLoggingSystem(Backend backend) {
+    static void runLoggingExample(Backend backend) {
         TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
         FileWriter fileWriter = null;
         String title = "Timestamp (UTC)\tTemperature\tHumidity\n";
@@ -512,7 +507,7 @@ public final class Bricks {
         }
     }
 
-    static void runArrayLoggingSystem(Backend backend) {
+    static void runLoggingArrayExample(Backend backend) {
         TemperatureBrick[] tempBricks = new TemperatureBrick[32];
         for (int i = 0; i < tempBricks.length; i++) {
             tempBricks[i] = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN_" + i);
@@ -531,21 +526,25 @@ public final class Bricks {
         }
     }
 
-    static void runDoorBellSystem(Backend backend) {
-        ButtonBrick buttonBrick = ButtonBrick.connect(backend, "BUTTON_BRICK_TOKEN");
-        BuzzerBrick buzzerBrick = BuzzerBrick.connect(backend, "BUZZER_BRICK_TOKEN");
+    static void runMonitoringExample(Backend backend) {
+        TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
+        LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(backend, "DISPLAY_BRICK_TOKEN");
+        LedBrick ledBrick = LedBrick.connect(backend, "LED_BRICK_TOKEN");
 
         while (true) {
-            boolean pressed = buttonBrick.getPressed();
-            String time = buttonBrick.getTimestampIsoUtc();
-            System.out.println(time + ", " +  pressed);
-            buzzerBrick.setEnabled(pressed);
+            double temp = tempBrick.getTemperature();
+            displayBrick.setDoubleValue(temp);
+            Color color = temp > 23 ? Color.RED : Color.GREEN;
+            String time = tempBrick.getTimestampIsoUtc();
+            String line = String.format(Locale.US, "%s, %.2f, %s\n", time, temp, color);
+            System.out.print(line);
+            ledBrick.setColor(color);
             backend.waitForUpdate();
         }
     }
 
     public static void main(String args[]) {
-        String usageErrorMessage = "usage: java Bricks http|mqtt|mock m|l|a|d";
+        String usageErrorMessage = "usage: java Bricks http|mqtt|mock d|l|a|m";
         if (args.length == 2) {
             Backend backend = null;
             if ("http".equals(args[0])) {
@@ -554,21 +553,21 @@ public final class Bricks {
                 backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
                 //backend = new MockBackend(10, 320); // $ java Bricks mock a
-                //backend = new MockBackend(5 * 60 * 1000, 500); // $ java mock m|l|d (slow, LoRaWAN)
-                backend = new MockBackend(1000, 500); // $ java mock m|l|d (fast)
+                //backend = new MockBackend(5 * 60 * 1000, 500); // $ java mock d|l|m (slow, LoRaWAN)
+                backend = new MockBackend(1000, 500); // $ java mock d|l|m (fast)
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
             }
             backend.start(); // TODO: make implicit, inside waitForUpdate?
-            if ("m".equals(args[1])) {
-                runMonitoringSystem(backend);
+            if ("d".equals(args[1])) {
+                runDoorbellExample(backend);
             } else if ("l".equals(args[1])) {
-                runLoggingSystem(backend);
+                runLoggingExample(backend);
             } else if ("a".equals(args[1])) {
-                runArrayLoggingSystem(backend);    
-            } else if ("d".equals(args[1])) {
-                runDoorBellSystem(backend);
+                runLoggingArrayExample(backend);    
+            } else if ("m".equals(args[1])) {
+                runMonitoringExample(backend);
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
