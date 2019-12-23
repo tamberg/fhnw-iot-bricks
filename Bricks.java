@@ -465,6 +465,8 @@ import java.util.concurrent.locks.ReentrantLock;
 }
 
 public final class Bricks {
+    private Bricks() {}
+
     static void runMonitoringSystem(Backend backend) {
         TemperatureBrick tempBrick = TemperatureBrick.connect(backend, "TEMP_BRICK_TOKEN");
         LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(backend, "DISPLAY_BRICK_TOKEN");
@@ -472,10 +474,11 @@ public final class Bricks {
 
         while (true) {
             double temp = tempBrick.getTemperature();
-            System.out.println(temp);
             displayBrick.setDoubleValue(temp);
             Color color = temp > 23 ? Color.RED : Color.GREEN;
-            System.out.println(color);
+            String time = tempBrick.getTimestampIsoUtc();
+            String line = String.format(Locale.US, "%s, %.2f, %s\n", time, temp, color);
+            System.out.print(line);
             ledBrick.setColor(color);
             backend.waitForUpdate();
         }
@@ -497,7 +500,7 @@ public final class Bricks {
             String time = tempBrick.getTimestampIsoUtc();
             double temp = tempBrick.getTemperature();
             double humi = tempBrick.getHumidity();
-            String line = String.format(Locale.US, "%s\t%.2f\t%.2f\n", time, temp, humi);
+            String line = String.format(Locale.US, "%s, %.2f, %.2f\n", time, temp, humi);
             System.out.print(line);
             try {
                 fileWriter.append(line);
@@ -521,7 +524,7 @@ public final class Bricks {
                 String time = tempBrick.getTimestampIsoUtc();
                 double temp = tempBrick.getTemperature();
                 double humi = tempBrick.getHumidity();
-                String line = String.format(Locale.US, "%s\t%s\t%.2f\t%.2f", token, time, temp, humi);
+                String line = String.format(Locale.US, "%s, %s, %.2f, %.2f", token, time, temp, humi);
                 System.out.println(line);
             }
             backend.waitForUpdate();
@@ -534,7 +537,8 @@ public final class Bricks {
 
         while (true) {
             boolean pressed = buttonBrick.getPressed();
-            System.out.println(pressed);
+            String time = buttonBrick.getTimestampIsoUtc();
+            System.out.println(time + ", " +  pressed);
             buzzerBrick.setEnabled(pressed);
             backend.waitForUpdate();
         }
@@ -549,9 +553,9 @@ public final class Bricks {
             } else if ("mqtt".equals(args[0])) {
                 backend = new MqttBackend("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
-                backend = new MockBackend(10, 320); // $ java Bricks mock a
+                //backend = new MockBackend(10, 320); // $ java Bricks mock a
                 //backend = new MockBackend(5 * 60 * 1000, 500); // $ java mock m|l|d (slow, LoRaWAN)
-                //backend = new MockBackend(1000, 500); // $ java mock m|l|d (fast)
+                backend = new MockBackend(1000, 500); // $ java mock m|l|d (fast)
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
