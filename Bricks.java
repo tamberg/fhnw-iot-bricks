@@ -383,7 +383,7 @@ import com.sun.net.httpserver.HttpServer;
     }
 
     protected final void readMessage(Message message) { // thread
-        System.out.println("BackendProxy.readMessage()");
+        //System.out.println("BackendProxy.readMessage()");
         // Message is read by whomever it may concern
         bricksLock.lock();
         try {
@@ -417,7 +417,7 @@ import com.sun.net.httpserver.HttpServer;
     // or collectUpdatesUntil(date);
 
     public final void waitForUpdate() { // blocking
-        System.out.println("BackendProxy.waitForUpdate()");
+        //System.out.println("BackendProxy.waitForUpdate()");
         // TODO: prevent unneccessary updates
         Date now = new Date();
         boolean updated = false;
