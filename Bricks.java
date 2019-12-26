@@ -29,25 +29,29 @@ import com.sun.net.httpserver.HttpServer;
     Map<String, Object> attributes = Collections.synchronizedMap(
         new HashMap<String, Object>());
 
-    /* package */ void addBooleanValue(String key, Boolean value) {
+    /* package */ void putBooleanValue(String key, Boolean value) {
         attributes.put(key, value);
     }
 
-    /* package */ void addDateValue(String key, Date value) {
+    /* package */ void putDateValue(String key, Date value) {
         attributes.put(key, value);
     }
 
-    /* package */ void addDoubleValue(String key, Double value) {
+    /* package */ void putDoubleValue(String key, Double value) {
         attributes.put(key, value);
     }
 
-    /* package */ void addIntegerValue(String key, Integer value) {
+    /* package */ void putIntegerValue(String key, Integer value) {
         attributes.put(key, value);
     }
 
-    /* package */ void addStringValue(String key, String value) {
+    /* package */ void putStringValue(String key, String value) {
         attributes.put(key, value);
     }
+
+//    /* package */ Iterator<E> iterator() {
+//        return attributes.values().iterator();
+//    }
 
     public Boolean getBooleanValue(String key) {
         return (Boolean) attributes.get(key);
@@ -71,14 +75,15 @@ import com.sun.net.httpserver.HttpServer;
 }
 
 /* public */ abstract class Brick {
-    String token = null;
-    Date currentTimestamp = new Date(0L);
-    Date nextTimestamp = new Date(0L);
-    int currentBatteryLevel = 0;
-    int nextBatteryLevel = 0;
+    private BackendProxy proxy = null;
+    private String token = null;
+    private Date currentTimestamp = new Date(0L);
+    private Date nextTimestamp = new Date(0L);
+    private int currentBatteryLevel = 0;
+    private int nextBatteryLevel = 0;
 
-    TimeZone timeZone;
-    DateFormat formatter;
+    private TimeZone timeZone;
+    private DateFormat formatter;
 
     Brick(String token) {
         timeZone = TimeZone.getTimeZone("UTC");
@@ -86,6 +91,14 @@ import com.sun.net.httpserver.HttpServer;
         formatter.setTimeZone(timeZone);
         this.token = token;
     }
+
+    protected final void setBackendProxy(BackendProxy proxy) {
+        this.proxy = proxy;
+    }
+
+    // protected final BackendProxy getBackendProxy() {
+    //     return proxy;
+    // }
 
     protected final String dateToIsoUtcString(Date date) {
         return formatter.format(date);
@@ -100,17 +113,26 @@ import com.sun.net.httpserver.HttpServer;
         currentTimestamp = nextTimestamp;
     }
 
-    protected abstract void handleUpdate2(Message message);
+    protected abstract void readMessage2(Message message);
 
-    void handleUpdate(Message message) {
+    void readMessage(Message message) {
         if (token.equals(message.getStringValue("token"))) {
-            // System.out.println("Brick.handleUpdate(), token = " + token);
+            // System.out.println("Brick.readMessage(), token = " + token);
             nextBatteryLevel = message.getIntegerValue("battery");
             nextTimestamp = message.getDateValue("timestamp");
-            handleUpdate2(message);
+            readMessage2(message);
         } else {
-            // System.out.println("Brick.handleUpdate(), token mismatch");
+            // System.out.println("Brick.readMessage(), token mismatch");
         }
+    }
+
+    protected abstract void writeMessage2(Message message);
+
+    // proxy creates message, calls
+    void writeMessage(Message message) {
+        message.putStringValue("token", token);
+        writeMessage2(message);
+        // proxy sends message
     }
 
     /* package */ Date getNextTimestamp() {
@@ -143,7 +165,7 @@ import com.sun.net.httpserver.HttpServer;
     }
 
     @Override
-    protected final void handleUpdate2(Message message) {
+    protected final void readMessage2(Message message) {
         nextPressed = message.getBooleanValue("pressed");
     }
 
@@ -151,6 +173,9 @@ import com.sun.net.httpserver.HttpServer;
     protected final void updateCurrentValues2() {
         currentPressed = nextPressed;
     }
+
+    @Override
+    protected final void writeMessage2(Message message) {}
 
     public boolean getPressed() { return currentPressed; }
 
@@ -162,22 +187,37 @@ import com.sun.net.httpserver.HttpServer;
 }
 
 /* public */ final class BuzzerBrick extends Brick {
+    boolean nextEnabled;
+    boolean currentEnabled;
+    boolean targetEnabled;
+
     BuzzerBrick(String token) {
         super(token);
     }
 
     @Override
-    protected final void handleUpdate2(Message message) {}
+    protected final void readMessage2(Message message) {
+        nextEnabled = message.getBooleanValue("enabled");
+    }
 
     @Override
-    protected final void updateCurrentValues2() {}
+    protected final void updateCurrentValues2() {
+        currentEnabled = nextEnabled;
+    }
 
-    public void setEnabled(boolean enabled) { // TODO: rename to triggerAlert(int ms)?
-        // TODO
+    @Override
+    protected final void writeMessage2(Message message) {
+        message.putBooleanValue("enabled", targetEnabled);
+    }
+
+    // TODO: rename to triggerAlert(int ms)?
+    public void setEnabled(boolean enabled) {
+        targetEnabled = enabled;
     }
 
     public static BuzzerBrick connect(BackendProxy proxy, String token) {
         BuzzerBrick brick = new BuzzerBrick(token);
+        brick.setBackendProxy(proxy);
         proxy.addBrick(brick);
         return brick;
     }
@@ -189,10 +229,15 @@ import com.sun.net.httpserver.HttpServer;
     }
 
     @Override
-    protected final void handleUpdate2(Message message) {}
+    protected final void readMessage2(Message message) {}
 
     @Override
     protected final void updateCurrentValues2() {}
+
+    @Override
+    protected final void writeMessage2(Message message) {
+        //message.putBooleanValue("color", targetEnabled);
+    }
 
     public void setColor(Color value) {
         // TODO
@@ -200,6 +245,7 @@ import com.sun.net.httpserver.HttpServer;
 
     public static LedBrick connect(BackendProxy proxy, String token) {
         LedBrick brick = new LedBrick(token);
+        brick.setBackendProxy(proxy);
         proxy.addBrick(brick);
         return brick;
     }
@@ -211,10 +257,15 @@ import com.sun.net.httpserver.HttpServer;
     }
 
     @Override
-    protected final void handleUpdate2(Message message) {}
+    protected final void readMessage2(Message message) {}
 
     @Override
     protected final void updateCurrentValues2() {}
+
+    @Override
+    protected final void writeMessage2(Message message) {
+        //message.putBooleanValue("colors", targetEnabled);
+    }
 
     public void setColors(Color[] values) {
         // TODO
@@ -222,6 +273,7 @@ import com.sun.net.httpserver.HttpServer;
 
     public static LedStripBrick connect(BackendProxy proxy, String token) {
         LedStripBrick brick = new LedStripBrick(token);
+        brick.setBackendProxy(proxy);
         proxy.addBrick(brick);
         return brick;
     }
@@ -238,7 +290,7 @@ import com.sun.net.httpserver.HttpServer;
     }
 
     @Override
-    protected final void handleUpdate2(Message message) {
+    protected final void readMessage2(Message message) {
         nextTemp = message.getDoubleValue("temperature");
         nextHumi = message.getDoubleValue("humidity");
     }
@@ -248,6 +300,9 @@ import com.sun.net.httpserver.HttpServer;
         currentTemp = nextTemp;
         currentHumi = nextHumi;
     }
+
+    @Override
+    protected final void writeMessage2(Message message) {}
 
     public double getHumidity() {
         return currentHumi;
@@ -274,7 +329,7 @@ import com.sun.net.httpserver.HttpServer;
     }
 
     @Override
-    protected final void handleUpdate2(Message message) {
+    protected final void readMessage2(Message message) {
         nextValue = message.getDoubleValue("value");
     }
 
@@ -283,11 +338,13 @@ import com.sun.net.httpserver.HttpServer;
         currentValue = nextValue;
     }
 
+    @Override
+    protected final void writeMessage2(Message message) {
+        message.putDoubleValue("value", targetValue);
+    }
+
     public void setDoubleValue(double value) { // TODO: rename to showDoubleValue?
-        if (targetValue != value) {
-            targetValue = value;
-            // TODO
-        }
+        targetValue = value;
     }
 
     public double getDoubleValue() {
@@ -296,6 +353,7 @@ import com.sun.net.httpserver.HttpServer;
 
     public static LcdDisplayBrick connect(BackendProxy proxy, String token) {
         LcdDisplayBrick brick = new LcdDisplayBrick(token);
+        brick.setBackendProxy(proxy);
         proxy.addBrick(brick);
         return brick;
     }
@@ -324,13 +382,29 @@ import com.sun.net.httpserver.HttpServer;
         this.updatePollFrequencyMs = updatePollFrequencyMs;
     }
 
-    protected final void handleUpdate(Message message) { // thread
-        // System.out.println("BackendProxy.handleUpdate()");
+    protected final void readMessage(Message message) { // thread
+        System.out.println("BackendProxy.readMessage()");
+        // Message is read by whomever it may concern
         bricksLock.lock();
         try {
             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
                 Brick brick = entry.getValue();
-                brick.handleUpdate(message);
+                brick.readMessage(message);
+            }
+        } finally {
+            bricksLock.unlock();
+        }
+    }
+
+    protected final void writeMessages() {
+        System.out.println("BackendProxy.writeMessages()");
+        bricksLock.lock();
+        try {
+            for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
+                Brick brick = entry.getValue();
+                Message message = new Message(); // TODO: createMessage()in sublass?
+                brick.writeMessage(message);
+                sendMessage(message); // TODO: Thread? Delegate to subclass?
             }
         } finally {
             bricksLock.unlock();
@@ -343,7 +417,7 @@ import com.sun.net.httpserver.HttpServer;
     // or collectUpdatesUntil(date);
 
     public final void waitForUpdate() { // blocking
-        // System.out.println("BackendProxy.waitForUpdate()");
+        System.out.println("BackendProxy.waitForUpdate()");
         // TODO: prevent unneccessary updates
         Date now = new Date();
         boolean updated = false;
@@ -376,6 +450,8 @@ import com.sun.net.httpserver.HttpServer;
         } finally {
             bricksLock.unlock();
         }
+
+        writeMessages(); // TODO: move to better place? Let subclass decide?
     }
 
     /* package */ abstract void sendMessage(Message message);
@@ -492,18 +568,20 @@ import com.sun.net.httpserver.HttpServer;
             Brick brick = getRandomBrick();
             if (brick != null) {
                 Message message = new Message();
-                message.addStringValue("token", brick.getToken());
-                message.addDateValue("timestamp", new Date());
-                message.addIntegerValue("battery", random.nextInt(100));
-                if (brick instanceof TemperatureBrick) {
-                    message.addDoubleValue("humidity", random.nextDouble() * 100.0);
-                    message.addDoubleValue("temperature", random.nextDouble() * 50.0);
+                message.putStringValue("token", brick.getToken());
+                message.putDateValue("timestamp", new Date());
+                message.putIntegerValue("battery", random.nextInt(100));
+                if (brick instanceof ButtonBrick) {
+                    message.putBooleanValue("pressed", random.nextInt(2) == 0);
+                } else if (brick instanceof BuzzerBrick) {
+                    message.putBooleanValue("enabled", random.nextInt(2) == 0);
                 } else if (brick instanceof LcdDisplayBrick) {
-                    message.addDoubleValue("value", random.nextDouble() * 50.0);
-                } else if (brick instanceof ButtonBrick) {
-                    message.addBooleanValue("pressed", random.nextInt(2) == 0);
+                    message.putDoubleValue("value", random.nextDouble() * 50.0);
+                } else if (brick instanceof TemperatureBrick) {
+                    message.putDoubleValue("humidity", random.nextDouble() * 100.0);
+                    message.putDoubleValue("temperature", random.nextDouble() * 50.0);
                 }
-                super.handleUpdate(message);
+                super.readMessage(message);
             }
             if (maxUpdateFrequencyMs > 0) {
                 try {
@@ -516,7 +594,11 @@ import com.sun.net.httpserver.HttpServer;
     }
 
     @Override
-    /* package */ final void sendMessage(Message message) {}
+    /* package */ final void sendMessage(Message message) {
+        // TODO
+        String token = message.getStringValue("token");
+        System.out.println(token);
+    }
 
     @Override
     public void start() {
@@ -635,8 +717,8 @@ public final class Bricks {
             } else if ("mqtt".equals(args[0])) {
                 proxy = new MqttBackendProxy("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
             } else if ("mock".equals(args[0])) {
-                proxy = new MockBackendProxy(10, 320); // $ java Bricks mock a
-                // proxy = new MockBackendProxy(1000, 500); // $ java mock d|l|m (fast)
+                // proxy = new MockBackendProxy(10, 320); // $ java Bricks mock a
+                proxy = new MockBackendProxy(1000, 500); // $ java mock d|l|m (fast)
                 // proxy = new MockBackendProxy(5 * 60 * 1000, 500); // $ java mock d|l|m (slow, LoRaWAN)
             } else if ("ble".equals(args[0])) {
                 proxy = new BleBackendProxy();
