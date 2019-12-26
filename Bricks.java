@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -25,50 +26,47 @@ import java.util.TimeZone;
 import com.sun.net.httpserver.HttpServer;
 
 /* package */ final class Message {
-    Map<String, Boolean> booleans = new HashMap<String, Boolean>();
-    Map<String, Date> dates = new HashMap<String, Date>();
-    Map<String, Double> doubles = new HashMap<String, Double>();
-    Map<String, Integer> integers = new HashMap<String, Integer>();
-    Map<String, String> strings = new HashMap<String, String>();
+    Map<String, Object> attributes = Collections.synchronizedMap(
+        new HashMap<String, Object>());
 
-    void addBooleanValue(String key, Boolean value) {
-        booleans.put(key, value);
+    /* package */ void addBooleanValue(String key, Boolean value) {
+        attributes.put(key, value);
     }
 
-    void addDateValue(String key, Date value) {
-        dates.put(key, value);
+    /* package */ void addDateValue(String key, Date value) {
+        attributes.put(key, value);
     }
 
-    void addDoubleValue(String key, Double value) {
-        doubles.put(key, value);
+    /* package */ void addDoubleValue(String key, Double value) {
+        attributes.put(key, value);
     }
 
-    void addIntegerValue(String key, Integer value) {
-        integers.put(key, value);
+    /* package */ void addIntegerValue(String key, Integer value) {
+        attributes.put(key, value);
     }
 
-    void addStringValue(String key, String value) {
-        strings.put(key, value);
+    /* package */ void addStringValue(String key, String value) {
+        attributes.put(key, value);
     }
 
     public Boolean getBooleanValue(String key) {
-        return booleans.get(key);
+        return (Boolean) attributes.get(key);
     }
 
     public Date getDateValue(String key) {
-        return dates.get(key);
+        return (Date) attributes.get(key);
     }
 
     public Double getDoubleValue(String key) {
-        return doubles.get(key);
+        return (Double) attributes.get(key);
     }
 
     public Integer getIntegerValue(String key) {
-        return integers.get(key);
+        return (Integer) attributes.get(key);
     }
 
     public String getStringValue(String key) {
-        return strings.get(key);
+        return (String) attributes.get(key);
     }
 }
 
@@ -306,7 +304,8 @@ import com.sun.net.httpserver.HttpServer;
 /* public */ abstract class BackendProxy {
     private int updatePollFrequencyMs = 500; // >= 500
     Lock bricksLock = new ReentrantLock(); // TODO
-    Map<String, Brick> bricks = new HashMap<String, Brick>();
+    Map<String, Brick> bricks = Collections.synchronizedMap(
+        new HashMap<String, Brick>());
 
     /* package */ public void addBrick(Brick brick) {
         // TODO: throw IllegalArgumentException if token type != brick type?
