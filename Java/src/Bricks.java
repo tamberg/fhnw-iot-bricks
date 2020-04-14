@@ -1,6 +1,7 @@
 // Copyright (c) 2020 FHNW, Switzerland. All rights reserved.
 // Licensed under MIT License, see LICENSE for details.
 
+// $ javac src/Bricks.java
 // $ java -cp src Bricks
 
 import java.awt.Color;
