@@ -474,7 +474,11 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
     protected void setCurrentPayload(byte[] payload) {
         try {
             String message = new String(payload, StandardCharsets.UTF_8);
-            String[] parts = message.split("|");
+            String[] parts = message.split(";");
+            System.out.println(parts.length);
+            System.out.println("setCurrentPayload: ");
+            System.out.println(parts[0]);
+            System.out.println(parts[1]);
             currentHumi = Double.parseDouble(parts[0]);
             currentTemp = Double.parseDouble(parts[1]);
         } catch(NumberFormatException e) {
@@ -490,8 +494,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
             double targetTemp = Math.random() * 50 + 1;
             try {
                 String payloadString = 
-                    Double.toString(targetHumi) + "|" + 
+                    Double.toString(targetHumi) + ";" + 
                     Double.toString(targetTemp);
+                System.out.println("getTargetPayload: " + payloadString);
                 payload = payloadString.getBytes("UTF-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
@@ -613,7 +618,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 public final class Bricks {
     private Bricks() {}
 
-    static void runDoorbellExample(Proxy proxy) {
+    private static void runDoorbellExample(Proxy proxy) {
         ButtonBrick buttonBrick = ButtonBrick.connect(proxy, "BUTTON_BRICK_TOKEN");
         BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, "BUZZER_BRICK_TOKEN");
         while (true) {
@@ -625,7 +630,7 @@ public final class Bricks {
         }
     }
 
-    static void runLoggingExample(Proxy proxy) {
+    private static void runLoggingExample(Proxy proxy) {
         HumiTempBrick brick = HumiTempBrick.connect(proxy, "TEMP_BRICK_TOKEN");
         FileWriter fileWriter = null;
         String title = "Timestamp (UTC)\tTemperature\tHumidity\n";
@@ -652,7 +657,7 @@ public final class Bricks {
         }
     }
 
-    static void runLoggingArrayExample(Proxy proxy) {
+    private static void runLoggingArrayExample(Proxy proxy) {
         HumiTempBrick[] bricks = new HumiTempBrick[32];
         for (int i = 0; i < bricks.length; i++) {
             bricks[i] = HumiTempBrick.connect(proxy, "TEMP_BRICK_TOKEN_" + i);
@@ -670,7 +675,7 @@ public final class Bricks {
         }
     }
 
-    static void runMonitoringExample(Proxy proxy) {
+    private static void runMonitoringExample(Proxy proxy) {
         HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, "TEMP_BRICK_TOKEN");
         LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, "DISPLAY_BRICK_TOKEN");
         LedBrick ledBrick = LedBrick.connect(proxy, "LED_BRICK_TOKEN");
