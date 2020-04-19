@@ -475,7 +475,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
     protected void setCurrentPayload(byte[] payload) {
         try {
             String message = new String(payload, StandardCharsets.UTF_8);
-            String[] parts = message.split(SEPARATOR);
+            String[] parts = message.split(SEPARATOR); // treated as a regex (!)
             currentHumi = Double.parseDouble(parts[0]);
             currentTemp = Double.parseDouble(parts[1]);
         } catch(NumberFormatException e) {
