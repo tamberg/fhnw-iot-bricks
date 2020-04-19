@@ -51,11 +51,19 @@ import java.util.TimeZone;
 import com.sun.net.httpserver.HttpServer;
 */
 
+import java.awt.Color;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
@@ -163,6 +171,46 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 /* public */ abstract class Proxy {
     abstract void connectBrick(Brick brick);
     abstract public void waitForUpdate();
+
+        // waitForNextUpdate();
+    // waitForUpdates(5 * 60); // s
+    // or collectUpdatesUntil(date);
+
+    // public final void waitForUpdate() { // blocking
+    //     Date now = new Date();
+    //     boolean updated = false;
+    //     while (!updated) {
+    //         bricksLock.lock();
+    //         try {
+    //             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
+    //                 Brick brick = entry.getValue();
+    //                 updated = updated || now.before(brick.getNextTimestamp());
+    //             }
+    //         } finally {
+    //             bricksLock.unlock();
+    //         }
+    //         if (!updated) {
+    //             // System.out.println(".");
+    //             try {
+    //                 TimeUnit.MILLISECONDS.sleep(updatePollFrequencyMs);
+    //             } catch (InterruptedException e) {
+    //                 e.printStackTrace();
+    //             }
+    //         }
+    //     }
+
+    //     bricksLock.lock();
+    //     try {
+    //         for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
+    //             Brick brick = entry.getValue();
+    //             brick.updateCurrentValues();
+    //         }
+    //     } finally {
+    //         bricksLock.unlock();
+    //     }
+
+    //     writeMessages(); // TODO: move to better place? Let subclass decide?
+    // }
 }
 
 /* public */ final class HttpProxy extends Proxy {
@@ -264,46 +312,6 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
         }
     }
 
-    // waitForNextUpdate();
-    // waitForUpdates(5 * 60); // s
-    // or collectUpdatesUntil(date);
-
-    // public final void waitForUpdate() { // blocking
-    //     Date now = new Date();
-    //     boolean updated = false;
-    //     while (!updated) {
-    //         bricksLock.lock();
-    //         try {
-    //             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
-    //                 Brick brick = entry.getValue();
-    //                 updated = updated || now.before(brick.getNextTimestamp());
-    //             }
-    //         } finally {
-    //             bricksLock.unlock();
-    //         }
-    //         if (!updated) {
-    //             // System.out.println(".");
-    //             try {
-    //                 TimeUnit.MILLISECONDS.sleep(updatePollFrequencyMs);
-    //             } catch (InterruptedException e) {
-    //                 e.printStackTrace();
-    //             }
-    //         }
-    //     }
-
-    //     bricksLock.lock();
-    //     try {
-    //         for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
-    //             Brick brick = entry.getValue();
-    //             brick.updateCurrentValues();
-    //         }
-    //     } finally {
-    //         bricksLock.unlock();
-    //     }
-
-    //     writeMessages(); // TODO: move to better place? Let subclass decide?
-    // }
-
     public static MockProxy fromConfig(String configHost) {
         return new MockProxy();
     }
@@ -370,6 +378,10 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 /* public */ abstract class Brick {
     protected Brick(String brickID) {
         this.brickID = brickID;
+        // TODO: move to Proxy?
+        timeZone = TimeZone.getTimeZone("UTC");
+        formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        formatter.setTimeZone(timeZone);
     }
 
     private final String brickID;
@@ -378,38 +390,53 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
         return brickID;
     }
 
-    // private Date currentTimestamp = new Date(0L);
-    // private Date nextTimestamp = new Date(0L);
-    // private int currentBatteryLevel = 0;
+    private int currentEnergyLevel = 0;
+    private Date currentTimestamp = new Date(0L);
+    
+    private TimeZone timeZone;
+    private DateFormat formatter;
 
-    // private TimeZone timeZone;
-    // private DateFormat formatter;
-    //     timeZone = TimeZone.getTimeZone("UTC");
-    //     formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    //     formatter.setTimeZone(timeZone);
-
-    private final String dateToIsoUtcString(Date date) {
-        return formatter.format(date);
+    public int getEnergyLevel() {
+        return currentEnergyLevel;
     }
 
-    // public int getBatteryLevel() {
-    //     return currentBatteryLevel;
-    // }
+    public Date getTimestamp() {
+        return currentTimestamp;
+    }
 
-    // public Date getTimestamp() {
-    //     return currentTimestamp;
-    // }
-
-    // public String getTimestampIsoUtc() {
-    //     return dateToIsoUtcString(currentTimestamp);
-    // }
+    public String getTimestampIsoUtc() {
+        return formatter.format(currentTimestamp);
+    }
 
     abstract protected void setCurrentPayload(byte[] payload);
     abstract protected byte[] getTargetPayload(boolean mock);
 }
 
+/* public */ final class ButtonBrick extends Brick {
+    private ButtonBrick(String brickID) {
+        super(brickID);
+    }
+
+    public boolean getPressed() { return false; }
+    public void setPressed(boolean pressed) {}
+
+    @Override
+    protected void setCurrentPayload(byte[] payload) {}
+
+    @Override
+    protected byte[] getTargetPayload(boolean mock) { return null; }
+
+    public static ButtonBrick connect(Proxy proxy, String brickID) {
+        ButtonBrick brick = new ButtonBrick(brickID);
+        proxy.connectBrick(brick);
+        return brick;
+    }
+}
+
 /* public */ final class BuzzerBrick extends Brick {
-    private BuzzerBrick() {}
+    private BuzzerBrick(String brickID) {
+        super(brickID);
+    }
 
     // TODO: rename to triggerAlert(int ms)?
     public void setEnabled(boolean enabled) {}
@@ -490,15 +517,15 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
         super(brickID);
     }
 
-    private volatile boolean currentState;
-    private volatile boolean targetState;
+    private volatile Color currentColor;
+    private volatile Color targetColor;
 
-    public boolean getState() {
-        return currentState;
+    public Color getColor() {
+        return currentColor;
     }
 
-    public void setState(boolean state) {
-        targetState = state;
+    public void setColor(Color color) {
+        targetColor = color;
     }
 
     @Override
@@ -506,7 +533,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
         try {
             // TODO: decode real format
             String message = new String(payload, StandardCharsets.UTF_8);
-            currentState = Boolean.parseBoolean(message);
+            currentColor = Color.decode(message);
         } catch(NumberFormatException e) {
             e.printStackTrace();
         }
@@ -517,7 +544,12 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
         // ignore mock flag
         byte[] payload;
         try {
-            payload = Boolean.toString(targetState).getBytes("UTF-8");
+            int r = targetColor.getRed();
+            int g = targetColor.getGreen();
+            int b = targetColor.getBlue();
+            String colorString = 
+                String.format("#%02x%02x%02x", r, g, b);  
+            payload = colorString.getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             payload = null;
@@ -535,7 +567,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 }
 
 /* public */ final class LedStripBrick extends Brick {
-    private LedStripBrick() {}
+    private LedStripBrick(String brickID) {
+        super(brickID);
+    }
 
     public void setColors(Color[] values) {}
 
@@ -553,7 +587,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 }
 
 /* public */ final class LcdDisplayBrick extends Brick {
-    private LcdDisplayBrick() {}
+    private LcdDisplayBrick(String brickID) {
+        super(brickID);
+    }
 
     public void setDoubleValue(double value) {}
 
@@ -580,7 +616,6 @@ public final class Bricks {
     static void runDoorbellExample(Proxy proxy) {
         ButtonBrick buttonBrick = ButtonBrick.connect(proxy, "BUTTON_BRICK_TOKEN");
         BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, "BUZZER_BRICK_TOKEN");
-
         while (true) {
             boolean pressed = buttonBrick.getPressed();
             String time = buttonBrick.getTimestampIsoUtc();
@@ -601,7 +636,6 @@ public final class Bricks {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         while (true) {
             String time = brick.getTimestampIsoUtc();
             double temp = brick.getTemperature();
@@ -618,30 +652,28 @@ public final class Bricks {
         }
     }
 
-    static void runLoggingArrayExample(BackendProxy proxy) {
+    static void runLoggingArrayExample(Proxy proxy) {
         HumiTempBrick[] bricks = new HumiTempBrick[32];
-        for (int i = 0; i < HumiTempBricks.length; i++) {
+        for (int i = 0; i < bricks.length; i++) {
             bricks[i] = HumiTempBrick.connect(proxy, "TEMP_BRICK_TOKEN_" + i);
         }
-
         while (true) {
             for (HumiTempBrick brick : bricks) {
-                String token = brick.getToken();
+                String id = brick.getID();
                 String time = brick.getTimestampIsoUtc();
                 double temp = brick.getTemperature();
                 double humi = brick.getHumidity();
-                String line = String.format(Locale.US, "%s, %s, %.2f, %.2f", token, time, temp, humi);
+                String line = String.format(Locale.US, "%s, %s, %.2f, %.2f", id, time, temp, humi);
                 System.out.println(line);
             }
             proxy.waitForUpdate();
         }
     }
 
-    static void runMonitoringExample(BackendProxy proxy) {
-        HumiTempBrick humiTempBrick = humiTempBrick.connect(proxy, "TEMP_BRICK_TOKEN");
+    static void runMonitoringExample(Proxy proxy) {
+        HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, "TEMP_BRICK_TOKEN");
         LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, "DISPLAY_BRICK_TOKEN");
         LedBrick ledBrick = LedBrick.connect(proxy, "LED_BRICK_TOKEN");
-
         while (true) {
             double temp = humiTempBrick.getTemperature();
             displayBrick.setDoubleValue(temp);
