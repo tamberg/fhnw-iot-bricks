@@ -61,6 +61,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -103,6 +104,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
     public void subscribe(String topic, IMqttMessageListener listener) {
         try {
+            System.out.println("subscribe: topic = " + topic);
             client.subscribe(topic, 1, listener);
         } catch (MqttException e) {
             e.printStackTrace();
@@ -118,53 +120,83 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
     }
 }
 
-/* public */ final class MqttConfig {
+/* public */ final class MqttConfig { // TODO: rename MqttProxyConfig? Ttn...
     private MqttConfig() {}
 
+    private static final String BUTTON_ID = "0000-0000";
+    private static final String BUZZER_ID = "0000-0001";
+    private static final String HUMITEMP_ID = "0000-0002";
+    private static final String HUMITEMP_0_ID = HUMITEMP_ID;
+    private static final String HUMITEMP_1_ID = "0000-0003";
+    private static final String HUMITEMP_2_ID = "0000-0004";
+    private static final String LCDDISPLAY_ID = "0000-0005";
+    private static final String LED_ID = "0000-0006";
+
+    private static final String TTN_APP_ID = "fhnw-iot-bricks";
+    private static final String TTN_APP_ACCESS_KEY = "<AppAccessKey>";
+    private static final String TTN_HOST = "eu.thethings.network";
+
+    private static final String HOST = "test.mosquitto.org"; // TODO: TTN_HOST
+    private static final String USERNAME = null; // TODO: TTN_APP_ID
+    private static final String PASSWORD = null; // TODO: TTN_APP_ACCESS_KEY
+
+    HashMap<String, String> pubTopics;
+    HashMap<String, String> subTopics;
+
     public String getHost() {
-        // TODO: read mqtt config file
-        return "test.mosquitto.org";
+        return HOST;
     }
 
     public String getUsername() {
-        return null;
+        return USERNAME;
     }
 
     public String getPassword() {
-        return null;
+        return PASSWORD;
     }
 
-    public String getSubscribeTopic(String brickID) {
-        // TODO: read bick config file
-        String topic;
-        if ("0000-0001".equals(brickID)) {
-            topic = "bricks/0000-0001/temp/up";
-        } else if ("0000-0002".equals(brickID)) {
-            topic = "bricks/0000-0002/temp/up";
-        } else if ("0000-0003".equals(brickID)) {
-            topic = "bricks/0000-0003/temp/up";
-        } else if ("0000-0004".equals(brickID)) {
-            topic = "bricks/0000-0004/led/up";
-        } else {
-            topic = null;
+    public String getSubscribeTopic(String brickID) { // TODO: move to MqttBrickConfig?
+        String topic = subTopics.get(brickID);
+        if (topic == null) {
+            throw new IllegalArgumentException(brickID);
         }
         return topic;
     }
 
     public String getPublishTopic(String brickID) {
-        // TODO: read bick config file
-        String topic;
-        if ("0000-0004".equals(brickID)) {
-            topic = "bricks/0000-0004/led/down";
-        } else {
-            topic = null;
+        String topic = pubTopics.get(brickID);
+        if (topic == null) {
+            throw new IllegalArgumentException(brickID);
         }
         return topic;
     }
 
+    // $ mqtt sub -t "<AppID>/devices/<DevID>/up" \
+    // -h "eu.thethings.network" -u "<AppID>" \
+    // -P "<AppAccessKey>" # see TTN console, apps
+    // To send a packet downlink, Base64 encoded:
+    // $ mqtt pub -t "<AppID>/devices/<DevID>/down" \
+    // -m '{"port":1,"payload_raw":"<Bytes>"}' -h …
+
+    private void init(String configHost) {
+        // TODO: get from host or use generic pattern
+        subTopics = new HashMap<String, String>();
+        subTopics.put(BUTTON_ID, TTN_APP_ID + "/devices/" + BUTTON_ID + "/up");
+        subTopics.put(BUZZER_ID, TTN_APP_ID + "/devices/" + BUZZER_ID + "/up");
+        subTopics.put(HUMITEMP_0_ID, TTN_APP_ID + "/devices/" + HUMITEMP_0_ID + "/up");
+        subTopics.put(HUMITEMP_1_ID, TTN_APP_ID + "/devices/" + HUMITEMP_1_ID + "/up");
+        subTopics.put(HUMITEMP_2_ID, TTN_APP_ID + "/devices/" + HUMITEMP_2_ID + "/up");
+        subTopics.put(LCDDISPLAY_ID, TTN_APP_ID + "/devices/" + LCDDISPLAY_ID + "/up");
+        subTopics.put(LED_ID, TTN_APP_ID + "/devices/" + LED_ID + "/up");
+        pubTopics = new HashMap<String, String>();
+        pubTopics.put(BUZZER_ID, TTN_APP_ID + "/devices/" + BUZZER_ID + "/down");
+        pubTopics.put(LED_ID, TTN_APP_ID + "/devices/" + LED_ID + "/down");
+    }
+
     public static MqttConfig fromHost(String configHost) {
-        // TODO: set config host
-        return new MqttConfig();
+        MqttConfig config = new MqttConfig();
+        config.init(configHost);
+        return config;
     }
 }
 
@@ -354,9 +386,9 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
     @Override
     public void waitForUpdate() {
         for (Brick brick : bricks) {
-            String topic = mqttConfig.getPublishTopic(brick.getID());
             byte[] payload = brick.getTargetPayload(false); // not a mock
             if (payload != null) {
+                String topic = mqttConfig.getPublishTopic(brick.getID());
                 mqttService.publish(topic, payload);
             }
         }
@@ -464,7 +496,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
     private volatile double currentTemp;
 
     public double getHumidity() {
-        return currentTemp;
+        return currentHumi;
     }
 
     public double getTemperature() {
@@ -614,9 +646,19 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 public final class Bricks {
     private Bricks() {}
 
+    // TODO: move?
+    private static final String BUTTON_ID = "0000-0000";
+    private static final String BUZZER_ID = "0000-0001";
+    private static final String HUMITEMP_ID = "0000-0002";
+    private static final String HUMITEMP_0_ID = HUMITEMP_ID;
+    private static final String HUMITEMP_1_ID = "0000-0003";
+    private static final String HUMITEMP_2_ID = "0000-0004";
+    private static final String LCDDISPLAY_ID = "0000-0005";
+    private static final String LED_ID = "0000-0006";
+
     private static void runDoorbellExample(Proxy proxy) {
-        ButtonBrick buttonBrick = ButtonBrick.connect(proxy, "BUTTON_BRICK_TOKEN");
-        BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, "BUZZER_BRICK_TOKEN");
+        ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_ID);
+        BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, BUZZER_ID);
         while (true) {
             boolean pressed = buttonBrick.getPressed();
             String time = buttonBrick.getTimestampIsoUtc();
@@ -627,7 +669,7 @@ public final class Bricks {
     }
 
     private static void runLoggingExample(Proxy proxy) {
-        HumiTempBrick brick = HumiTempBrick.connect(proxy, "TEMP_BRICK_TOKEN");
+        HumiTempBrick brick = HumiTempBrick.connect(proxy, HUMITEMP_ID);
         FileWriter fileWriter = null;
         String title = "Timestamp (UTC)\tTemperature\tHumidity\n";
         System.out.print(title);
@@ -654,10 +696,10 @@ public final class Bricks {
     }
 
     private static void runLoggingArrayExample(Proxy proxy) {
-        HumiTempBrick[] bricks = new HumiTempBrick[32];
-        for (int i = 0; i < bricks.length; i++) {
-            bricks[i] = HumiTempBrick.connect(proxy, "TEMP_BRICK_TOKEN_" + i);
-        }
+        HumiTempBrick[] bricks = new HumiTempBrick[3];
+        bricks[0] = HumiTempBrick.connect(proxy, HUMITEMP_0_ID);
+        bricks[1] = HumiTempBrick.connect(proxy, HUMITEMP_1_ID);
+        bricks[2] = HumiTempBrick.connect(proxy, HUMITEMP_2_ID);
         while (true) {
             for (HumiTempBrick brick : bricks) {
                 String id = brick.getID();
@@ -672,9 +714,9 @@ public final class Bricks {
     }
 
     private static void runMonitoringExample(Proxy proxy) {
-        HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, "TEMP_BRICK_TOKEN");
-        LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, "DISPLAY_BRICK_TOKEN");
-        LedBrick ledBrick = LedBrick.connect(proxy, "LED_BRICK_TOKEN");
+        HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, HUMITEMP_ID);
+        LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, LCDDISPLAY_ID);
+        LedBrick ledBrick = LedBrick.connect(proxy, LED_ID);
         while (true) {
             double temp = humiTempBrick.getTemperature();
             displayBrick.setDoubleValue(temp);
