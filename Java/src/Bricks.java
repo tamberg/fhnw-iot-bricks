@@ -1,9 +1,28 @@
 // Copyright (c) 2020 FHNW, Switzerland. All rights reserved.
 // Licensed under MIT License, see LICENSE for details.
 
-// $ javac src/Bricks.java
-// $ java -cp src Bricks
+// $ cd Java
+// $ curl -o lib/org.eclipse.paho.client.mqttv3-1.2.3.jar \
+//   https://repo.eclipse.org/content/repositories/paho-releases/org/eclipse/paho/\
+//   org.eclipse.paho.client.mqttv3/1.2.3/org.eclipse.paho.client.mqttv3-1.2.3.jar
+// $ javac -cp src:lib/org.eclipse.paho.client.mqttv3-1.2.3.jar src/Bricks.java
+// $ java -ea -cp src:lib/org.eclipse.paho.client.mqttv3-1.2.3.jar Bricks
 
+// Design principles:
+// - keep it simple to use
+//     - physical brick => access
+//     - no type casts, no generics 
+//     - getValue() remains constant
+//       until waitForUpdates()
+//     - mock mode for quick prototyping
+// - single responsibility
+//     - transport x encoding x brick type
+// - minimize dependencies
+//     - provide a single jar library
+//     - use as few libraries as possible
+//     - provide server/client certs in code
+
+/*
 import java.awt.Color;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -30,622 +49,535 @@ import java.util.Random;
 import java.util.HashMap;
 import java.util.TimeZone;
 import com.sun.net.httpserver.HttpServer;
+*/
 
-/* package */ final class Message {
-    Map<String, Object> attributes = Collections.synchronizedMap(
-        new HashMap<String, Object>());
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.List;
+import org.eclipse.paho.client.mqttv3.IMqttClient;
+import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
+import org.eclipse.paho.client.mqttv3.IMqttToken;
+import org.eclipse.paho.client.mqttv3.MqttCallback;
+import org.eclipse.paho.client.mqttv3.MqttClient;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-    /* package */ void putBooleanValue(String key, Boolean value) {
-        attributes.put(key, value);
+/* public */ final class MqttService {
+    public MqttService() {}
+
+    private IMqttClient client = null;
+
+    public void init(String host, String username, String password) {
+        try {
+            String hostURI = "tcp://" + host;
+            String clientID = ""; // defaults to mqtt-client-PROCESS_ID
+            client = new MqttClient(hostURI, clientID, new MemoryPersistence());
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }    
     }
 
-    /* package */ void putDateValue(String key, Date value) {
-        attributes.put(key, value);
+    public void connect() {
+        try {
+            MqttConnectOptions options = new MqttConnectOptions();
+            options.setCleanSession(true);
+            options.setAutomaticReconnect(true);
+            client.connect(options);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
     }
 
-    /* package */ void putDoubleValue(String key, Double value) {
-        attributes.put(key, value);
+    public void subscribe(String topic, IMqttMessageListener listener) {
+        try {
+            client.subscribe(topic, 1, listener);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
     }
 
-    /* package */ void putIntegerValue(String key, Integer value) {
-        attributes.put(key, value);
+    public void publish(String topic, byte[] payload) {
+        try {
+            client.publish(topic, payload, 1, false);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+/* public */ final class MqttConfig {
+    private MqttConfig() {}
+
+    public String getHost() {
+        // TODO: read mqtt config file
+        return "test.mosquitto.org";
     }
 
-    /* package */ void putStringValue(String key, String value) {
-        attributes.put(key, value);
+    public String getUsername() {
+        return null;
     }
 
-//    /* package */ Iterator<E> iterator() {
-//        return attributes.values().iterator();
-//    }
-
-    public Boolean getBooleanValue(String key) {
-        return (Boolean) attributes.get(key);
+    public String getPassword() {
+        return null;
     }
 
-    public Date getDateValue(String key) {
-        return (Date) attributes.get(key);
+    public String getSubscribeTopic(String brickID) {
+        // TODO: read bick config file
+        String topic;
+        if ("0000-0001".equals(brickID)) {
+            topic = "bricks/0000-0001/temp/up";
+        } else if ("0000-0002".equals(brickID)) {
+            topic = "bricks/0000-0002/temp/up";
+        } else if ("0000-0003".equals(brickID)) {
+            topic = "bricks/0000-0003/temp/up";
+        } else if ("0000-0004".equals(brickID)) {
+            topic = "bricks/0000-0004/led/up";
+        } else {
+            topic = null;
+        }
+        return topic;
     }
 
-    public Double getDoubleValue(String key) {
-        return (Double) attributes.get(key);
+    public String getPublishTopic(String brickID) {
+        // TODO: read bick config file
+        String topic;
+        if ("0000-0004".equals(brickID)) {
+            topic = "bricks/0000-0004/led/down";
+        } else {
+            topic = null;
+        }
+        return topic;
     }
 
-    public Integer getIntegerValue(String key) {
-        return (Integer) attributes.get(key);
+    public static MqttConfig fromHost(String configHost) {
+        // TODO: set config host
+        return new MqttConfig();
+    }
+}
+
+/* public */ abstract class Proxy {
+    abstract void connectBrick(Brick brick);
+    abstract public void waitForUpdate();
+}
+
+/* public */ final class HttpProxy extends Proxy {
+    // TODO: implementation
+    private HttpProxy() {
+        bricks = new ArrayList<Brick>();
     }
 
-    public String getStringValue(String key) {
-        return (String) attributes.get(key);
+    private final List<Brick> bricks;
+
+    @Override
+    void connectBrick(Brick brick) {
+        bricks.add(brick);
+    }
+
+    @Override
+    public void waitForUpdate() {}
+
+    // /* public */ final class HttpBackendProxy extends BackendProxy implements Runnable {
+    //     private HttpServer service; // local or via Relay, e.g. Yaler.net
+    //     private HttpClient client;
+    //     private URI backendUri;
+
+    //     public HttpBackendProxy(String backendHost, String backendApiToken) {
+    //         InetSocketAddress ip = new InetSocketAddress(8080);
+    //         try {
+    //             service = HttpServer.create(ip, 0);
+    //         } catch (IOException e) {
+    //             e.printStackTrace();
+    //         }
+
+    //         client = HttpClient.newBuilder()
+    //         //  .version(Version.HTTP_1_1)
+    //         //  .followRedirects(HttpClient.Redirect.NORMAL)
+    //         //  .connectTimeout(Duration.ofSeconds(20))
+    //         //  .proxy(ProxySelector.of(new InetSocketAddress("proxy.example.com", 80)))
+    //         //  .authenticator(Authenticator.getDefault())
+    //             .build();
+
+    //         backendUri = URI.create("https://" + backendHost + "/");
+    //     }
+
+    //     @Override
+    //     /* package */ final void sendMessage(Message message) {
+    //         String json = toJsonString(message);
+    //         HttpRequest request = HttpRequest.newBuilder()
+    //             .uri(backendUri)
+    //         //  .timeout(Duration.ofMinutes(2))
+    //             .header("Content-Type", "application/json")
+    //             .POST(BodyPublishers.ofString(json))
+    //             .build();
+
+    //         try {
+    //             HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
+    //             System.out.println(response.statusCode());
+    //             System.out.println(response.body());  
+    //         } catch (IOException e) {
+    //             e.printStackTrace();
+    //         } catch (InterruptedException e) {
+    //             e.printStackTrace();
+    //         }
+    //     }
+
+    //     @Override
+    //     public void start() {
+    //         new Thread(this).start();
+    //     }
+    // }
+
+    public static HttpProxy fromConfig(String configHost) {
+        return new HttpProxy();
+    }
+}
+
+/* public */ final class MockProxy extends Proxy {
+    private MockProxy() {
+        bricks = new ArrayList<Brick>();
+    }
+
+    private final List<Brick> bricks;
+
+    @Override
+    void connectBrick(Brick brick) {
+        bricks.add(brick);
+    }
+
+    @Override
+    public void waitForUpdate() {
+        for (Brick brick : bricks) {
+            byte[] payload = brick.getTargetPayload(true); // mock
+            if (payload != null) {
+                brick.setCurrentPayload(payload);
+            }
+        }
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000); // ms
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // waitForNextUpdate();
+    // waitForUpdates(5 * 60); // s
+    // or collectUpdatesUntil(date);
+
+    // public final void waitForUpdate() { // blocking
+    //     Date now = new Date();
+    //     boolean updated = false;
+    //     while (!updated) {
+    //         bricksLock.lock();
+    //         try {
+    //             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
+    //                 Brick brick = entry.getValue();
+    //                 updated = updated || now.before(brick.getNextTimestamp());
+    //             }
+    //         } finally {
+    //             bricksLock.unlock();
+    //         }
+    //         if (!updated) {
+    //             // System.out.println(".");
+    //             try {
+    //                 TimeUnit.MILLISECONDS.sleep(updatePollFrequencyMs);
+    //             } catch (InterruptedException e) {
+    //                 e.printStackTrace();
+    //             }
+    //         }
+    //     }
+
+    //     bricksLock.lock();
+    //     try {
+    //         for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
+    //             Brick brick = entry.getValue();
+    //             brick.updateCurrentValues();
+    //         }
+    //     } finally {
+    //         bricksLock.unlock();
+    //     }
+
+    //     writeMessages(); // TODO: move to better place? Let subclass decide?
+    // }
+
+    public static MockProxy fromConfig(String configHost) {
+        return new MockProxy();
+    }
+}
+
+/* public */ final class MqttProxy extends Proxy {
+    private MqttProxy(MqttConfig config) {
+        mqttConfig = config;
+        mqttService = new MqttService();
+        bricks = new ArrayList<Brick>();
+    }
+
+    private final MqttConfig mqttConfig;
+    private final MqttService mqttService;
+    private final List<Brick> bricks;
+
+    // calLed exactly once
+    private void connect() {
+        String host = mqttConfig.getHost();
+        String username = mqttConfig.getUsername();
+        String password = mqttConfig.getPassword();
+        mqttService.init(host, username, password);
+        mqttService.connect();
+    }
+
+    @Override
+    void connectBrick(Brick brick) {
+        String topic = mqttConfig.getSubscribeTopic(brick.getID());
+        IMqttMessageListener listener = new IMqttMessageListener() {
+            public void messageArrived(String topic, MqttMessage message) throws Exception {
+                System.out.printf("topic = \"%s\", payload = \"%s\"\n", topic, message);
+                byte[] payload = message.getPayload();
+                brick.setCurrentPayload(payload); // setPendingPayload() ?
+            }
+        };
+        mqttService.subscribe(topic, listener);
+        bricks.add(brick);
+    }
+
+    @Override
+    public void waitForUpdate() {
+        for (Brick brick : bricks) {
+            String topic = mqttConfig.getPublishTopic(brick.getID());
+            byte[] payload = brick.getTargetPayload(false); // not a mock
+            if (payload != null) {
+                mqttService.publish(topic, payload);
+            }
+        }
+        try {
+            TimeUnit.MILLISECONDS.sleep(1000); // ms
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static MqttProxy fromConfig(String configHost) {
+        MqttConfig config = MqttConfig.fromHost(configHost);
+        MqttProxy proxy = new MqttProxy(config); // TODO: singleton per configHost
+        proxy.connect();
+        return proxy;
     }
 }
 
 /* public */ abstract class Brick {
-    private BackendProxy proxy = null;
-    private String token = null;
-    private Date currentTimestamp = new Date(0L);
-    private Date nextTimestamp = new Date(0L);
-    private int currentBatteryLevel = 0;
-    private int nextBatteryLevel = 0;
-
-    private TimeZone timeZone;
-    private DateFormat formatter;
-
-    Brick(String token) {
-        timeZone = TimeZone.getTimeZone("UTC");
-        formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        formatter.setTimeZone(timeZone);
-        this.token = token;
+    protected Brick(String brickID) {
+        this.brickID = brickID;
     }
 
-    protected final void setBackendProxy(BackendProxy proxy) {
-        this.proxy = proxy;
+    private final String brickID;
+    
+    public String getID() {
+        return brickID;
     }
 
-    // protected final BackendProxy getBackendProxy() {
-    //     return proxy;
-    // }
+    // private Date currentTimestamp = new Date(0L);
+    // private Date nextTimestamp = new Date(0L);
+    // private int currentBatteryLevel = 0;
 
-    protected final String dateToIsoUtcString(Date date) {
+    // private TimeZone timeZone;
+    // private DateFormat formatter;
+    //     timeZone = TimeZone.getTimeZone("UTC");
+    //     formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    //     formatter.setTimeZone(timeZone);
+
+    private final String dateToIsoUtcString(Date date) {
         return formatter.format(date);
     }
 
-    protected abstract void updateCurrentValues2();
+    // public int getBatteryLevel() {
+    //     return currentBatteryLevel;
+    // }
 
-    void updateCurrentValues() {
-        // System.out.println("Brick.updateCurrentValues(), token = " + token);
-        updateCurrentValues2();
-        currentBatteryLevel = nextBatteryLevel;
-        currentTimestamp = nextTimestamp;
-    }
+    // public Date getTimestamp() {
+    //     return currentTimestamp;
+    // }
 
-    protected abstract void readMessage2(Message message);
+    // public String getTimestampIsoUtc() {
+    //     return dateToIsoUtcString(currentTimestamp);
+    // }
 
-    void readMessage(Message message) {
-        if (token.equals(message.getStringValue("token"))) {
-            // System.out.println("Brick.readMessage(), token = " + token);
-            nextBatteryLevel = message.getIntegerValue("battery");
-            nextTimestamp = message.getDateValue("timestamp");
-            readMessage2(message);
-        } else {
-            // System.out.println("Brick.readMessage(), token mismatch");
-        }
-    }
-
-    protected abstract void writeMessage2(Message message);
-
-    // proxy creates message, calls
-    void writeMessage(Message message) {
-        message.putStringValue("token", token);
-        writeMessage2(message);
-        // proxy sends message
-    }
-
-    /* package */ Date getNextTimestamp() {
-        return nextTimestamp;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public int getBatteryLevel() {
-        return currentBatteryLevel;
-    }
-
-    public Date getTimestamp() {
-        return currentTimestamp;
-    }
-
-    public String getTimestampIsoUtc() {
-        return dateToIsoUtcString(currentTimestamp);
-    }
-}
-
-/* public */ final class ButtonBrick extends Brick {
-    boolean currentPressed;
-    boolean nextPressed;
-
-    ButtonBrick(String token) {
-        super(token);
-    }
-
-    @Override
-    protected final void readMessage2(Message message) {
-        nextPressed = message.getBooleanValue("pressed");
-    }
-
-    @Override
-    protected final void updateCurrentValues2() {
-        currentPressed = nextPressed;
-    }
-
-    @Override
-    protected final void writeMessage2(Message message) {}
-
-    public boolean getPressed() { return currentPressed; }
-
-    public static ButtonBrick connect(BackendProxy proxy, String token) {
-        ButtonBrick brick = new ButtonBrick(token);
-        proxy.addBrick(brick);
-        return brick;
-    }
+    abstract protected void setCurrentPayload(byte[] payload);
+    abstract protected byte[] getTargetPayload(boolean mock);
 }
 
 /* public */ final class BuzzerBrick extends Brick {
-    boolean nextEnabled;
-    boolean currentEnabled;
-    boolean targetEnabled;
-
-    BuzzerBrick(String token) {
-        super(token);
-    }
-
-    @Override
-    protected final void readMessage2(Message message) {
-        nextEnabled = message.getBooleanValue("enabled");
-    }
-
-    @Override
-    protected final void updateCurrentValues2() {
-        currentEnabled = nextEnabled;
-    }
-
-    @Override
-    protected final void writeMessage2(Message message) {
-        message.putBooleanValue("enabled", targetEnabled);
-    }
+    private BuzzerBrick() {}
 
     // TODO: rename to triggerAlert(int ms)?
-    public void setEnabled(boolean enabled) {
-        targetEnabled = enabled;
-    }
+    public void setEnabled(boolean enabled) {}
 
-    public static BuzzerBrick connect(BackendProxy proxy, String token) {
-        BuzzerBrick brick = new BuzzerBrick(token);
-        brick.setBackendProxy(proxy);
-        proxy.addBrick(brick);
+    @Override
+    protected void setCurrentPayload(byte[] payload) {}
+
+    @Override
+    protected byte[] getTargetPayload(boolean mock) { return null; }
+
+    public static BuzzerBrick connect(Proxy proxy, String brickID) {
+        BuzzerBrick brick = new BuzzerBrick(brickID);
+        proxy.connectBrick(brick);
         return brick;
     }
 }
 
-/* public */ final class LedBrick extends Brick {
-    LedBrick(String token) {
-        super(token);
+/* public */ final class HumiTempBrick extends Brick {
+    private HumiTempBrick(String brickID) {
+        super(brickID);
     }
 
-    @Override
-    protected final void readMessage2(Message message) {}
-
-    @Override
-    protected final void updateCurrentValues2() {}
-
-    @Override
-    protected final void writeMessage2(Message message) {
-        //message.putBooleanValue("color", targetEnabled);
-    }
-
-    public void setColor(Color value) {
-        // TODO
-    }
-
-    public static LedBrick connect(BackendProxy proxy, String token) {
-        LedBrick brick = new LedBrick(token);
-        brick.setBackendProxy(proxy);
-        proxy.addBrick(brick);
-        return brick;
-    }
-}
-
-/* public */ final class LedStripBrick extends Brick {
-    private LedStripBrick(String token) {
-        super(token);
-    }
-
-    @Override
-    protected final void readMessage2(Message message) {}
-
-    @Override
-    protected final void updateCurrentValues2() {}
-
-    @Override
-    protected final void writeMessage2(Message message) {
-        //message.putBooleanValue("colors", targetEnabled);
-    }
-
-    public void setColors(Color[] values) {
-        // TODO
-    }
-
-    public static LedStripBrick connect(BackendProxy proxy, String token) {
-        LedStripBrick brick = new LedStripBrick(token);
-        brick.setBackendProxy(proxy);
-        proxy.addBrick(brick);
-        return brick;
-    }
-}
-
-/* public */ final class TemperatureBrick extends Brick {
-    double currentTemp;
-    double nextTemp;
-    double currentHumi;
-    double nextHumi;
-
-    private TemperatureBrick(String token) {
-        super(token);
-    }
-
-    @Override
-    protected final void readMessage2(Message message) {
-        nextTemp = message.getDoubleValue("temperature");
-        nextHumi = message.getDoubleValue("humidity");
-    }
-
-    @Override
-    protected final void updateCurrentValues2() {
-        currentTemp = nextTemp;
-        currentHumi = nextHumi;
-    }
-
-    @Override
-    protected final void writeMessage2(Message message) {}
+    private volatile double currentHumi;
+    private volatile double currentTemp;
 
     public double getHumidity() {
-        return currentHumi;
+        return currentTemp;
     }
 
     public double getTemperature() {
         return currentTemp;
     }
 
-    public static TemperatureBrick connect(BackendProxy proxy, String token) {
-        TemperatureBrick brick = new TemperatureBrick(token);
-        proxy.addBrick(brick);
+    @Override
+    protected void setCurrentPayload(byte[] payload) {
+        try {
+            String message = new String(payload, StandardCharsets.UTF_8);
+            String[] parts = message.split("|");
+            currentHumi = Double.parseDouble(parts[0]);
+            currentTemp = Double.parseDouble(parts[1]);
+        } catch(NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected byte[] getTargetPayload(boolean mock) {
+        byte[] payload;
+        if (mock) {
+            double targetHumi = Math.random() * 99 + 1;
+            double targetTemp = Math.random() * 50 + 1;
+            try {
+                String payloadString = 
+                    Double.toString(targetHumi) + "|" + 
+                    Double.toString(targetTemp);
+                payload = payloadString.getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                payload = null;
+            }
+        } else {
+            payload = null;
+        }
+        return payload;
+    }
+
+    public static HumiTempBrick connect(Proxy proxy, String brickID) {
+        // TODO: proxy.getEncoding(brickID) { return mqttConfig.getEncoging(brickID); }
+        // => ProtobufHumiTempBrick(), LppHumiTempBrick()
+        HumiTempBrick brick = new HumiTempBrick(brickID);
+        proxy.connectBrick(brick);
+        return brick;
+    }
+}
+
+/* public */ final class LedBrick extends Brick {
+    private LedBrick(String brickID) {
+        super(brickID);
+    }
+
+    private volatile boolean currentState;
+    private volatile boolean targetState;
+
+    public boolean getState() {
+        return currentState;
+    }
+
+    public void setState(boolean state) {
+        targetState = state;
+    }
+
+    @Override
+    protected void setCurrentPayload(byte[] payload) {
+        try {
+            // TODO: decode real format
+            String message = new String(payload, StandardCharsets.UTF_8);
+            currentState = Boolean.parseBoolean(message);
+        } catch(NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected byte[] getTargetPayload(boolean mock) {
+        // ignore mock flag
+        byte[] payload;
+        try {
+            payload = Boolean.toString(targetState).getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            payload = null;
+        }
+        return payload;
+    }
+
+    public static LedBrick connect(Proxy proxy, String brickID) {
+        // TODO: proxy.getEncoding(brickID) { return mqttConfig.getEncoging(brickID); }
+        // => ProtobufLedBrick(), LppLedBrick()
+        LedBrick brick = new LedBrick(brickID);
+        proxy.connectBrick(brick);
+        return brick;
+    }
+}
+
+/* public */ final class LedStripBrick extends Brick {
+    private LedStripBrick() {}
+
+    public void setColors(Color[] values) {}
+
+    @Override
+    protected void setCurrentPayload(byte[] payload) {}
+
+    @Override
+    protected byte[] getTargetPayload(boolean mock) { return null; }
+
+    public static LedStripBrick connect(Proxy proxy, String brickID) {
+        LedStripBrick brick = new LedStripBrick(brickID);
+        proxy.connectBrick(brick);
         return brick;
     }
 }
 
 /* public */ final class LcdDisplayBrick extends Brick {
-    double targetValue = 0; // TODO: naming
-    double currentValue = 0;
-    double nextValue = 0;
+    private LcdDisplayBrick() {}
 
-    private LcdDisplayBrick(String token) {
-        super(token);
-    }
-
-    @Override
-    protected final void readMessage2(Message message) {
-        nextValue = message.getDoubleValue("value");
-    }
-
-    @Override
-    protected final void updateCurrentValues2() {
-        currentValue = nextValue;
-    }
-
-    @Override
-    protected final void writeMessage2(Message message) {
-        message.putDoubleValue("value", targetValue);
-    }
-
-    public void setDoubleValue(double value) { // TODO: rename to showDoubleValue?
-        targetValue = value;
-    }
+    public void setDoubleValue(double value) {}
 
     public double getDoubleValue() {
-        return currentValue;
+        return 0.0;
     }
 
-    public static LcdDisplayBrick connect(BackendProxy proxy, String token) {
-        LcdDisplayBrick brick = new LcdDisplayBrick(token);
-        brick.setBackendProxy(proxy);
-        proxy.addBrick(brick);
+    @Override
+    protected void setCurrentPayload(byte[] payload) {}
+
+    @Override
+    protected byte[] getTargetPayload(boolean mock) { return null; }
+
+    public static LcdDisplayBrick connect(Proxy proxy, String brickID) {
+        LcdDisplayBrick brick = new LcdDisplayBrick(brickID);
+        proxy.connectBrick(brick);
         return brick;
-    }
-}
-
-/* public */ abstract class BackendProxy {
-    private int updatePollFrequencyMs = 500; // >= 500
-    Lock bricksLock = new ReentrantLock(); // TODO
-    Map<String, Brick> bricks = Collections.synchronizedMap(
-        new HashMap<String, Brick>());
-
-    /* package */ void addBrick(Brick brick) {
-        // TODO: throw IllegalArgumentException if token type != brick type?
-        bricksLock.lock();
-        try {
-            if (!bricks.containsValue(brick) && 
-                !bricks.containsKey(brick.getToken())) {
-                bricks.put(brick.getToken(), brick);
-            }
-        } finally {
-            bricksLock.unlock();
-        }
-    }
-
-    protected final void setUpdatePollFrequencyMs(int updatePollFrequencyMs) {
-        this.updatePollFrequencyMs = updatePollFrequencyMs;
-    }
-
-    protected final void readMessage(Message message) { // thread
-        //System.out.println("BackendProxy.readMessage()");
-        // Message is read by whomever it may concern
-        bricksLock.lock();
-        try {
-            for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
-                Brick brick = entry.getValue();
-                brick.readMessage(message);
-            }
-        } finally {
-            bricksLock.unlock();
-        }
-    }
-
-    protected final void writeMessages() {
-        System.out.println("BackendProxy.writeMessages()");
-        bricksLock.lock();
-        try {
-            for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
-                Brick brick = entry.getValue();
-                Message message = new Message(); // TODO: createMessage()in sublass?
-                // TODO: if (brick.isWriteNeeded()) { ...
-                brick.writeMessage(message);
-                sendMessage(message); // TODO: Thread? Delegate to subclass?
-            }
-        } finally {
-            bricksLock.unlock();
-        }
-    }
-
-    // TODO ? 
-    // waitForNextUpdate();
-    // waitForUpdates(5 * 60); // s
-    // or collectUpdatesUntil(date);
-
-    public final void waitForUpdate() { // blocking
-        //System.out.println("BackendProxy.waitForUpdate()");
-        // TODO: prevent unneccessary updates
-        Date now = new Date();
-        boolean updated = false;
-        while (!updated) {
-            bricksLock.lock();
-            try {
-                for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
-                    Brick brick = entry.getValue();
-                    updated = updated || now.before(brick.getNextTimestamp());
-                }
-            } finally {
-                bricksLock.unlock();
-            }
-            if (!updated) {
-                // System.out.println(".");
-                try {
-                    TimeUnit.MILLISECONDS.sleep(updatePollFrequencyMs);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        bricksLock.lock();
-        try {
-            for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
-                Brick brick = entry.getValue();
-                brick.updateCurrentValues();
-            }
-        } finally {
-            bricksLock.unlock();
-        }
-
-        writeMessages(); // TODO: move to better place? Let subclass decide?
-    }
-
-    /* package */ abstract void sendMessage(Message message);
-
-    public abstract void start(); // TODO: rename to begin?
-}
-
-/* public */ final class HttpBackendProxy extends BackendProxy implements Runnable {
-    private HttpServer service; // local or via Relay, e.g. Yaler.net
-    private HttpClient client;
-    private URI backendUri;
-
-    public HttpBackendProxy(String backendHost, String backendApiToken) {
-        InetSocketAddress ip = new InetSocketAddress(8080);
-        try {
-            service = HttpServer.create(ip, 0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        client = HttpClient.newBuilder()
-        //  .version(Version.HTTP_1_1)
-        //  .followRedirects(HttpClient.Redirect.NORMAL)
-        //  .connectTimeout(Duration.ofSeconds(20))
-        //  .proxy(ProxySelector.of(new InetSocketAddress("proxy.example.com", 80)))
-        //  .authenticator(Authenticator.getDefault())
-            .build();
-
-        backendUri = URI.create("https://" + backendHost + "/");
-    }
-
-    public void run() {
-        throw new UnsupportedOperationException("Not yet implemented.");
-    }
-
-    private String toJsonString(Message message) {
-        // TODO: enough knowledge?
-        //   message.get...
-        //   keys, type, sequence
-        //   vs. Message subtype TtnHttpJsonMessage 
-        //   or even TemperatureTtnHttpJsonMessage
-        //   m.toString() ...
-        return "";
-    }
-
-    @Override
-    /* package */ final void sendMessage(Message message) {
-        String json = toJsonString(message);
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(backendUri)
-        //  .timeout(Duration.ofMinutes(2))
-            .header("Content-Type", "application/json")
-            .POST(BodyPublishers.ofString(json))
-            .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-            System.out.println(response.statusCode());
-            System.out.println(response.body());  
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void start() {
-        new Thread(this).start();
-    }
-}
-
-/* public */ final class MqttBackendProxy extends BackendProxy implements Runnable {
-    // private MqttClient client; // PUB & SUB
-
-    public MqttBackendProxy(String host, String user, String password) {
-        // TODO
-    }
-
-    public void run() {
-        throw new UnsupportedOperationException("Not yet implemented.");
-    }
-
-    @Override
-    /* package */ final void sendMessage(Message message) {}
-
-    @Override
-    public void start() {
-        new Thread(this).start();
-    }
-}     
-
-/* public */ final class MockBackendProxy extends BackendProxy implements Runnable {
-    int maxUpdateFrequencyMs;
-    Random random = new Random();
-
-    public MockBackendProxy(int maxUpdateFrequencyMs, int updatePollFrequencyMs) {
-        this.maxUpdateFrequencyMs = maxUpdateFrequencyMs;
-        super.setUpdatePollFrequencyMs(updatePollFrequencyMs);
-    }
-
-    Brick getRandomBrick () {
-        Brick brick = null;
-        bricksLock.lock();
-        try {
-            Collection<Brick> brickCollection = bricks.values();
-            Object[] brickArray = brickCollection.toArray();
-            int length = brickArray.length;
-            if (length > 0) {
-                int i = random.nextInt(length);
-                brick = (Brick) brickArray[i];
-            }
-        } finally {
-            bricksLock.unlock();
-        }
-        return brick; 
-    }
-
-    public void run() { // TODO: move inside, to hide from public
-        while (true) {
-            Brick brick = getRandomBrick();
-            if (brick != null) {
-                Message message = new Message();
-                message.putStringValue("token", brick.getToken());
-                message.putDateValue("timestamp", new Date());
-                message.putIntegerValue("battery", random.nextInt(100));
-                if (brick instanceof ButtonBrick) {
-                    message.putBooleanValue("pressed", random.nextInt(2) == 0);
-                } else if (brick instanceof BuzzerBrick) {
-                    message.putBooleanValue("enabled", random.nextInt(2) == 0);
-                } else if (brick instanceof LcdDisplayBrick) {
-                    message.putDoubleValue("value", random.nextDouble() * 50.0);
-                } else if (brick instanceof TemperatureBrick) {
-                    message.putDoubleValue("humidity", random.nextDouble() * 100.0);
-                    message.putDoubleValue("temperature", random.nextDouble() * 50.0);
-                }
-                super.readMessage(message);
-            }
-            if (maxUpdateFrequencyMs > 0) {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(random.nextInt(maxUpdateFrequencyMs));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    @Override
-    /* package */ final void sendMessage(Message message) {
-        // TODO
-        String token = message.getStringValue("token");
-        System.out.println(token);
-    }
-
-    @Override
-    public void start() {
-        new Thread(this).start();
-    }
-}
-
-// TODO: BLE based Bricks (same token)? Here, the machine running this class is the "Backend". 
-
-/* public */ final class BleBackendProxy extends BackendProxy implements Runnable {
-    // private BleCentral central;
-
-    public BleBackendProxy() {
-        // TODO
-    }
-
-    public void run() {
-        throw new UnsupportedOperationException("Not yet implemented.");
-    }
-
-    @Override
-    /* package */ final void sendMessage(Message message) {}
-
-    @Override
-    public void start() {
-        new Thread(this).start();
     }
 }
 
 public final class Bricks {
     private Bricks() {}
 
-    static void runDoorbellExample(BackendProxy proxy) {
+    static void runDoorbellExample(Proxy proxy) {
         ButtonBrick buttonBrick = ButtonBrick.connect(proxy, "BUTTON_BRICK_TOKEN");
         BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, "BUZZER_BRICK_TOKEN");
 
@@ -658,8 +590,8 @@ public final class Bricks {
         }
     }
 
-    static void runLoggingExample(BackendProxy proxy) {
-        TemperatureBrick tempBrick = TemperatureBrick.connect(proxy, "TEMP_BRICK_TOKEN");
+    static void runLoggingExample(Proxy proxy) {
+        HumiTempBrick brick = HumiTempBrick.connect(proxy, "TEMP_BRICK_TOKEN");
         FileWriter fileWriter = null;
         String title = "Timestamp (UTC)\tTemperature\tHumidity\n";
         System.out.print(title);
@@ -671,9 +603,9 @@ public final class Bricks {
         }
 
         while (true) {
-            String time = tempBrick.getTimestampIsoUtc();
-            double temp = tempBrick.getTemperature();
-            double humi = tempBrick.getHumidity();
+            String time = brick.getTimestampIsoUtc();
+            double temp = brick.getTemperature();
+            double humi = brick.getHumidity();
             String line = String.format(Locale.US, "%s, %.2f, %.2f\n", time, temp, humi);
             System.out.print(line);
             try {
@@ -687,17 +619,17 @@ public final class Bricks {
     }
 
     static void runLoggingArrayExample(BackendProxy proxy) {
-        TemperatureBrick[] tempBricks = new TemperatureBrick[32];
-        for (int i = 0; i < tempBricks.length; i++) {
-            tempBricks[i] = TemperatureBrick.connect(proxy, "TEMP_BRICK_TOKEN_" + i);
+        HumiTempBrick[] bricks = new HumiTempBrick[32];
+        for (int i = 0; i < HumiTempBricks.length; i++) {
+            bricks[i] = HumiTempBrick.connect(proxy, "TEMP_BRICK_TOKEN_" + i);
         }
 
         while (true) {
-            for (TemperatureBrick tempBrick : tempBricks) {
-                String token = tempBrick.getToken();
-                String time = tempBrick.getTimestampIsoUtc();
-                double temp = tempBrick.getTemperature();
-                double humi = tempBrick.getHumidity();
+            for (HumiTempBrick brick : bricks) {
+                String token = brick.getToken();
+                String time = brick.getTimestampIsoUtc();
+                double temp = brick.getTemperature();
+                double humi = brick.getHumidity();
                 String line = String.format(Locale.US, "%s, %s, %.2f, %.2f", token, time, temp, humi);
                 System.out.println(line);
             }
@@ -706,15 +638,15 @@ public final class Bricks {
     }
 
     static void runMonitoringExample(BackendProxy proxy) {
-        TemperatureBrick tempBrick = TemperatureBrick.connect(proxy, "TEMP_BRICK_TOKEN");
+        HumiTempBrick humiTempBrick = humiTempBrick.connect(proxy, "TEMP_BRICK_TOKEN");
         LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, "DISPLAY_BRICK_TOKEN");
         LedBrick ledBrick = LedBrick.connect(proxy, "LED_BRICK_TOKEN");
 
         while (true) {
-            double temp = tempBrick.getTemperature();
+            double temp = humiTempBrick.getTemperature();
             displayBrick.setDoubleValue(temp);
             Color color = temp > 23 ? Color.RED : Color.GREEN;
-            String time = tempBrick.getTimestampIsoUtc();
+            String time = humiTempBrick.getTimestampIsoUtc();
             String line = String.format(Locale.US, "%s, %.2f, %s\n", time, temp, color);
             System.out.print(line);
             ledBrick.setColor(color);
@@ -725,23 +657,17 @@ public final class Bricks {
     public static void main(String args[]) {
         String usageErrorMessage = "usage: java Bricks http|mqtt|mock d|l|a|m";
         if (args.length == 2) {
-            BackendProxy proxy = null;
+            Proxy proxy = null;
             if ("http".equals(args[0])) {
-                proxy = new HttpBackendProxy("HTTP_HOST", "HTTP_API_TOKEN");
+                proxy = HttpProxy.fromConfig("brick.li");
             } else if ("mqtt".equals(args[0])) {
-                proxy = new MqttBackendProxy("MQTT_HOST", "MQTT_USER", "MQTT_PASSWORD");
+                proxy = MqttProxy.fromConfig("brick.li");
             } else if ("mock".equals(args[0])) {
-                // proxy = new MockBackendProxy(10, 320); // $ java Bricks mock a
-                //proxy = new MockBackendProxy(1000, 500); // $ java mock d|l|m (fast)
-                proxy = new MockBackendProxy(3000, 1000); // $ java mock d|l|m (medium)
-                // proxy = new MockBackendProxy(5 * 60 * 1000, 500); // $ java mock d|l|m (slow, LoRaWAN)
-            } else if ("ble".equals(args[0])) {
-                proxy = new BleBackendProxy();
+                proxy = MockProxy.fromConfig("brick.li");
             } else {
                 System.out.println(usageErrorMessage);
                 System.exit(-1);
             }
-            proxy.start(); // TODO: make implicit, inside waitForUpdate?
             if ("d".equals(args[1])) {
                 runDoorbellExample(proxy);
             } else if ("l".equals(args[1])) {
