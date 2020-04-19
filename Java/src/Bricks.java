@@ -459,6 +459,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
         super(brickID);
     }
 
+    private final String SEPARATOR = ";";
     private volatile double currentHumi;
     private volatile double currentTemp;
 
@@ -474,11 +475,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
     protected void setCurrentPayload(byte[] payload) {
         try {
             String message = new String(payload, StandardCharsets.UTF_8);
-            String[] parts = message.split(";");
-            System.out.println(parts.length);
-            System.out.println("setCurrentPayload: ");
-            System.out.println(parts[0]);
-            System.out.println(parts[1]);
+            String[] parts = message.split(SEPARATOR);
             currentHumi = Double.parseDouble(parts[0]);
             currentTemp = Double.parseDouble(parts[1]);
         } catch(NumberFormatException e) {
@@ -494,9 +491,8 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
             double targetTemp = Math.random() * 50 + 1;
             try {
                 String payloadString = 
-                    Double.toString(targetHumi) + ";" + 
+                    Double.toString(targetHumi) + SEPARATOR + 
                     Double.toString(targetTemp);
-                System.out.println("getTargetPayload: " + payloadString);
                 payload = payloadString.getBytes("UTF-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
