@@ -1,0 +1,12 @@
+{
+  "mqtt-config": {
+    "id": "ttn",
+    "java-type": "ch.fhnw.iot-bricks.MqttConfig",
+    "mqtt-host": "eu.thethings.network",
+    "mqtt-user": "app-id",
+    "mqtt-pass": "app-access-key",
+    "mqtt-sub": "fhnw-iot-bricks/devices/{id}/up",
+    "mqtt-pub": "fhnw-iot-bricks/devices/{id}/down"
+  }
+}
+

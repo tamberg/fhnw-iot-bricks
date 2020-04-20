@@ -1,0 +1,27 @@
+<h1>0000-0001</h1>
+<h2>HumiTemp Brick</h2>
+<pre>Last seen: 2020-03-05T00:00:00Z (OFFLINE)</pre>
+<h2>Java Example</h2>
+<pre>include ch.fhnw.imvs.bricks;
+
+...
+
+BASE_URL = "brick.li/";
+BRICK_ID = "0000-0001";
+
+Proxy proxy = MqttProxy.fromConfig(BASE_URL);
+// or proxy = MockProxy.fromConfig(BASE_URL);
+
+HumiTempBrick brick = HumiTempBrick.connect(proxy, BRICK_ID);
+
+// this brick
+double humi = brick.getHumidity();
+double temp = brick.getTemperature();
+
+// all bricks
+int battery = brick.getBatteryLevel();
+String time = brick.getTimestampIsoUtc();
+</pre>
+
+<h2>Java Library</h2>
+See <a href="https://github.com/tamberg/fhnw-iot-bricks">https://github.com/tamberg/fhnw-iot-bricks</a>
