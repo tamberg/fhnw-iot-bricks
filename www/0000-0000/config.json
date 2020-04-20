@@ -1,0 +1,7 @@
+{
+  "brick-config": {
+    "id": "0000-0000",
+    "java-type": "ch.fhnw.iot-bricks.LedBrick",
+    "mqtt-config": "/mqtt/ttn.json"
+  }
+}

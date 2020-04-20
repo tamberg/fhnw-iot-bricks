@@ -1,7 +1,7 @@
-<title>IoT Brick (0000-0001)</title>
+<title>IoT Brick (0000-0002)</title>
 <body>
-<h1>IoT Brick (0000-0001)</h1>
-<h2>Humidity & Temperature</h2>
+<h1>IoT Brick (0000-0002)</h1>
+<h2>Button</h2>
 <div><pre>Last seen: 2020-03-05T00:00:00Z (OFFLINE)</pre></div>
 <h2>Java Example</h2>
 <pre>include ch.fhnw.imvs.bricks.*;
@@ -9,16 +9,15 @@
 ...
 
 BASE_URL = "brick.li/";
-BRICK_ID = "0000-0001";
+BRICK_ID = "0000-0002";
 
 Proxy proxy = MqttProxy.fromConfig(BASE_URL);
 // or proxy = MockProxy.fromConfig(BASE_URL);
 
-HumiTempBrick brick = HumiTempBrick.connect(proxy, BRICK_ID);
+ButtonBrick brick = ButtonBrick.connect(proxy, BRICK_ID);
 
 // this brick
-double humi = brick.getHumidity();
-double temp = brick.getTemperature();
+boolean pressed = brick.isPressed();
 
 // all bricks
 int battery = brick.getBatteryLevel();

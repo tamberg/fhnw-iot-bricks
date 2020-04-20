@@ -1,0 +1,7 @@
+{
+  "brick-config": {
+    "id": "0000-0002",
+    "java-type": "ch.fhnw.iot-bricks.ButtonBrick",
+    "mqtt-config": "/mqtt/ttn.json"
+  }
+}
