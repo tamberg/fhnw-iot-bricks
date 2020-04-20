@@ -24,35 +24,6 @@
 //     - use as few libraries as possible
 //     - provide server/client certs in code
 
-/*
-import java.awt.Color;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.lang.ClassCastException;
-import java.lang.String;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpRequest.BodyPublishers;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.net.InetSocketAddress;
-import java.net.URI;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
-import java.util.HashMap;
-import java.util.TimeZone;
-import com.sun.net.httpserver.HttpServer;
-*/
-
 import java.awt.Color;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -129,14 +100,14 @@ import com.eclipsesource.json.JsonValue;
 /* public */ final class MqttConfig { // TODO: rename MqttProxyConfig? Ttn...
     private MqttConfig() {}
 
-    private static final String BUTTON_ID = "0000-0000";
-    private static final String BUZZER_ID = "0000-0001";
-    private static final String HUMITEMP_ID = "0000-0002";
+    private static final String BUTTON_ID = "0000-0002";
+    private static final String BUZZER_ID = "0000-0006";
+    private static final String HUMITEMP_ID = "0000-0001";
     private static final String HUMITEMP_0_ID = HUMITEMP_ID;
     private static final String HUMITEMP_1_ID = "0000-0003";
     private static final String HUMITEMP_2_ID = "0000-0004";
     private static final String LCDDISPLAY_ID = "0000-0005";
-    private static final String LED_ID = "0000-0006";
+    private static final String LED_ID = "0000-0000";
 
     private static final String TTN_APP_ID = "fhnw-iot-bricks";
     private static final String TTN_APP_ACCESS_KEY = "<AppAccessKey>";
@@ -177,13 +148,6 @@ import com.eclipsesource.json.JsonValue;
         return topic;
     }
 
-    // $ mqtt sub -t "<AppID>/devices/<DevID>/up" \
-    // -h "eu.thethings.network" -u "<AppID>" \
-    // -P "<AppAccessKey>" # see TTN console, apps
-    // To send a packet downlink, Base64 encoded:
-    // $ mqtt pub -t "<AppID>/devices/<DevID>/down" \
-    // -m '{"port":1,"payload_raw":"<Bytes>"}' -h …
-
     private void init(String configHost) {
         // TODO: get from host or use generic pattern
         subTopics = new HashMap<String, String>();
@@ -209,46 +173,7 @@ import com.eclipsesource.json.JsonValue;
 /* public */ abstract class Proxy {
     abstract void connectBrick(Brick brick);
     abstract public void waitForUpdate();
-
-        // waitForNextUpdate();
-    // waitForUpdates(5 * 60); // s
-    // or collectUpdatesUntil(date);
-
-    // public final void waitForUpdate() { // blocking
-    //     Date now = new Date();
-    //     boolean updated = false;
-    //     while (!updated) {
-    //         bricksLock.lock();
-    //         try {
-    //             for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
-    //                 Brick brick = entry.getValue();
-    //                 updated = updated || now.before(brick.getNextTimestamp());
-    //             }
-    //         } finally {
-    //             bricksLock.unlock();
-    //         }
-    //         if (!updated) {
-    //             // System.out.println(".");
-    //             try {
-    //                 TimeUnit.MILLISECONDS.sleep(updatePollFrequencyMs);
-    //             } catch (InterruptedException e) {
-    //                 e.printStackTrace();
-    //             }
-    //         }
-    //     }
-
-    //     bricksLock.lock();
-    //     try {
-    //         for (Map.Entry<String, Brick> entry : bricks.entrySet()) {
-    //             Brick brick = entry.getValue();
-    //             brick.updateCurrentValues();
-    //         }
-    //     } finally {
-    //         bricksLock.unlock();
-    //     }
-
-    //     writeMessages(); // TODO: move to better place? Let subclass decide?
-    // }
+    // updated = updated || now.before(brick.getNextTimestamp());
 }
 
 /* public */ final class HttpProxy extends Proxy {
@@ -266,57 +191,6 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     public void waitForUpdate() {}
-
-    // /* public */ final class HttpBackendProxy extends BackendProxy implements Runnable {
-    //     private HttpServer service; // local or via Relay, e.g. Yaler.net
-    //     private HttpClient client;
-    //     private URI backendUri;
-
-    //     public HttpBackendProxy(String backendHost, String backendApiToken) {
-    //         InetSocketAddress ip = new InetSocketAddress(8080);
-    //         try {
-    //             service = HttpServer.create(ip, 0);
-    //         } catch (IOException e) {
-    //             e.printStackTrace();
-    //         }
-
-    //         client = HttpClient.newBuilder()
-    //         //  .version(Version.HTTP_1_1)
-    //         //  .followRedirects(HttpClient.Redirect.NORMAL)
-    //         //  .connectTimeout(Duration.ofSeconds(20))
-    //         //  .proxy(ProxySelector.of(new InetSocketAddress("proxy.example.com", 80)))
-    //         //  .authenticator(Authenticator.getDefault())
-    //             .build();
-
-    //         backendUri = URI.create("https://" + backendHost + "/");
-    //     }
-
-    //     @Override
-    //     /* package */ final void sendMessage(Message message) {
-    //         String json = toJsonString(message);
-    //         HttpRequest request = HttpRequest.newBuilder()
-    //             .uri(backendUri)
-    //         //  .timeout(Duration.ofMinutes(2))
-    //             .header("Content-Type", "application/json")
-    //             .POST(BodyPublishers.ofString(json))
-    //             .build();
-
-    //         try {
-    //             HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-    //             System.out.println(response.statusCode());
-    //             System.out.println(response.body());  
-    //         } catch (IOException e) {
-    //             e.printStackTrace();
-    //         } catch (InterruptedException e) {
-    //             e.printStackTrace();
-    //         }
-    //     }
-
-    //     @Override
-    //     public void start() {
-    //         new Thread(this).start();
-    //     }
-    // }
 
     public static HttpProxy fromConfig(String configHost) {
         return new HttpProxy();
@@ -455,7 +329,7 @@ import com.eclipsesource.json.JsonValue;
         super(brickID);
     }
 
-    public boolean getPressed() { return false; }
+    public boolean isPressed() { return false; }
     public void setPressed(boolean pressed) {}
 
     @Override
@@ -597,8 +471,6 @@ import com.eclipsesource.json.JsonValue;
     }
 
     public static LedBrick connect(Proxy proxy, String brickID) {
-        // TODO: proxy.getEncoding(brickID) { return mqttConfig.getEncoging(brickID); }
-        // => ProtobufLedBrick(), LppLedBrick()
         LedBrick brick = new LedBrick(brickID);
         proxy.connectBrick(brick);
         return brick;
@@ -652,20 +524,20 @@ import com.eclipsesource.json.JsonValue;
 public final class Bricks {
     private Bricks() {}
 
-    private static final String BUTTON_ID = "0000-0000";
-    private static final String BUZZER_ID = "0000-0001";
-    private static final String HUMITEMP_ID = "0000-0002";
+    private static final String BUTTON_ID = "0000-0002";
+    private static final String BUZZER_ID = "0000-0006";
+    private static final String HUMITEMP_ID = "0000-0001";
     private static final String HUMITEMP_0_ID = HUMITEMP_ID;
     private static final String HUMITEMP_1_ID = "0000-0003";
     private static final String HUMITEMP_2_ID = "0000-0004";
     private static final String LCDDISPLAY_ID = "0000-0005";
-    private static final String LED_ID = "0000-0006";
+    private static final String LED_ID = "0000-0000";
 
     private static void runDoorbellExample(Proxy proxy) {
         ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_ID);
         BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, BUZZER_ID);
         while (true) {
-            boolean pressed = buttonBrick.getPressed();
+            boolean pressed = buttonBrick.isPressed();
             String time = buttonBrick.getTimestampIsoUtc();
             System.out.println(time + ", " +  pressed);
             buzzerBrick.setEnabled(pressed);
