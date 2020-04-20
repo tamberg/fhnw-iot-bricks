@@ -60,13 +60,13 @@ public final class MockProxy extends Proxy {
 ```
 ### Config
 ```
-final String BASE_URL = "brick.li"; // the registry has a base URL
+final String BASE_URI = "brick.li"; // the registry has a base URI
 final String BRICK_ID = "0000-0001"; // each brick has a unique ID
 ```
 ### Shared Proxy
 ```
-Proxy proxy = MqttProxy.fromConfig(BASE_URL);
-// or proxy = MockProxy.fromConfig(BASE_URL);
+Proxy proxy = MqttProxy.fromConfig(BASE_URI);
+// or proxy = MockProxy.fromConfig(BASE_URI);
 ```
 ### Monitoring System
 ```
