@@ -21,29 +21,29 @@ public abstract class Brick {
 
 public final class ButtonBrick extends Brick {
     public boolean getPressed();
-    public static ButtonBrick connect(Proxy backend, String brickID);
+    public static ButtonBrick connect(Proxy proxy, String brickID);
 }
 
 public final class LedBrick extends Brick {
     public void setColor(Color value);
-    public static LedBrick connect(Proxy backend, String brickID);
+    public static LedBrick connect(Proxy proxy, String brickID);
 }
 
 public final class LedStripBrick extends Brick {
     public void setColors(Color[] values);
-    public static LedStripBrick connect(Proxy backend, String brickID);
+    public static LedStripBrick connect(Proxy proxy, String brickID);
 }
 
 public final class HumiTempBrick extends Brick {
     public double getHumidity();
     public double getTemperature();
-    public static HumiTempBrick connect(Proxy backend, String brickID);
+    public static HumiTempBrick connect(Proxy proxy, String brickID);
 }
 
 public final class LcdDisplayBrick extends Brick;
     public void setDoubleValue(double value);
     public double getDoubleValue();
-    public static LcdDisplayBrick connect(Proxy backend, String brickID);
+    public static LcdDisplayBrick connect(Proxy proxy, String brickID);
 }
 
 public abstract class Proxy {
