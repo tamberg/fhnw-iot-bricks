@@ -2,11 +2,13 @@
 // Licensed under MIT License, see LICENSE for details.
 
 // $ cd Java
-// $ curl -o lib/org.eclipse.paho.client.mqttv3-1.2.3.jar \
+// $ curl -Lo lib/minimal-json-0.9.5.jar https://github.com/ralfstx/minimal-json/\
+//   releases/download/0.9.5/minimal-json-0.9.5.jar
+// $ curl -Lo lib/org.eclipse.paho.client.mqttv3-1.2.3.jar \
 //   https://repo.eclipse.org/content/repositories/paho-releases/org/eclipse/paho/\
 //   org.eclipse.paho.client.mqttv3/1.2.3/org.eclipse.paho.client.mqttv3-1.2.3.jar
-// $ javac -cp src:lib/org.eclipse.paho.client.mqttv3-1.2.3.jar src/Bricks.java
-// $ java -ea -cp src:lib/org.eclipse.paho.client.mqttv3-1.2.3.jar Bricks
+// $ javac -cp .:src:lib/org.eclipse.paho.client.mqttv3-1.2.3.jar:lib/minimal-json-0.9.5.jar src/Bricks.java
+// $ java -ea -cp src:lib/org.eclipse.paho.client.mqttv3-1.2.3.jar:lib/minimal-json-0.9.5.jar Bricks
 
 // Design principles:
 // - keep it simple to use
@@ -75,6 +77,10 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
+import com.eclipsesource.json.Json;
+import com.eclipsesource.json.JsonValue;
+
+// package ch.fhnw.imvs.iotbricks;
 
 /* public */ final class MqttService {
     public MqttService() {}
@@ -646,7 +652,6 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 public final class Bricks {
     private Bricks() {}
 
-    // TODO: move?
     private static final String BUTTON_ID = "0000-0000";
     private static final String BUZZER_ID = "0000-0001";
     private static final String HUMITEMP_ID = "0000-0002";
@@ -719,28 +724,29 @@ public final class Bricks {
         LedBrick ledBrick = LedBrick.connect(proxy, LED_ID);
         while (true) {
             double temp = humiTempBrick.getTemperature();
-            displayBrick.setDoubleValue(temp);
             Color color = temp > 23 ? Color.RED : Color.GREEN;
             String time = humiTempBrick.getTimestampIsoUtc();
             String line = String.format(Locale.US, "%s, %.2f, %s\n", time, temp, color);
             System.out.print(line);
+            displayBrick.setDoubleValue(temp);
             ledBrick.setColor(color);
             proxy.waitForUpdate();
         }
     }
 
     public static void main(String args[]) {
-        String usageErrorMessage = "usage: java Bricks http|mqtt|mock d|l|a|m";
+        final String BASE_URL = "https://brick.li";
+        final String USAGE = "usage: java Bricks http|mqtt|mock d|l|a|m";
         if (args.length == 2) {
             Proxy proxy = null;
             if ("http".equals(args[0])) {
-                proxy = HttpProxy.fromConfig("brick.li");
+                proxy = HttpProxy.fromConfig(BASE_URL);
             } else if ("mqtt".equals(args[0])) {
-                proxy = MqttProxy.fromConfig("brick.li");
+                proxy = MqttProxy.fromConfig(BASE_URL);
             } else if ("mock".equals(args[0])) {
-                proxy = MockProxy.fromConfig("brick.li");
+                proxy = MockProxy.fromConfig(BASE_URL);
             } else {
-                System.out.println(usageErrorMessage);
+                System.out.println(USAGE);
                 System.exit(-1);
             }
             if ("d".equals(args[1])) {
@@ -752,11 +758,11 @@ public final class Bricks {
             } else if ("m".equals(args[1])) {
                 runMonitoringExample(proxy);
             } else {
-                System.out.println(usageErrorMessage);
+                System.out.println(USAGE);
                 System.exit(-1);
             }
         } else {
-            System.out.println(usageErrorMessage);
+            System.out.println(USAGE);
             System.exit(-1);
         }
     }
