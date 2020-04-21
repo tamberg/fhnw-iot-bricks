@@ -174,7 +174,6 @@ import com.eclipsesource.json.JsonValue;
 /* public */ abstract class Proxy {
     abstract void connectBrick(Brick brick);
     abstract public void waitForUpdate();
-    // updated = updated || now.before(brick.getNextTimestamp());
 }
 
 /* public */ final class HttpProxy extends Proxy {
@@ -218,6 +217,7 @@ import com.eclipsesource.json.JsonValue;
             byte[] payload = brick.getTargetPayload(true); // mock
             if (payload != null) {
                 brick.setCurrentPayload(payload);
+                brick.setTimestamp(new Date());
             }
         }
         try {
@@ -257,9 +257,10 @@ import com.eclipsesource.json.JsonValue;
         String topic = mqttConfig.getSubscribeTopic(brick.getID());
         IMqttMessageListener listener = new IMqttMessageListener() {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                System.out.printf("topic = \"%s\", payload = \"%s\"\n", topic, message);
+                System.out.printf("messageArrived topic = \"%s\", payload = \"%s\"\n", topic, message);
                 byte[] payload = message.getPayload();
                 brick.setCurrentPayload(payload); // setPendingPayload() ?
+                brick.setTimestamp(new Date());
             }
         };
         mqttService.subscribe(topic, listener);
@@ -345,7 +346,6 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        setTimestamp(new Date());
         setBatteryLevel(100);
     }
 
@@ -369,7 +369,6 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        setTimestamp(new Date());
         setBatteryLevel(100);
     }
 
@@ -402,7 +401,6 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        setTimestamp(new Date());
         try {
             String message = new String(payload, StandardCharsets.UTF_8);
             String[] parts = message.split(SEPARATOR); // treated as a regex (!)
@@ -418,7 +416,7 @@ import com.eclipsesource.json.JsonValue;
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload;
         if (mock) {
-            int targetBatt = (int) Math.random() * 99 + 1;
+            int targetBatt = (int) (Math.random() * 99 + 1);
             double targetHumi = Math.random() * 99 + 1;
             double targetTemp = Math.random() * 50 + 1;
             try {
@@ -465,7 +463,6 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        setTimestamp(new Date());
         try {
             // TODO: decode real format
             String message = new String(payload, StandardCharsets.UTF_8);
@@ -482,13 +479,14 @@ import com.eclipsesource.json.JsonValue;
         // ignore mock flag
         byte[] payload;
         try {
-            int targetBatt = (int) Math.random() * 99 + 1; // TODO: mock only
+            int targetBatt = (int) (Math.random() * 99 + 1); // TODO: mock only
             int r = targetColor.getRed();
             int g = targetColor.getGreen();
             int b = targetColor.getBlue();
             String payloadString = 
                 Integer.toString(targetBatt) + SEPARATOR + // TODO: mock only
                 String.format("%02x%02x%02x", r, g, b);
+            System.out.println("getTargetPayload \"" + payloadString + "\"");
             payload = payloadString.getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -513,7 +511,6 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        setTimestamp(new Date());
         setBatteryLevel(100);
     }
 
@@ -540,7 +537,6 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        setTimestamp(new Date());
         setBatteryLevel(100);
     }
 
