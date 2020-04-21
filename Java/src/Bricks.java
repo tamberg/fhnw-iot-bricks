@@ -259,6 +259,7 @@ import com.eclipsesource.json.JsonValue;
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 System.out.printf("messageArrived topic = \"%s\", payload = \"%s\"\n", topic, message);
                 byte[] payload = message.getPayload();
+                // TODO: make the following calls atomic?
                 brick.setCurrentPayload(payload); // setPendingPayload() ?
                 brick.setTimestamp(new Date());
             }
@@ -269,17 +270,25 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     public void waitForUpdate() {
+        Date now = new Date();
+        boolean updated = false;
+        while (!updated) {
+            for (Brick brick : bricks) {
+                updated = updated || now.before(brick.getTimestamp());
+            }
+            try {
+                TimeUnit.MILLISECONDS.sleep(1000); // ms
+            } catch (InterruptedException e) {
+               e.printStackTrace();
+            }
+        }
+        // TODO: check if payload available
         for (Brick brick : bricks) {
             byte[] payload = brick.getTargetPayload(false); // not a mock
             if (payload != null) {
                 String topic = mqttConfig.getPublishTopic(brick.getID());
                 mqttService.publish(topic, payload);
             }
-        }
-        try {
-            TimeUnit.MILLISECONDS.sleep(1000); // ms
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
     }
 
@@ -331,7 +340,7 @@ import com.eclipsesource.json.JsonValue;
         currentBatteryLevel = level;
     }
 
-    protected void setTimestamp(Date time) {
+    /* package */ void setTimestamp(Date time) {
         currentTimestamp = time;
     }
 }
