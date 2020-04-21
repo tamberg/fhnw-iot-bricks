@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.UnsupportedOperationException;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -190,7 +191,9 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
-    public void waitForUpdate() {}
+    public void waitForUpdate() {
+        throw new UnsupportedOperationException();
+    }
 
     public static HttpProxy fromConfig(String configHost) {
         return new HttpProxy();
@@ -302,14 +305,14 @@ import com.eclipsesource.json.JsonValue;
         return brickID;
     }
 
-    private int currentEnergyLevel = 0;
+    private int currentBatteryLevel = 0;
     private Date currentTimestamp = new Date(0L);
-    
+
     private TimeZone timeZone;
     private DateFormat formatter;
 
-    public int getEnergyLevel() {
-        return currentEnergyLevel;
+    public int getBatteryLevel() {
+        return currentBatteryLevel;
     }
 
     public Date getTimestamp() {
@@ -322,6 +325,14 @@ import com.eclipsesource.json.JsonValue;
 
     abstract protected void setCurrentPayload(byte[] payload);
     abstract protected byte[] getTargetPayload(boolean mock);
+
+    protected void setBatteryLevel(int level) {
+        currentBatteryLevel = level;
+    }
+
+    protected void setTimestamp(Date time) {
+        currentTimestamp = time;
+    }
 }
 
 /* public */ final class ButtonBrick extends Brick {
@@ -333,7 +344,10 @@ import com.eclipsesource.json.JsonValue;
     public void setPressed(boolean pressed) {}
 
     @Override
-    protected void setCurrentPayload(byte[] payload) {}
+    protected void setCurrentPayload(byte[] payload) {
+        setTimestamp(new Date());
+        setBatteryLevel(100);
+    }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) { return null; }
@@ -354,7 +368,10 @@ import com.eclipsesource.json.JsonValue;
     public void setEnabled(boolean enabled) {}
 
     @Override
-    protected void setCurrentPayload(byte[] payload) {}
+    protected void setCurrentPayload(byte[] payload) {
+        setTimestamp(new Date());
+        setBatteryLevel(100);
+    }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) { return null; }
@@ -385,11 +402,13 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
+        setTimestamp(new Date());
         try {
             String message = new String(payload, StandardCharsets.UTF_8);
             String[] parts = message.split(SEPARATOR); // treated as a regex (!)
-            currentHumi = Double.parseDouble(parts[0]);
-            currentTemp = Double.parseDouble(parts[1]);
+            setBatteryLevel(Integer.parseInt(parts[0]));
+            currentHumi = Double.parseDouble(parts[1]);
+            currentTemp = Double.parseDouble(parts[2]);
         } catch(NumberFormatException e) {
             e.printStackTrace();
         }
@@ -399,10 +418,12 @@ import com.eclipsesource.json.JsonValue;
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload;
         if (mock) {
+            int targetBatt = (int) Math.random() * 99 + 1;
             double targetHumi = Math.random() * 99 + 1;
             double targetTemp = Math.random() * 50 + 1;
             try {
                 String payloadString = 
+                    Integer.toString(targetBatt) + SEPARATOR +
                     Double.toString(targetHumi) + SEPARATOR + 
                     Double.toString(targetTemp);
                 payload = payloadString.getBytes("UTF-8");
@@ -430,6 +451,7 @@ import com.eclipsesource.json.JsonValue;
         super(brickID);
     }
 
+    private final String SEPARATOR = ";";
     private volatile Color currentColor;
     private volatile Color targetColor;
 
@@ -443,10 +465,13 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
+        setTimestamp(new Date());
         try {
             // TODO: decode real format
             String message = new String(payload, StandardCharsets.UTF_8);
-            currentColor = Color.decode(message);
+            String[] parts = message.split(SEPARATOR); // treated as a regex (!)
+            setBatteryLevel(Integer.parseInt(parts[0]));
+            currentColor = Color.decode(parts[1]);
         } catch(NumberFormatException e) {
             e.printStackTrace();
         }
@@ -457,12 +482,14 @@ import com.eclipsesource.json.JsonValue;
         // ignore mock flag
         byte[] payload;
         try {
+            int targetBatt = (int) Math.random() * 99 + 1; // TODO: mock only
             int r = targetColor.getRed();
             int g = targetColor.getGreen();
             int b = targetColor.getBlue();
-            String colorString = 
-                String.format("#%02x%02x%02x", r, g, b);  
-            payload = colorString.getBytes("UTF-8");
+            String payloadString = 
+                Integer.toString(targetBatt) + SEPARATOR + // TODO: mock only
+                String.format("%02x%02x%02x", r, g, b);
+            payload = payloadString.getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
             payload = null;
@@ -485,7 +512,10 @@ import com.eclipsesource.json.JsonValue;
     public void setColors(Color[] values) {}
 
     @Override
-    protected void setCurrentPayload(byte[] payload) {}
+    protected void setCurrentPayload(byte[] payload) {
+        setTimestamp(new Date());
+        setBatteryLevel(100);
+    }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) { return null; }
@@ -509,7 +539,10 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
-    protected void setCurrentPayload(byte[] payload) {}
+    protected void setCurrentPayload(byte[] payload) {
+        setTimestamp(new Date());
+        setBatteryLevel(100);
+    }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) { return null; }
