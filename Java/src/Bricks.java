@@ -217,7 +217,7 @@ import com.eclipsesource.json.JsonValue;
             byte[] payload = brick.getTargetPayload(true); // mock
             if (payload != null) {
                 brick.setCurrentPayload(payload);
-                brick.setTimestamp(new Date());
+                brick.flip();
             }
         }
         try {
@@ -259,9 +259,7 @@ import com.eclipsesource.json.JsonValue;
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 System.out.printf("messageArrived topic = \"%s\", payload = \"%s\"\n", topic, message);
                 byte[] payload = message.getPayload();
-                // TODO: make the following calls atomic?
-                brick.setCurrentPayload(payload); // setPendingPayload() ?
-                brick.setTimestamp(new Date());
+                brick.setPendingPayload(payload);
             }
         };
         mqttService.subscribe(topic, listener);
@@ -274,6 +272,7 @@ import com.eclipsesource.json.JsonValue;
         boolean updated = false;
         while (!updated) {
             for (Brick brick : bricks) {
+                brick.flip();
                 updated = updated || now.before(brick.getTimestamp());
             }
             try {
@@ -317,6 +316,8 @@ import com.eclipsesource.json.JsonValue;
 
     private int currentBatteryLevel = 0;
     private Date currentTimestamp = new Date(0L);
+    private Date pendingTimestamp = new Date(0L);
+    private byte[] pendingPayload = null;
 
     private TimeZone timeZone;
     private DateFormat formatter;
@@ -340,8 +341,16 @@ import com.eclipsesource.json.JsonValue;
         currentBatteryLevel = level;
     }
 
-    /* package */ void setTimestamp(Date time) {
-        currentTimestamp = time;
+    /* package */ void setPendingPayload(byte[] payload) {
+        pendingTimestamp = new Date();
+        pendingPayload = payload;
+    }
+
+    /* package */ void flip() {
+        if (pendingTimestamp.after(currentTimestamp)) {
+            currentTimestamp = pendingTimestamp;
+            setCurrentPayload(pendingPayload);
+        }
     }
 }
 
