@@ -18,7 +18,7 @@
 //       until waitForUpdates()
 //     - mock mode for quick prototyping
 // - single responsibility
-//     - transport x encoding x brick type
+//     - transport * encoding * brick type
 // - minimize dependencies
 //     - provide a single jar library
 //     - use as few libraries as possible
