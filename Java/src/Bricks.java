@@ -217,7 +217,7 @@ import com.eclipsesource.json.JsonValue;
             byte[] payload = brick.getTargetPayload(true); // mock
             if (payload != null) {
                 brick.setCurrentPayload(payload);
-                brick.flip();
+                brick.tryUpdate(); // ignore result
             }
         }
         try {
@@ -268,12 +268,10 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     public void waitForUpdate() {
-        Date now = new Date();
         boolean updated = false;
         while (!updated) {
             for (Brick brick : bricks) {
-                brick.flip();
-                updated = updated || now.before(brick.getTimestamp());
+                updated = updated || brick.tryUpdate();
             }
             try {
                 TimeUnit.MILLISECONDS.sleep(1000); // ms
@@ -346,11 +344,16 @@ import com.eclipsesource.json.JsonValue;
         pendingPayload = payload;
     }
 
-    /* package */ void flip() {
-        if (pendingTimestamp.after(currentTimestamp)) {
+    /* package */ boolean tryUpdate() {
+        boolean updated;
+        if (currentTimestamp.before(pendingTimestamp)) {
             currentTimestamp = pendingTimestamp;
             setCurrentPayload(pendingPayload);
+            updated = true;
+        } else {
+            updated = false;
         }
+        return updated;
     }
 }
 
@@ -486,7 +489,7 @@ import com.eclipsesource.json.JsonValue;
             String message = new String(payload, StandardCharsets.UTF_8);
             String[] parts = message.split(SEPARATOR); // treated as a regex (!)
             setBatteryLevel(Integer.parseInt(parts[0]));
-            currentColor = Color.decode(parts[1]);
+            currentColor = Color.decode(parts[1]); // TODO: from Hex() ?
         } catch(NumberFormatException e) {
             e.printStackTrace();
         }
