@@ -15,7 +15,7 @@
 //     - physical brick => access
 //     - no type casts, no generics 
 //     - getValue() remains constant
-//       until waitForUpdates()
+//       until waitForUpdate()
 //     - mock mode for quick prototyping
 // - single responsibility
 //     - transport x encoding x brick type
@@ -394,7 +394,7 @@ import com.eclipsesource.json.JsonValue;
     protected void setCurrentPayload(byte[] payload) {
         try {
             String message = new String(payload, StandardCharsets.UTF_8);
-            String[] parts = message.split(SEPARATOR); // treated as a regex (!)
+            String[] parts = message.split(SEPARATOR);
             setBatteryLevel(Integer.parseInt(parts[0]));
             currentEnabled = Boolean.parseBoolean(parts[1]);
         } catch(NumberFormatException e) {
@@ -451,7 +451,7 @@ import com.eclipsesource.json.JsonValue;
     protected void setCurrentPayload(byte[] payload) {
         try {
             String message = new String(payload, StandardCharsets.UTF_8);
-            String[] parts = message.split(SEPARATOR); // treated as a regex (!)
+            String[] parts = message.split(SEPARATOR);
             setBatteryLevel(Integer.parseInt(parts[0]));
             currentHumi = Double.parseDouble(parts[1]);
             currentTemp = Double.parseDouble(parts[2]);
@@ -514,9 +514,9 @@ import com.eclipsesource.json.JsonValue;
         try {
             // TODO: decode real format
             String message = new String(payload, StandardCharsets.UTF_8);
-            String[] parts = message.split(SEPARATOR); // treated as a regex (!)
+            String[] parts = message.split(SEPARATOR);
             setBatteryLevel(Integer.parseInt(parts[0]));
-            currentColor = Color.decode(parts[1]); // TODO: from Hex() ?
+            currentColor = Color.decode(parts[1]);
         } catch(NumberFormatException e) {
             e.printStackTrace();
         }
@@ -524,17 +524,15 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
-        // ignore mock flag
         byte[] payload;
         try {
-            int targetBatt = (int) (Math.random() * 99 + 1); // TODO: mock only
+            int targetBatt = (int) (Math.random() * 99 + 1);
             int r = targetColor.getRed();
             int g = targetColor.getGreen();
             int b = targetColor.getBlue();
             String payloadString = 
-                Integer.toString(targetBatt) + SEPARATOR + // TODO: mock only
-                String.format("%02x%02x%02x", r, g, b);
-            System.out.println("getTargetPayload \"" + payloadString + "\"");
+                (mock ? Integer.toString(targetBatt) + SEPARATOR : "") +
+                String.format("#%02x%02x%02x", r, g, b);
             payload = payloadString.getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
