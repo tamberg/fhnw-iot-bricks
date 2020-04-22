@@ -549,28 +549,6 @@ import com.eclipsesource.json.JsonValue;
     }
 }
 
-/* public */ final class LedStripBrick extends Brick {
-    private LedStripBrick(String brickID) {
-        super(brickID);
-    }
-
-    public void setColors(Color[] values) {}
-
-    @Override
-    protected void setCurrentPayload(byte[] payload) {
-        super.setBatteryLevel(100);
-    }
-
-    @Override
-    protected byte[] getTargetPayload(boolean mock) { return null; }
-
-    public static LedStripBrick connect(Proxy proxy, String brickID) {
-        LedStripBrick brick = new LedStripBrick(brickID);
-        proxy.connectBrick(brick);
-        return brick;
-    }
-}
-
 /* public */ final class LcdDisplayBrick extends Brick {
     private LcdDisplayBrick(String brickID) {
         super(brickID);
