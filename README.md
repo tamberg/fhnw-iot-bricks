@@ -24,14 +24,14 @@ public final class ButtonBrick extends Brick {
     public static ButtonBrick connect(Proxy proxy, String brickID);
 }
 
+public final class BuzzerBrick extends Brick {
+    public void setEnabled(boolean enabled);
+    public static BuzzerBrick connect(Proxy proxy, String brickID);
+}
+
 public final class LedBrick extends Brick {
     public void setColor(Color value);
     public static LedBrick connect(Proxy proxy, String brickID);
-}
-
-public final class LedStripBrick extends Brick {
-    public void setColors(Color[] values);
-    public static LedStripBrick connect(Proxy proxy, String brickID);
 }
 
 public final class HumiTempBrick extends Brick {
