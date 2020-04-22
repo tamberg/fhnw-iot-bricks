@@ -40,10 +40,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
-//import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
-//import org.eclipse.paho.client.mqttv3.IMqttToken;
-//import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -336,7 +333,6 @@ import com.eclipsesource.json.JsonValue;
 //        proxy.sync(brick); // calls getTargetPayload?
 //    }
 
-    abstract protected boolean hasTargetPayload(boolean mock); // TODO: replace
     abstract protected byte[] getTargetPayload(boolean mock);
     abstract protected void setCurrentPayload(byte[] payload);
 
@@ -372,9 +368,6 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
-    protected boolean hasTargetPayload(boolean mock) { return mock; }
-
-    @Override
     protected byte[] getTargetPayload(boolean mock) { return null; }
 
     public static ButtonBrick connect(Proxy proxy, String brickID) {
@@ -408,9 +401,6 @@ import com.eclipsesource.json.JsonValue;
             e.printStackTrace();
         }
     }
-
-    @Override
-    protected boolean hasTargetPayload(boolean mock) { return mock; }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
@@ -469,9 +459,6 @@ import com.eclipsesource.json.JsonValue;
             e.printStackTrace();
         }
     }
-
-    @Override
-    protected boolean hasTargetPayload(boolean mock) { return mock; }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
@@ -536,9 +523,6 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
-    protected boolean hasTargetPayload(boolean mock) { return true; }
-
-    @Override
     protected byte[] getTargetPayload(boolean mock) {
         // ignore mock flag
         byte[] payload;
@@ -579,9 +563,6 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
-    protected boolean hasTargetPayload(boolean mock) { return mock; }
-
-    @Override
     protected byte[] getTargetPayload(boolean mock) { return null; }
 
     public static LedStripBrick connect(Proxy proxy, String brickID) {
@@ -606,9 +587,6 @@ import com.eclipsesource.json.JsonValue;
     protected void setCurrentPayload(byte[] payload) {
         setBatteryLevel(100);
     }
-
-    @Override
-    protected boolean hasTargetPayload(boolean mock) { return mock; }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) { return null; }
