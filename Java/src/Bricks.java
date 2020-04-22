@@ -276,6 +276,7 @@ import com.eclipsesource.json.JsonValue;
                e.printStackTrace();
             }
         }
+        // TODO: move to void sync(Brick brick)? If so, what about retries?
         for (Brick brick : bricks) {
             byte[] payload = brick.getTargetPayload(false); // not a mock
             if (payload != null) {
@@ -363,7 +364,7 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        setBatteryLevel(100);
+        super.setBatteryLevel(100);
     }
 
     @Override
@@ -394,7 +395,7 @@ import com.eclipsesource.json.JsonValue;
         try {
             String message = new String(payload, StandardCharsets.UTF_8);
             String[] parts = message.split(SEPARATOR);
-            setBatteryLevel(Integer.parseInt(parts[0]));
+            super.setBatteryLevel(Integer.parseInt(parts[0]));
             currentEnabled = Boolean.parseBoolean(parts[1]);
         } catch(NumberFormatException e) {
             e.printStackTrace();
@@ -451,7 +452,7 @@ import com.eclipsesource.json.JsonValue;
         try {
             String message = new String(payload, StandardCharsets.UTF_8);
             String[] parts = message.split(SEPARATOR);
-            setBatteryLevel(Integer.parseInt(parts[0]));
+            super.setBatteryLevel(Integer.parseInt(parts[0]));
             currentHumi = Double.parseDouble(parts[1]);
             currentTemp = Double.parseDouble(parts[2]);
         } catch(NumberFormatException e) {
@@ -506,6 +507,7 @@ import com.eclipsesource.json.JsonValue;
 
     public void setColor(Color color) {
         targetColor = color;
+        // super.sync();
     }
 
     @Override
@@ -514,7 +516,7 @@ import com.eclipsesource.json.JsonValue;
             // TODO: decode real format
             String message = new String(payload, StandardCharsets.UTF_8);
             String[] parts = message.split(SEPARATOR);
-            setBatteryLevel(Integer.parseInt(parts[0]));
+            super.setBatteryLevel(Integer.parseInt(parts[0]));
             currentColor = Color.decode(parts[1]);
         } catch(NumberFormatException e) {
             e.printStackTrace();
@@ -556,7 +558,7 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        setBatteryLevel(100);
+        super.setBatteryLevel(100);
     }
 
     @Override
@@ -582,7 +584,7 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        setBatteryLevel(100);
+        super.setBatteryLevel(100);
     }
 
     @Override
