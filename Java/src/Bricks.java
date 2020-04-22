@@ -49,7 +49,12 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonValue;
 
-// package ch.fhnw.imvs.iotbricks;
+// TODO
+// package ch.fhnw.imvs.bricks.core; // Proxy, Brick
+// package ch.fhnw.imvs.bricks.mock; // MockProxy (keep in core?)
+// package ch.fhnw.imvs.bricks.mqtt; // MqttProxy, MqttConfig, MqttService
+// package ch.fhnw.imvs.bricks.sensors; // HumiTempBrick, ButtonBrick, ...
+// package ch.fhnw.imvs.bricks.actuators; // BuzzerBrick, LedBrick, ...
 
 /* public */ final class MqttService {
     public MqttService() {}
@@ -384,10 +389,15 @@ import com.eclipsesource.json.JsonValue;
 
     private final String SEPARATOR = ";";
     private volatile boolean currentEnabled;
+    private volatile boolean targetEnabled;
+
+    public boolean isEnabled() {
+        return currentEnabled;
+    }
 
     // TODO: rename to triggerAlert(int ms)?
     public void setEnabled(boolean enabled) {
-        currentEnabled = enabled;
+        targetEnabled = enabled;
     }
 
     @Override
@@ -405,7 +415,7 @@ import com.eclipsesource.json.JsonValue;
     @Override
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload;
-        if (mock) {
+        if (mock) { // uplink
             int targetBatt = (int) (Math.random() * 99 + 1);
             boolean targetEnabled = (Math.random() + 1) == 1;
             try {
@@ -417,8 +427,14 @@ import com.eclipsesource.json.JsonValue;
                 e.printStackTrace();
                 payload = null;
             }
-        } else {
-            payload = null;
+        } else { // downlink
+            try {
+                String payloadString = Boolean.toString(targetEnabled);
+                payload = payloadString.getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                payload = null;
+            }
         }
         return payload;
     }
