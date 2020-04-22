@@ -444,9 +444,10 @@ import com.eclipsesource.json.JsonValue;
 
     // TODO: rename to triggerAlert(int ms)?
     public void setEnabled(boolean enabled) {
-        System.out.println("setEnabled = " + enabled);
-        targetEnabled = enabled;
-        super.sync();
+        if (targetEnabled != enabled) {
+            targetEnabled = enabled;
+            super.sync();
+        }
     }
 
     @Override
@@ -567,8 +568,10 @@ import com.eclipsesource.json.JsonValue;
     }
 
     public void setColor(Color color) {
-        targetColor = color;
-        super.sync();
+        if (!targetColor.equals(color)) {
+            targetColor = color;
+            super.sync();
+        }
     }
 
     @Override
@@ -628,8 +631,10 @@ import com.eclipsesource.json.JsonValue;
     }
 
     public void setDoubleValue(double value) {
-        targetValue = value;
-        super.sync();
+        if (targetValue != value) {
+            targetValue = value;
+            super.sync();
+        }
     }
 
     @Override
