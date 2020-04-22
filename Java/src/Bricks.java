@@ -281,10 +281,10 @@ import com.eclipsesource.json.JsonValue;
                e.printStackTrace();
             }
         }
-        // TODO: move to void sync(Brick brick)? If so, what about retries?
+        // TODO: if there are no updates, this never happens
         for (Brick brick : bricks) {
-            byte[] payload = brick.getTargetPayload(false); // not a mock
-            if (payload != null) {
+            if (brick.isTargetSyncPending()) {
+                byte[] payload = brick.getTargetPayload(false); // not a mock
                 String topic = mqttConfig.getPublishTopic(brick.getID());
                 mqttService.publish(topic, payload);
             }
@@ -334,10 +334,7 @@ import com.eclipsesource.json.JsonValue;
         currentBatteryLevel = level;
     }
 
-//    protected void sync() {
-//        proxy.sync(brick);
-//    }
-
+    abstract protected boolean isTargetSyncPending();
     abstract protected byte[] getTargetPayload(boolean mock);
     abstract protected void setCurrentPayload(byte[] payload);
 
@@ -364,16 +361,48 @@ import com.eclipsesource.json.JsonValue;
         super(brickID);
     }
 
-    public boolean isPressed() { return false; }
-    public void setPressed(boolean pressed) {}
+    private final String SEPARATOR = ";";
+    private volatile boolean currentPressed;
 
-    @Override
-    protected void setCurrentPayload(byte[] payload) {
-        super.setBatteryLevel(100);
+    public boolean isPressed() {
+        return currentPressed;
     }
 
     @Override
-    protected byte[] getTargetPayload(boolean mock) { return null; }
+    protected void setCurrentPayload(byte[] payload) {
+        try {
+            String message = new String(payload, StandardCharsets.UTF_8);
+            String[] parts = message.split(SEPARATOR);
+            super.setBatteryLevel(Integer.parseInt(parts[0]));
+            currentPressed = Boolean.parseBoolean(parts[1]);
+        } catch(NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected boolean isTargetSyncPending() { return false; }
+
+    @Override
+    protected byte[] getTargetPayload(boolean mock) {
+        byte[] payload;
+        if (mock) { // uplink
+            int targetBatt = (int) (Math.random() * 99 + 1);
+            boolean targetPressed = (Math.random() + 1) == 1;
+            try {
+                String payloadString = 
+                    Integer.toString(targetBatt) + SEPARATOR +
+                    Boolean.toString(targetPressed);
+                payload = payloadString.getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                payload = null;
+            }
+        } else {
+            payload = null;
+        }
+        return payload;
+    }
 
     public static ButtonBrick connect(Proxy proxy, String brickID) {
         ButtonBrick brick = new ButtonBrick(brickID);
@@ -410,6 +439,11 @@ import com.eclipsesource.json.JsonValue;
         } catch(NumberFormatException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected boolean isTargetSyncPending() {
+        return targetEnabled != currentEnabled;
     }
 
     @Override
@@ -477,6 +511,9 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
+    protected boolean isTargetSyncPending() { return false; }
+
+    @Override
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload;
         if (mock) {
@@ -529,7 +566,6 @@ import com.eclipsesource.json.JsonValue;
     @Override
     protected void setCurrentPayload(byte[] payload) {
         try {
-            // TODO: decode real format
             String message = new String(payload, StandardCharsets.UTF_8);
             String[] parts = message.split(SEPARATOR);
             super.setBatteryLevel(Integer.parseInt(parts[0]));
@@ -537,6 +573,11 @@ import com.eclipsesource.json.JsonValue;
         } catch(NumberFormatException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected boolean isTargetSyncPending() {
+        return !targetColor.equals(currentColor);
     }
 
     @Override
@@ -570,19 +611,50 @@ import com.eclipsesource.json.JsonValue;
         super(brickID);
     }
 
-    public void setDoubleValue(double value) {}
+    private final String SEPARATOR = ";";
+    private volatile double currentValue = 0.0;
+    private volatile double targetValue = 0.0;
+
+    public void setDoubleValue(double value) {
+        targetValue = value;
+    }
 
     public double getDoubleValue() {
-        return 0.0;
+        return currentValue;
     }
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        super.setBatteryLevel(100);
+        try {
+            String message = new String(payload, StandardCharsets.UTF_8);
+            String[] parts = message.split(SEPARATOR);
+            super.setBatteryLevel(Integer.parseInt(parts[0]));
+            currentValue = Double.parseDouble(parts[1]);
+        } catch(NumberFormatException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    protected byte[] getTargetPayload(boolean mock) { return null; }
+    protected boolean isTargetSyncPending() {
+        return targetValue != currentValue;
+    }
+
+    @Override
+    protected byte[] getTargetPayload(boolean mock) {
+        byte[] payload;
+        try {
+            int targetBatt = (int) (Math.random() * 99 + 1);
+            String payloadString = 
+                (mock ? Integer.toString(targetBatt) + SEPARATOR : "") +
+                Double.toString(targetValue);
+            payload = payloadString.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            payload = null;
+        }
+        return payload;
+    }
 
     public static LcdDisplayBrick connect(Proxy proxy, String brickID) {
         LcdDisplayBrick brick = new LcdDisplayBrick(brickID);
