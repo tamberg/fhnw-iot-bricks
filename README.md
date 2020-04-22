@@ -20,7 +20,7 @@ public abstract class Brick {
 }
 
 public final class ButtonBrick extends Brick {
-    public boolean getPressed();
+    public boolean isPressed();
     public static ButtonBrick connect(Proxy proxy, String brickID);
 }
 
@@ -112,7 +112,7 @@ ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
 BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, BUZZER_BRICK_ID);
 
 while (true) {
-    boolean pressed = buttonBrick.getPressed();
+    boolean pressed = buttonBrick.isPressed();
     buzzerBrick.setEnabled(pressed);
     proxy.waitForUpdate();
 }
