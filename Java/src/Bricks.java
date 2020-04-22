@@ -329,7 +329,7 @@ import com.eclipsesource.json.JsonValue;
         currentBatteryLevel = level;
     }
 
-//    protected void send() {
+//    protected void sync() {
 //        proxy.sync(brick); // calls getTargetPayload?
 //    }
 
