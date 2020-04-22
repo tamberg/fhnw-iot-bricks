@@ -40,10 +40,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import org.eclipse.paho.client.mqttv3.IMqttClient;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
+//import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
+//import org.eclipse.paho.client.mqttv3.IMqttToken;
+//import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -300,25 +300,21 @@ import com.eclipsesource.json.JsonValue;
 /* public */ abstract class Brick {
     protected Brick(String brickID) {
         this.brickID = brickID;
-        // TODO: move to Proxy?
-        timeZone = TimeZone.getTimeZone("UTC");
+        TimeZone timeZone = TimeZone.getTimeZone("UTC");
         formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         formatter.setTimeZone(timeZone);
     }
 
     private final String brickID;
-    
-    public String getID() {
-        return brickID;
-    }
-
+    private final DateFormat formatter;
     private int currentBatteryLevel = 0;
     private Date currentTimestamp = new Date(0L);
     private Date pendingTimestamp = new Date(0L);
     private byte[] pendingPayload = null;
 
-    private TimeZone timeZone;
-    private DateFormat formatter;
+    public String getID() {
+        return brickID;
+    }
 
     public int getBatteryLevel() {
         return currentBatteryLevel;
@@ -332,12 +328,17 @@ import com.eclipsesource.json.JsonValue;
         return formatter.format(currentTimestamp);
     }
 
-    abstract protected void setCurrentPayload(byte[] payload);
-    abstract protected byte[] getTargetPayload(boolean mock);
-
     protected void setBatteryLevel(int level) {
         currentBatteryLevel = level;
     }
+
+//    protected void send() {
+//        proxy.sync(brick); // calls getTargetPayload?
+//    }
+
+    abstract protected boolean hasTargetPayload(boolean mock); // TODO: replace
+    abstract protected byte[] getTargetPayload(boolean mock);
+    abstract protected void setCurrentPayload(byte[] payload);
 
     /* package */ void setPendingPayload(byte[] payload) {
         pendingTimestamp = new Date();
@@ -371,6 +372,9 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
+    protected boolean hasTargetPayload(boolean mock) { return mock; }
+
+    @Override
     protected byte[] getTargetPayload(boolean mock) { return null; }
 
     public static ButtonBrick connect(Proxy proxy, String brickID) {
@@ -385,16 +389,49 @@ import com.eclipsesource.json.JsonValue;
         super(brickID);
     }
 
-    // TODO: rename to triggerAlert(int ms)?
-    public void setEnabled(boolean enabled) {}
+    private final String SEPARATOR = ";";
+    private volatile boolean currentEnabled;
 
-    @Override
-    protected void setCurrentPayload(byte[] payload) {
-        setBatteryLevel(100);
+    // TODO: rename to triggerAlert(int ms)?
+    public void setEnabled(boolean enabled) {
+        currentEnabled = enabled;
     }
 
     @Override
-    protected byte[] getTargetPayload(boolean mock) { return null; }
+    protected void setCurrentPayload(byte[] payload) {
+        try {
+            String message = new String(payload, StandardCharsets.UTF_8);
+            String[] parts = message.split(SEPARATOR); // treated as a regex (!)
+            setBatteryLevel(Integer.parseInt(parts[0]));
+            currentEnabled = Boolean.parseBoolean(parts[1]);
+        } catch(NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected boolean hasTargetPayload(boolean mock) { return mock; }
+
+    @Override
+    protected byte[] getTargetPayload(boolean mock) {
+        byte[] payload;
+        if (mock) {
+            int targetBatt = (int) (Math.random() * 99 + 1);
+            boolean targetEnabled = (Math.random() + 1) == 1;
+            try {
+                String payloadString = 
+                    Integer.toString(targetBatt) + SEPARATOR +
+                    Boolean.toString(targetEnabled);
+                payload = payloadString.getBytes("UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                payload = null;
+            }
+        } else {
+            payload = null;
+        }
+        return payload;
+    }
 
     public static BuzzerBrick connect(Proxy proxy, String brickID) {
         BuzzerBrick brick = new BuzzerBrick(brickID);
@@ -432,6 +469,9 @@ import com.eclipsesource.json.JsonValue;
             e.printStackTrace();
         }
     }
+
+    @Override
+    protected boolean hasTargetPayload(boolean mock) { return mock; }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
@@ -496,6 +536,9 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
+    protected boolean hasTargetPayload(boolean mock) { return true; }
+
+    @Override
     protected byte[] getTargetPayload(boolean mock) {
         // ignore mock flag
         byte[] payload;
@@ -536,6 +579,9 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
+    protected boolean hasTargetPayload(boolean mock) { return mock; }
+
+    @Override
     protected byte[] getTargetPayload(boolean mock) { return null; }
 
     public static LedStripBrick connect(Proxy proxy, String brickID) {
@@ -560,6 +606,9 @@ import com.eclipsesource.json.JsonValue;
     protected void setCurrentPayload(byte[] payload) {
         setBatteryLevel(100);
     }
+
+    @Override
+    protected boolean hasTargetPayload(boolean mock) { return mock; }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) { return null; }
