@@ -175,7 +175,7 @@ import com.eclipsesource.json.JsonValue;
 }
 
 /* public */ abstract class Proxy {
-    abstract protected void sync(Brick brick);
+    abstract protected void syncBrick(Brick brick);
     abstract void connectBrick(Brick brick);
     abstract public void waitForUpdate();
 }
@@ -194,7 +194,7 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
-    protected void sync(Brick brick) {}
+    protected void syncBrick(Brick brick) {}
 
     @Override
     public void waitForUpdate() {
@@ -219,7 +219,7 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
-    protected void sync(Brick brick) {}
+    protected void syncBrick(Brick brick) {}
 
     @Override
     public void waitForUpdate() {
@@ -277,7 +277,7 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
-    protected void sync(Brick brick) {
+    protected void syncBrick(Brick brick) {
         byte[] payload = brick.getTargetPayload(false); // not a mock
         String topic = mqttConfig.getPublishTopic(brick.getID());
         mqttService.publish(topic, payload);
@@ -345,7 +345,7 @@ import com.eclipsesource.json.JsonValue;
     }
 
     protected void sync() {
-        proxy.sync(this);
+        proxy.syncBrick(this);
     }
 
     abstract protected byte[] getTargetPayload(boolean mock);
