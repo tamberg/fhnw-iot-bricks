@@ -276,7 +276,6 @@ import com.eclipsesource.json.JsonValue;
                e.printStackTrace();
             }
         }
-        // TODO: check if payload available
         for (Brick brick : bricks) {
             byte[] payload = brick.getTargetPayload(false); // not a mock
             if (payload != null) {
