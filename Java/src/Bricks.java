@@ -285,14 +285,6 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     public void waitForUpdate() {
-        // for (Brick brick : bricks) {
-        //     if (brick.isTargetSyncPending()) { // TODO: && ...
-        //         byte[] payload = brick.getTargetPayload(false); // not a mock
-        //         String topic = mqttConfig.getPublishTopic(brick.getID());
-        //         mqttService.publish(topic, payload);
-        //         System.out.printf("publish topic = \"%s\"\n", topic);
-        //     }
-        // }
         boolean updated = false;
         while (!updated) {
             for (Brick brick : bricks) {
@@ -355,7 +347,6 @@ import com.eclipsesource.json.JsonValue;
         proxy.sync(this);
     }
 
-    // abstract protected boolean isTargetSyncPending();
     abstract protected byte[] getTargetPayload(boolean mock);
     abstract protected void setCurrentPayload(byte[] payload);
 
@@ -400,9 +391,6 @@ import com.eclipsesource.json.JsonValue;
             e.printStackTrace();
         }
     }
-
-    // @Override
-    // protected boolean isTargetSyncPending() { return false; }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
@@ -462,13 +450,6 @@ import com.eclipsesource.json.JsonValue;
         }
     }
 
-    // @Override
-    // protected boolean isTargetSyncPending() {
-    //     boolean pending = targetEnabled != currentEnabled;
-    //     System.out.println("isTargetSyncPending = " + pending);
-    //     return pending;
-    // }
-
     @Override
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload;
@@ -521,9 +502,6 @@ import com.eclipsesource.json.JsonValue;
             e.printStackTrace();
         }
     }
-
-    // @Override
-    // protected boolean isTargetSyncPending() { return false; }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
@@ -586,11 +564,6 @@ import com.eclipsesource.json.JsonValue;
         }
     }
 
-    // @Override
-    // protected boolean isTargetSyncPending() {
-    //     return !targetColor.equals(currentColor);
-    // }
-
     @Override
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload;
@@ -648,11 +621,6 @@ import com.eclipsesource.json.JsonValue;
             e.printStackTrace();
         }
     }
-
-    // @Override
-    // protected boolean isTargetSyncPending() {
-    //     return targetValue != currentValue;
-    // }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
