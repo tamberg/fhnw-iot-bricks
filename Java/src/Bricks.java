@@ -174,7 +174,7 @@ import com.eclipsesource.json.JsonValue;
 }
 
 /* public */ abstract class Proxy {
-    protected void sync(Brick brick) {}
+    abstract protected void sync(Brick brick);
     abstract void connectBrick(Brick brick);
     abstract public void waitForUpdate();
 }
@@ -191,6 +191,9 @@ import com.eclipsesource.json.JsonValue;
     void connectBrick(Brick brick) {
         bricks.add(brick);
     }
+
+    @Override
+    protected void sync(Brick brick) {}
 
     @Override
     public void waitForUpdate() {
@@ -215,11 +218,14 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
+    protected void sync(Brick brick) {}
+
+    @Override
     public void waitForUpdate() {
         for (Brick brick : bricks) {
             byte[] payload = brick.getTargetPayload(true); // mock
             if (payload != null) {
-                brick.setCurrentPayload(payload);
+                brick.setPendingPayload(payload);
                 brick.tryUpdate(); // ignore result
             }
         }
@@ -403,7 +409,7 @@ import com.eclipsesource.json.JsonValue;
         byte[] payload = null;
         if (mock) {
             int mockBatt = (int) (Math.random() * 99 + 1);
-            boolean mockPressed = (Math.random() + 1) == 1;
+            boolean mockPressed = Math.random() < 0.5;
             try {
                 String payloadString = 
                     Integer.toString(mockBatt) + SEPARATOR +
