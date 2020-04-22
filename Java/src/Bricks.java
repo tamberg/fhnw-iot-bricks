@@ -174,6 +174,7 @@ import com.eclipsesource.json.JsonValue;
 }
 
 /* public */ abstract class Proxy {
+    protected void sync(Brick brick) {}
     abstract void connectBrick(Brick brick);
     abstract public void waitForUpdate();
 }
@@ -269,7 +270,23 @@ import com.eclipsesource.json.JsonValue;
     }
 
     @Override
+    protected void sync(Brick brick) {
+        byte[] payload = brick.getTargetPayload(false); // not a mock
+        String topic = mqttConfig.getPublishTopic(brick.getID());
+        mqttService.publish(topic, payload);
+        System.out.printf("publish topic = \"%s\"\n", topic);
+    }
+
+    @Override
     public void waitForUpdate() {
+        // for (Brick brick : bricks) {
+        //     if (brick.isTargetSyncPending()) { // TODO: && ...
+        //         byte[] payload = brick.getTargetPayload(false); // not a mock
+        //         String topic = mqttConfig.getPublishTopic(brick.getID());
+        //         mqttService.publish(topic, payload);
+        //         System.out.printf("publish topic = \"%s\"\n", topic);
+        //     }
+        // }
         boolean updated = false;
         while (!updated) {
             for (Brick brick : bricks) {
@@ -279,15 +296,6 @@ import com.eclipsesource.json.JsonValue;
                 TimeUnit.MILLISECONDS.sleep(100); // ms
             } catch (InterruptedException e) {
                e.printStackTrace();
-            }
-        }
-        // TODO: if there are no updates, this never happens
-        for (Brick brick : bricks) {
-            if (brick.isTargetSyncPending()) {
-                byte[] payload = brick.getTargetPayload(false); // not a mock
-                String topic = mqttConfig.getPublishTopic(brick.getID());
-                mqttService.publish(topic, payload);
-                System.out.printf("publish topic = \"%s\"\n", topic);
             }
         }
     }
@@ -301,7 +309,8 @@ import com.eclipsesource.json.JsonValue;
 }
 
 /* public */ abstract class Brick {
-    protected Brick(String brickID) {
+    protected Brick(Proxy proxy, String brickID) {
+        this.proxy = proxy;
         this.brickID = brickID;
         TimeZone timeZone = TimeZone.getTimeZone("UTC");
         formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
@@ -309,6 +318,7 @@ import com.eclipsesource.json.JsonValue;
     }
 
     private final String brickID;
+    private final Proxy proxy;
     private final DateFormat formatter;
     private int currentBatteryLevel = 0;
     private Date currentTimestamp = new Date(0L);
@@ -335,7 +345,11 @@ import com.eclipsesource.json.JsonValue;
         currentBatteryLevel = level;
     }
 
-    abstract protected boolean isTargetSyncPending();
+    protected void sync() {
+        proxy.sync(this);
+    }
+
+    // abstract protected boolean isTargetSyncPending();
     abstract protected byte[] getTargetPayload(boolean mock);
     abstract protected void setCurrentPayload(byte[] payload);
 
@@ -358,8 +372,8 @@ import com.eclipsesource.json.JsonValue;
 }
 
 /* public */ final class ButtonBrick extends Brick {
-    private ButtonBrick(String brickID) {
-        super(brickID);
+    private ButtonBrick(Proxy proxy, String brickID) {
+        super(proxy, brickID);
     }
 
     private final String SEPARATOR = ";";
@@ -381,8 +395,8 @@ import com.eclipsesource.json.JsonValue;
         }
     }
 
-    @Override
-    protected boolean isTargetSyncPending() { return false; }
+    // @Override
+    // protected boolean isTargetSyncPending() { return false; }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
@@ -403,15 +417,15 @@ import com.eclipsesource.json.JsonValue;
     }
 
     public static ButtonBrick connect(Proxy proxy, String brickID) {
-        ButtonBrick brick = new ButtonBrick(brickID);
+        ButtonBrick brick = new ButtonBrick(proxy, brickID);
         proxy.connectBrick(brick);
         return brick;
     }
 }
 
 /* public */ final class BuzzerBrick extends Brick {
-    private BuzzerBrick(String brickID) {
-        super(brickID);
+    private BuzzerBrick(Proxy proxy, String brickID) {
+        super(proxy, brickID);
     }
 
     private final String SEPARATOR = ";";
@@ -426,6 +440,7 @@ import com.eclipsesource.json.JsonValue;
     public void setEnabled(boolean enabled) {
         System.out.println("setEnabled = " + enabled);
         targetEnabled = enabled;
+        super.sync();
     }
 
     @Override
@@ -440,12 +455,12 @@ import com.eclipsesource.json.JsonValue;
         }
     }
 
-    @Override
-    protected boolean isTargetSyncPending() {
-        boolean pending = targetEnabled != currentEnabled;
-        System.out.println("isTargetSyncPending = " + pending);
-        return pending;
-    }
+    // @Override
+    // protected boolean isTargetSyncPending() {
+    //     boolean pending = targetEnabled != currentEnabled;
+    //     System.out.println("isTargetSyncPending = " + pending);
+    //     return pending;
+    // }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
@@ -464,15 +479,15 @@ import com.eclipsesource.json.JsonValue;
     }
 
     public static BuzzerBrick connect(Proxy proxy, String brickID) {
-        BuzzerBrick brick = new BuzzerBrick(brickID);
+        BuzzerBrick brick = new BuzzerBrick(proxy, brickID);
         proxy.connectBrick(brick);
         return brick;
     }
 }
 
 /* public */ final class HumiTempBrick extends Brick {
-    private HumiTempBrick(String brickID) {
-        super(brickID);
+    private HumiTempBrick(Proxy proxy, String brickID) {
+        super(proxy, brickID);
     }
 
     private final String SEPARATOR = ";";
@@ -500,8 +515,8 @@ import com.eclipsesource.json.JsonValue;
         }
     }
 
-    @Override
-    protected boolean isTargetSyncPending() { return false; }
+    // @Override
+    // protected boolean isTargetSyncPending() { return false; }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
@@ -526,15 +541,15 @@ import com.eclipsesource.json.JsonValue;
     public static HumiTempBrick connect(Proxy proxy, String brickID) {
         // TODO: proxy.getEncoding(brickID) { return mqttConfig.getEncoging(brickID); }
         // => ProtobufHumiTempBrick(), LppHumiTempBrick()
-        HumiTempBrick brick = new HumiTempBrick(brickID);
+        HumiTempBrick brick = new HumiTempBrick(proxy, brickID);
         proxy.connectBrick(brick);
         return brick;
     }
 }
 
 /* public */ final class LedBrick extends Brick {
-    private LedBrick(String brickID) {
-        super(brickID);
+    private LedBrick(Proxy proxy, String brickID) {
+        super(proxy, brickID);
     }
 
     private final String SEPARATOR = ";";
@@ -547,7 +562,7 @@ import com.eclipsesource.json.JsonValue;
 
     public void setColor(Color color) {
         targetColor = color;
-        // super.sync();
+        super.sync();
     }
 
     @Override
@@ -562,10 +577,10 @@ import com.eclipsesource.json.JsonValue;
         }
     }
 
-    @Override
-    protected boolean isTargetSyncPending() {
-        return !targetColor.equals(currentColor);
-    }
+    // @Override
+    // protected boolean isTargetSyncPending() {
+    //     return !targetColor.equals(currentColor);
+    // }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
@@ -587,27 +602,28 @@ import com.eclipsesource.json.JsonValue;
     }
 
     public static LedBrick connect(Proxy proxy, String brickID) {
-        LedBrick brick = new LedBrick(brickID);
+        LedBrick brick = new LedBrick(proxy, brickID);
         proxy.connectBrick(brick);
         return brick;
     }
 }
 
 /* public */ final class LcdDisplayBrick extends Brick {
-    private LcdDisplayBrick(String brickID) {
-        super(brickID);
+    private LcdDisplayBrick(Proxy proxy, String brickID) {
+        super(proxy, brickID);
     }
 
     private final String SEPARATOR = ";";
     private volatile double currentValue = 0.0;
     private volatile double targetValue = 0.0;
 
-    public void setDoubleValue(double value) {
-        targetValue = value;
-    }
-
     public double getDoubleValue() {
         return currentValue;
+    }
+
+    public void setDoubleValue(double value) {
+        targetValue = value;
+        super.sync();
     }
 
     @Override
@@ -622,10 +638,10 @@ import com.eclipsesource.json.JsonValue;
         }
     }
 
-    @Override
-    protected boolean isTargetSyncPending() {
-        return targetValue != currentValue;
-    }
+    // @Override
+    // protected boolean isTargetSyncPending() {
+    //     return targetValue != currentValue;
+    // }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
@@ -644,7 +660,7 @@ import com.eclipsesource.json.JsonValue;
     }
 
     public static LcdDisplayBrick connect(Proxy proxy, String brickID) {
-        LcdDisplayBrick brick = new LcdDisplayBrick(brickID);
+        LcdDisplayBrick brick = new LcdDisplayBrick(proxy, brickID);
         proxy.connectBrick(brick);
         return brick;
     }
