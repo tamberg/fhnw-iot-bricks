@@ -287,6 +287,7 @@ import com.eclipsesource.json.JsonValue;
                 byte[] payload = brick.getTargetPayload(false); // not a mock
                 String topic = mqttConfig.getPublishTopic(brick.getID());
                 mqttService.publish(topic, payload);
+                System.out.printf("publish topic = \"%s\"\n", topic);
             }
         }
     }
@@ -385,21 +386,18 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
-        byte[] payload;
-        if (mock) { // uplink
-            int targetBatt = (int) (Math.random() * 99 + 1);
-            boolean targetPressed = (Math.random() + 1) == 1;
+        byte[] payload = null;
+        if (mock) {
+            int mockBatt = (int) (Math.random() * 99 + 1);
+            boolean mockPressed = (Math.random() + 1) == 1;
             try {
                 String payloadString = 
-                    Integer.toString(targetBatt) + SEPARATOR +
-                    Boolean.toString(targetPressed);
+                    Integer.toString(mockBatt) + SEPARATOR +
+                    Boolean.toString(mockPressed);
                 payload = payloadString.getBytes("UTF-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
-                payload = null;
             }
-        } else {
-            payload = null;
         }
         return payload;
     }
@@ -417,8 +415,8 @@ import com.eclipsesource.json.JsonValue;
     }
 
     private final String SEPARATOR = ";";
-    private volatile boolean currentEnabled;
-    private volatile boolean targetEnabled;
+    private volatile boolean currentEnabled = false;
+    private volatile boolean targetEnabled = false;
 
     public boolean isEnabled() {
         return currentEnabled;
@@ -426,6 +424,7 @@ import com.eclipsesource.json.JsonValue;
 
     // TODO: rename to triggerAlert(int ms)?
     public void setEnabled(boolean enabled) {
+        System.out.println("setEnabled = " + enabled);
         targetEnabled = enabled;
     }
 
@@ -443,32 +442,23 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected boolean isTargetSyncPending() {
-        return targetEnabled != currentEnabled;
+        boolean pending = targetEnabled != currentEnabled;
+        System.out.println("isTargetSyncPending = " + pending);
+        return pending;
     }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload;
-        if (mock) { // uplink
-            int targetBatt = (int) (Math.random() * 99 + 1);
-            boolean targetEnabled = (Math.random() + 1) == 1;
-            try {
-                String payloadString = 
-                    Integer.toString(targetBatt) + SEPARATOR +
-                    Boolean.toString(targetEnabled);
-                payload = payloadString.getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-                payload = null;
-            }
-        } else { // downlink
-            try {
-                String payloadString = Boolean.toString(targetEnabled);
-                payload = payloadString.getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-                payload = null;
-            }
+        int mockBatt = (int) (Math.random() * 99 + 1);
+        try {
+            String payloadString = 
+                (mock ? Integer.toString(mockBatt) + SEPARATOR : "") +
+                Boolean.toString(targetEnabled);
+            payload = payloadString.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            payload = null;
         }
         return payload;
     }
@@ -515,23 +505,20 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
-        byte[] payload;
+        byte[] payload = null;
         if (mock) {
-            int targetBatt = (int) (Math.random() * 99 + 1);
-            double targetHumi = Math.random() * 99 + 1;
-            double targetTemp = Math.random() * 50 + 1;
+            int mockBatt = (int) (Math.random() * 99 + 1);
+            double mockHumi = Math.random() * 99 + 1;
+            double mockTemp = Math.random() * 50 + 1;
             try {
                 String payloadString = 
-                    Integer.toString(targetBatt) + SEPARATOR +
-                    Double.toString(targetHumi) + SEPARATOR + 
-                    Double.toString(targetTemp);
+                    Integer.toString(mockBatt) + SEPARATOR +
+                    Double.toString(mockHumi) + SEPARATOR + 
+                    Double.toString(mockTemp);
                 payload = payloadString.getBytes("UTF-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
-                payload = null;
             }
-        } else {
-            payload = null;
         }
         return payload;
     }
@@ -584,12 +571,12 @@ import com.eclipsesource.json.JsonValue;
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload;
         try {
-            int targetBatt = (int) (Math.random() * 99 + 1);
+            int mockBatt = (int) (Math.random() * 99 + 1);
             int r = targetColor.getRed();
             int g = targetColor.getGreen();
             int b = targetColor.getBlue();
             String payloadString = 
-                (mock ? Integer.toString(targetBatt) + SEPARATOR : "") +
+                (mock ? Integer.toString(mockBatt) + SEPARATOR : "") +
                 String.format("#%02x%02x%02x", r, g, b);
             payload = payloadString.getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -644,9 +631,9 @@ import com.eclipsesource.json.JsonValue;
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload;
         try {
-            int targetBatt = (int) (Math.random() * 99 + 1);
+            int mockBatt = (int) (Math.random() * 99 + 1);
             String payloadString = 
-                (mock ? Integer.toString(targetBatt) + SEPARATOR : "") +
+                (mock ? Integer.toString(mockBatt) + SEPARATOR : "") +
                 Double.toString(targetValue);
             payload = payloadString.getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {
