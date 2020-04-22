@@ -330,7 +330,7 @@ import com.eclipsesource.json.JsonValue;
     }
 
 //    protected void sync() {
-//        proxy.sync(brick); // calls getTargetPayload?
+//        proxy.sync(brick);
 //    }
 
     abstract protected byte[] getTargetPayload(boolean mock);
