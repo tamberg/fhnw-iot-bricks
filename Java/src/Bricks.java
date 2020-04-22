@@ -271,7 +271,7 @@ import com.eclipsesource.json.JsonValue;
                 updated = updated || brick.tryUpdate();
             }
             try {
-                TimeUnit.MILLISECONDS.sleep(1000); // ms
+                TimeUnit.MILLISECONDS.sleep(100); // ms
             } catch (InterruptedException e) {
                e.printStackTrace();
             }
