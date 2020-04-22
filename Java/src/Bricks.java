@@ -163,6 +163,7 @@ import com.eclipsesource.json.JsonValue;
         subTopics.put(LED_ID, TTN_APP_ID + "/devices/" + LED_ID + "/up");
         pubTopics = new HashMap<String, String>();
         pubTopics.put(BUZZER_ID, TTN_APP_ID + "/devices/" + BUZZER_ID + "/down");
+        pubTopics.put(LCDDISPLAY_ID, TTN_APP_ID + "/devices/" + LCDDISPLAY_ID + "/down");
         pubTopics.put(LED_ID, TTN_APP_ID + "/devices/" + LED_ID + "/down");
     }
 
@@ -538,8 +539,8 @@ import com.eclipsesource.json.JsonValue;
     }
 
     private final String SEPARATOR = ";";
-    private volatile Color currentColor;
-    private volatile Color targetColor;
+    private volatile Color currentColor = Color.BLACK;
+    private volatile Color targetColor = Color.BLACK;
 
     public Color getColor() {
         return currentColor;
