@@ -198,7 +198,7 @@ import com.eclipsesource.json.JsonValue;
 
     @Override
     public void waitForUpdate() {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not yet implemented.");
     }
 
     public static HttpProxy fromConfig(String configHost) {
