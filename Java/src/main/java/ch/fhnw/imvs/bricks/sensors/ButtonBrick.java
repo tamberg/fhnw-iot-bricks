@@ -53,7 +53,7 @@ public final class ButtonBrick extends Brick {
 
     public static ButtonBrick connect(Proxy proxy, String brickID) {
         ButtonBrick brick = new ButtonBrick(proxy, brickID);
-        proxy.connectBrick(brick);
+        brick.connect();
         return brick;
     }
 }

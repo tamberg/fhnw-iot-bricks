@@ -63,7 +63,7 @@ public final class LedBrick extends Brick {
 
     public static LedBrick connect(Proxy proxy, String brickID) {
         LedBrick brick = new LedBrick(proxy, brickID);
-        proxy.connectBrick(brick);
+        brick.connect();
         return brick;
     }
 }

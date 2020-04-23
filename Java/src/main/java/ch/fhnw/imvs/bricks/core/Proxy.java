@@ -4,8 +4,8 @@
 package ch.fhnw.imvs.bricks.core;
 
 public abstract class Proxy {
+    protected abstract void connectBrick(Brick brick); // called by Brick base
     protected abstract void syncBrick(Brick brick); // called by Brick base
-    public abstract void connectBrick(Brick brick); // called by Brick factories
     public abstract void waitForUpdate(); // called by client code
 
     protected byte[] getTargetPayload(Brick brick, boolean mock) { // called by Proxies

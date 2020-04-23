@@ -59,7 +59,7 @@ public final class LcdDisplayBrick extends Brick {
 
     public static LcdDisplayBrick connect(Proxy proxy, String brickID) {
         LcdDisplayBrick brick = new LcdDisplayBrick(proxy, brickID);
-        proxy.connectBrick(brick);
+        brick.connect();
         return brick;
     }
 }

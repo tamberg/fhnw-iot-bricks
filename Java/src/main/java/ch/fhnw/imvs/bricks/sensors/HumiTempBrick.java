@@ -61,7 +61,7 @@ public final class HumiTempBrick extends Brick {
 
     public static HumiTempBrick connect(Proxy proxy, String brickID) {
         HumiTempBrick brick = new HumiTempBrick(proxy, brickID);
-        proxy.connectBrick(brick);
+        brick.connect();
         return brick;
     }
 }

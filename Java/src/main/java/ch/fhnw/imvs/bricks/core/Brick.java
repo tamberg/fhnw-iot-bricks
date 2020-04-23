@@ -45,6 +45,10 @@ public abstract class Brick {
         currentBatteryLevel = level;
     }
 
+    protected void connect() {
+        proxy.connectBrick(this);
+    }
+
     protected void sync() { // called by Bricks
         proxy.syncBrick(this);
     }

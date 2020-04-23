@@ -60,7 +60,7 @@ public final class BuzzerBrick extends Brick {
 
     public static BuzzerBrick connect(Proxy proxy, String brickID) {
         BuzzerBrick brick = new BuzzerBrick(proxy, brickID);
-        proxy.connectBrick(brick);
+        brick.connect();
         return brick;
     }
 }

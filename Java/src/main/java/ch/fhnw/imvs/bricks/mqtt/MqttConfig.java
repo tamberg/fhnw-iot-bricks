@@ -7,7 +7,7 @@ import java.util.HashMap;
 import com.eclipsesource.json.Json;
 import com.eclipsesource.json.JsonValue;
 
-public final class MqttConfig { // TODO: rename MqttProxyConfig? Ttn...
+/* package */ final class MqttConfig { // TODO: rename MqttProxyConfig? Ttn...
     private MqttConfig() {}
 
     private static final String BUTTON_ID = "0000-0002";
