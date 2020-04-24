@@ -30,7 +30,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Locale;
 
-// TODO: import ch.fhnw.imvs.bricks.*; ?
+// TODO: import ch.fhnw.imvs.bricks.*;
 
 import ch.fhnw.imvs.bricks.core.Proxy;
 import ch.fhnw.imvs.bricks.http.HttpProxy;
