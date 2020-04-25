@@ -37,9 +37,10 @@ import ch.fhnw.imvs.bricks.core.Proxy;
 import ch.fhnw.imvs.bricks.http.HttpProxy;
 import ch.fhnw.imvs.bricks.mock.MockProxy;
 import ch.fhnw.imvs.bricks.mqtt.MqttProxy;
-import ch.fhnw.imvs.bricks.sensors.HumiTempBrick;
 import ch.fhnw.imvs.bricks.sensors.ButtonBrick;
 import ch.fhnw.imvs.bricks.actuators.BuzzerBrick;
+import ch.fhnw.imvs.bricks.sensors.DistanceBrick;
+import ch.fhnw.imvs.bricks.sensors.HumiTempBrick;
 import ch.fhnw.imvs.bricks.actuators.LedBrick;
 import ch.fhnw.imvs.bricks.actuators.LcdDisplayBrick;
 
@@ -48,6 +49,7 @@ public final class Bricks {
 
     private static final String BUTTON_ID = "0000-0002";
     private static final String BUZZER_ID = "0000-0006";
+    private static final String DISTANCE_ID = "0000-0003";
     private static final String HUMITEMP_ID = "0000-0001";
     private static final String HUMITEMP_0_ID = HUMITEMP_ID;
     private static final String HUMITEMP_1_ID = "0000-0007";
@@ -115,17 +117,28 @@ public final class Bricks {
     private static void runMonitoringExample(Proxy proxy) {
         HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, HUMITEMP_ID);
         LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, LCDDISPLAY_ID);
-        LedBrick ledBrick = LedBrick.connect(proxy, LED_ID);
         while (true) {
             double temp = humiTempBrick.getTemperature();
-            Color color = temp > 23 ? Color.RED : Color.GREEN;
             String time = humiTempBrick.getTimestampIsoUtc();
-            String line = String.format(Locale.US, "%s, %.2f, %s\n", time, temp, color);
+            String line = String.format(Locale.US, "%s, %.2f\n", time, temp);
             System.out.print(line);
             displayBrick.setDoubleValue(temp);
-            ledBrick.setColor(color);
             proxy.waitForUpdate();
         }
+    }
+
+    private static void runParkingExample(Proxy proxy) {
+        DistanceBrick distBrick = DistanceBrick.connect(proxy, DISTANCE_ID);
+        LedBrick ledBrick = LedBrick.connect(proxy, LED_ID);
+        while (true) {
+            int dist = distBrick.getDistance(); // cm
+            String time = distBrick.getTimestampIsoUtc();
+            Color color = dist < 200 ? Color.RED : Color.GREEN;
+            String line = String.format(Locale.US, "%s, %.2d, %s\n", time, dist, color);
+            System.out.print(line);
+            ledBrick.setColor(color);
+            proxy.waitForUpdate();
+        }  
     }
 
     public static void main(String args[]) {
@@ -151,6 +164,8 @@ public final class Bricks {
                 runLoggingArrayExample(proxy);    
             } else if ("m".equals(args[1])) {
                 runMonitoringExample(proxy);
+            } else if ("p".equals(args[1])) {
+                runParkingExample(proxy);    
             } else {
                 System.out.println(USAGE);
                 System.exit(-1);
