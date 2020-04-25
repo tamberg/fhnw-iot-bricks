@@ -18,6 +18,7 @@
 //     - getValue() remains constant
 //       until waitForUpdate()
 //     - mock mode for quick prototyping
+//     - single package namespace (?)
 // - single responsibility
 //     - transport x encoding x brick type
 // - minimize dependencies
@@ -49,7 +50,7 @@ public final class Bricks {
     private static final String BUZZER_ID = "0000-0006";
     private static final String HUMITEMP_ID = "0000-0001";
     private static final String HUMITEMP_0_ID = HUMITEMP_ID;
-    private static final String HUMITEMP_1_ID = "0000-0003";
+    private static final String HUMITEMP_1_ID = "0000-0007";
     private static final String HUMITEMP_2_ID = "0000-0004";
     private static final String LCDDISPLAY_ID = "0000-0005";
     private static final String LED_ID = "0000-0000";
