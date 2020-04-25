@@ -47,19 +47,19 @@ import ch.fhnw.imvs.bricks.actuators.LcdDisplayBrick;
 public final class Bricks {
     private Bricks() {}
 
-    private static final String BUTTON_ID = "0000-0002";
-    private static final String BUZZER_ID = "0000-0006";
-    private static final String DISTANCE_ID = "0000-0003";
-    private static final String HUMITEMP_ID = "0000-0001";
-    private static final String HUMITEMP_0_ID = HUMITEMP_ID;
-    private static final String HUMITEMP_1_ID = "0000-0007";
-    private static final String HUMITEMP_2_ID = "0000-0004";
-    private static final String LCDDISPLAY_ID = "0000-0005";
-    private static final String LED_ID = "0000-0000";
+    private static final String BUTTON_BRICK_ID = "0000-0002";
+    private static final String BUZZER_BRICK_ID = "0000-0006";
+    private static final String DISTANCE_BRICK_ID = "0000-0003";
+    private static final String HUMITEMP_BRICK_ID = "0000-0001";
+    private static final String HUMITEMP_BRICK_0_ID = HUMITEMP_BRICK_ID;
+    private static final String HUMITEMP_BRICK_1_ID = "0000-0007";
+    private static final String HUMITEMP_BRICK_2_ID = "0000-0004";
+    private static final String LCDDISPLAY_BRICK_ID = "0000-0005";
+    private static final String LED_BRICK_ID = "0000-0000";
 
     private static void runDoorbellExample(Proxy proxy) {
-        ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_ID);
-        BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, BUZZER_ID);
+        ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
+        BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, BUZZER_BRICK_ID);
         while (true) {
             boolean pressed = buttonBrick.isPressed();
             String time = buttonBrick.getTimestampIsoUtc();
@@ -70,7 +70,7 @@ public final class Bricks {
     }
 
     private static void runLoggingExample(Proxy proxy) {
-        HumiTempBrick brick = HumiTempBrick.connect(proxy, HUMITEMP_ID);
+        HumiTempBrick brick = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
         FileWriter fileWriter = null;
         String title = "Timestamp (UTC)\tTemperature\tHumidity\n";
         System.out.print(title);
@@ -98,9 +98,9 @@ public final class Bricks {
 
     private static void runLoggingArrayExample(Proxy proxy) {
         HumiTempBrick[] bricks = new HumiTempBrick[3];
-        bricks[0] = HumiTempBrick.connect(proxy, HUMITEMP_0_ID);
-        bricks[1] = HumiTempBrick.connect(proxy, HUMITEMP_1_ID);
-        bricks[2] = HumiTempBrick.connect(proxy, HUMITEMP_2_ID);
+        bricks[0] = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_0_ID);
+        bricks[1] = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_1_ID);
+        bricks[2] = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_2_ID);
         while (true) {
             for (HumiTempBrick brick : bricks) {
                 String id = brick.getID();
@@ -115,8 +115,8 @@ public final class Bricks {
     }
 
     private static void runMonitoringExample(Proxy proxy) {
-        HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, HUMITEMP_ID);
-        LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, LCDDISPLAY_ID);
+        HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
+        LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, LCDDISPLAY_BRICK_ID);
         while (true) {
             double temp = humiTempBrick.getTemperature();
             String time = humiTempBrick.getTimestampIsoUtc();
@@ -128,8 +128,8 @@ public final class Bricks {
     }
 
     private static void runParkingExample(Proxy proxy) {
-        DistanceBrick distBrick = DistanceBrick.connect(proxy, DISTANCE_ID);
-        LedBrick ledBrick = LedBrick.connect(proxy, LED_ID);
+        DistanceBrick distBrick = DistanceBrick.connect(proxy, DISTANCE_BRICK_ID);
+        LedBrick ledBrick = LedBrick.connect(proxy, LED_BRICK_ID);
         while (true) {
             int dist = distBrick.getDistance(); // cm
             String time = distBrick.getTimestampIsoUtc();
