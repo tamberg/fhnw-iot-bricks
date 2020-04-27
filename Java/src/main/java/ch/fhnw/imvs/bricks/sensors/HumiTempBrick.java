@@ -40,6 +40,7 @@ import ch.fhnw.imvs.bricks.core.Proxy;
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload = null;
         if (mock) {
+            // TODO: move to getMock...() in base class?
             short mockBatt = (short) (Math.random() * 99 + 1);
             short mockHumi = (short) (100 * (Math.random() * 99 + 1));
             short mockTemp = (short) (100 * (Math.random() * 50 + 1)); 
@@ -84,9 +85,10 @@ import ch.fhnw.imvs.bricks.core.Proxy;
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload = null;
         if (mock) {
-            short mockBatt = (short) (Math.random() * 99 + 1);
-            short mockHumi = (short) (100 * (Math.random() * 99 + 1));
-            short mockTemp = (short) (100 * (Math.random() * 50 + 1)); 
+            // TODO: move to getMock...() in base class?
+            int mockBatt = (short) (Math.random() * 99 + 1);
+            double mockHumi = Math.random() * 99 + 1;
+            double mockTemp = Math.random() * 50 + 1; 
             try {
                 String utf8Payload = 
                      Integer.toString(mockBatt) + SEPARATOR +
@@ -110,12 +112,14 @@ public abstract class HumiTempBrick extends Brick {
     private volatile double currentTemp;
 
     protected void setHumidity(double humi) { currentHumi = humi; }
-    public double getHumidity() { return currentHumi; }
     protected void setTemperature(double temp) { currentTemp = temp; }
+
+    public double getHumidity() { return currentHumi; }
     public double getTemperature() { return currentTemp; }
 
     public static HumiTempBrick connect(Proxy proxy, String brickID) {
-        HumiTempBrick brick = new TtnBasicHumiTempBrick(proxy, brickID); // TODO: dynamic
+        //HumiTempBrick brick = new TtnBasicHumiTempBrick(proxy, brickID); // TODO: dynamic
+        HumiTempBrick brick = new Utf8HumiTempBrick(proxy, brickID); // TODO: dynamic
         brick.connect();
         return brick;
     }
