@@ -11,6 +11,8 @@ import java.util.Base64;
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
+// /* package */ final class ThingSpeakHumiTempBrick extends HumiTempBrick {}
+
 /* package */ final class TtnBasicHumiTempBrick extends HumiTempBrick {
     /* package */ TtnBasicHumiTempBrick(Proxy proxy, String brickID) {
         super(proxy, brickID);
