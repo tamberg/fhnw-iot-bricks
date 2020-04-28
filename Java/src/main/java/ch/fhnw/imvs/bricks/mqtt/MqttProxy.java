@@ -70,8 +70,8 @@ public final class MqttProxy extends Proxy {
     }
 
     public static MqttProxy fromConfig(String configHost) {
-        MqttConfig config = MqttConfig.fromHost(configHost);
-        MqttProxy proxy = new MqttProxy(config); // TODO: singleton per configHost
+        MqttConfig config = MqttConfig.fromHost(configHost); // TODO: too early to get config?
+        MqttProxy proxy = new MqttProxy(config); // TODO: singleton per configHost?
         proxy.connect();
         return proxy;
     }
