@@ -41,7 +41,7 @@ public abstract class Brick {
         return formatter.format(currentTimestamp);
     }
 
-    protected void setBatteryLevel(int level) { // called by Bricks
+    protected void setBatteryLevel(int level) { // called by Brick subclasses
         currentBatteryLevel = level;
     }
 
@@ -49,7 +49,7 @@ public abstract class Brick {
         proxy.connectBrick(this);
     }
 
-    protected void sync() { // called by Bricks
+    protected void sync() { // called by Brick subclasses
         proxy.syncBrick(this);
     }
 

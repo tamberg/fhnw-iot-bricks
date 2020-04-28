@@ -1,0 +1,34 @@
+<html>
+<head>
+<title>IoT Brick (0000-0003)</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+</head>
+<body>
+<h1>IoT Brick (0000-0003)</h1>
+<h2>Distance</h2>
+<div><pre>Last seen: 2020-03-05T00:00:00Z (OFFLINE)</pre></div>
+<h2>Java Example</h2>
+<pre>import ch.fhnw.imvs.bricks.*;
+
+...
+
+BASE_URL = "brick.li/";
+BRICK_ID = "0000-0003";
+
+Proxy proxy = MqttProxy.fromConfig(BASE_URL);
+// or proxy = MockProxy.fromConfig(BASE_URL);
+
+DistanceBrick brick = DistanceBrick.connect(proxy, BRICK_ID);
+
+// this brick
+int distance = brick.getDistance();
+
+// all bricks
+int battery = brick.getBatteryLevel();
+String time = brick.getTimestampIsoUtc();
+</pre>
+
+<h2>Java Library</h2>
+See <a href="https://github.com/tamberg/fhnw-iot-bricks">github.com/tamberg/fhnw-iot-bricks</a>
+</body>
+</html>

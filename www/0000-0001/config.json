@@ -1,7 +1,7 @@
 {
   "brick-config": {
     "id": "0000-0001",
-    "java-type": "ch.fhnw.iot-bricks.HumiTempBrick",
+    "java-type": "ch.fhnw.imvs.bricks.HumiTempBrick",
     "mqtt-config": "/mqtt/ttn.json"
   }
 }
