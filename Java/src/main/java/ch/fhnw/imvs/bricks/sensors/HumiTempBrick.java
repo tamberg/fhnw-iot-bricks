@@ -105,6 +105,8 @@ import ch.fhnw.imvs.bricks.core.Proxy;
     }
 }
 
+// Disadvantage: this class has to be public, but it's also not final.
+
 public abstract class HumiTempBrick extends Brick {
     protected HumiTempBrick(Proxy proxy, String brickID) {
         super(proxy, brickID);
