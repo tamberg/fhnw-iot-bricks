@@ -33,7 +33,7 @@ import ch.fhnw.imvs.bricks.core.Proxy;
             short mockBatt = (short) (Math.random() * 99 + 1);
             short mockHumi = (short) (100 * (Math.random() * 99 + 1));
             short mockTemp = (short) (100 * (Math.random() * 50 + 1)); 
-            ByteBuffer buf = ByteBuffer.allocate(4);
+            ByteBuffer buf = ByteBuffer.allocate(6);
             buf.putShort(mockBatt);
             buf.putShort(mockHumi);
             buf.putShort(mockTemp);
