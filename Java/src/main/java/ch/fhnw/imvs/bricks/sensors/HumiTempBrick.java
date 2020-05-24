@@ -3,27 +3,30 @@
 
 package ch.fhnw.imvs.bricks.sensors;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Base64;
 
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
-/* package */ final class BinHumiTempBrick extends HumiTempBrick {
-    /* package */ BinHumiTempBrick(Proxy proxy, String brickID) {
+public final class HumiTempBrick extends Brick {
+    protected HumiTempBrick(Proxy proxy, String brickID) {
         super(proxy, brickID);
     }
+
+    private volatile double currentHumi;
+    private volatile double currentTemp;
+
+    public double getHumidity() { return currentHumi; }
+    public double getTemperature() { return currentTemp; }
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
         ByteBuffer buf = ByteBuffer.wrap(payload);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         super.setBatteryLevel(buf.getShort());
-        super.setHumidity(buf.getShort() / 100.0);
-        super.setTemperature(buf.getShort() / 100.0);
+        currentHumi = buf.getShort() / 100.0;
+        currentTemp = buf.getShort() / 100.0;
     }
 
     @Override
@@ -42,69 +45,9 @@ import ch.fhnw.imvs.bricks.core.Proxy;
         }
         return payload;
     }
-}
-
-/* package */ final class Utf8HumiTempBrick extends HumiTempBrick {
-    /* package */ Utf8HumiTempBrick(Proxy proxy, String brickID) {
-        super(proxy, brickID);
-    }
-
-    private final String SEPARATOR = ";";
-
-    @Override
-    protected void setCurrentPayload(byte[] payload) {
-        try {
-            String message = new String(payload, StandardCharsets.UTF_8);
-            String[] parts = message.split(SEPARATOR);
-            super.setBatteryLevel(Integer.parseInt(parts[0]));
-            super.setHumidity(Double.parseDouble(parts[1]));
-            super.setTemperature(Double.parseDouble(parts[2]));
-        } catch(NumberFormatException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    protected byte[] getTargetPayload(boolean mock) {
-        byte[] payload = null;
-        if (mock) {
-            // TODO: move to getMock...() in base class?
-            int mockBatt = (short) (Math.random() * 99 + 1);
-            double mockHumi = Math.random() * 99 + 1;
-            double mockTemp = Math.random() * 50 + 1; 
-            try {
-                String utf8Payload = 
-                     Integer.toString(mockBatt) + SEPARATOR +
-                     Double.toString(mockHumi) + SEPARATOR + 
-                     Double.toString(mockTemp);
-                payload = utf8Payload.getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
-        return payload;
-    }
-}
-
-// Disadvantage: this class has to be public, but it's also not final.
-
-public abstract class HumiTempBrick extends Brick {
-    protected HumiTempBrick(Proxy proxy, String brickID) {
-        super(proxy, brickID);
-    }
-
-    private volatile double currentHumi;
-    private volatile double currentTemp;
-
-    protected void setHumidity(double humi) { currentHumi = humi; }
-    protected void setTemperature(double temp) { currentTemp = temp; }
-
-    public double getHumidity() { return currentHumi; }
-    public double getTemperature() { return currentTemp; }
 
     public static HumiTempBrick connect(Proxy proxy, String brickID) {
-        HumiTempBrick brick = new BinHumiTempBrick(proxy, brickID); // TODO: dynamic
-        //HumiTempBrick brick = new Utf8HumiTempBrick(proxy, brickID); // TODO: dynamic
+        HumiTempBrick brick = new HumiTempBrick(proxy, brickID);
         brick.connect();
         return brick;
     }
