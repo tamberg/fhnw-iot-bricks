@@ -12,6 +12,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
+// TODO: proxy could unwrap payload from transport
+// => TtnMqttProxy, ThingSpeakHttpProxy, ...
+// => or just TtnProxy, ThingSpeakProxy, ...
+
 public final class MqttProxy extends Proxy {
     private MqttProxy(MqttConfig config) {
         mqttConfig = config;
