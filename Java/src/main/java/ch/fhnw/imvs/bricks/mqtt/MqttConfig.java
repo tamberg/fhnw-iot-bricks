@@ -4,10 +4,8 @@
 package ch.fhnw.imvs.bricks.mqtt;
 
 import java.util.HashMap;
-import com.eclipsesource.json.Json;
-import com.eclipsesource.json.JsonValue;
 
-/* package */ final class MqttConfig { // TODO: rename MqttProxyConfig? Ttn...
+/* package */ final class MqttConfig { // TODO: get IDs, keys from config files
     private MqttConfig() {}
 
     private static final String BUTTON_ID = "0000-0002";
@@ -20,13 +18,13 @@ import com.eclipsesource.json.JsonValue;
     private static final String LCDDISPLAY_ID = "0000-0005";
     private static final String LED_ID = "0000-0000";
 
-    private static final String TTN_APP_ID = "fhnw-iot-bricks";
-    private static final String TTN_APP_ACCESS_KEY = "<AppAccessKey>";
+    private static final String TTN_APP_ID = "fhnw-iot";
+    private static final String TTN_APP_ACCESS_KEY = "ttn-account-v2.2XTAHf5qX7E6xGbMOkRTgagGSK2RljdNzWe5HNSL1P8"; // read only
     private static final String TTN_HOST = "eu.thethings.network";
 
-    private static final String HOST = "test.mosquitto.org"; // TODO: TTN_HOST
-    private static final String USERNAME = null; // TODO: TTN_APP_ID
-    private static final String PASSWORD = null; // TODO: TTN_APP_ACCESS_KEY
+    private static final String HOST = TTN_HOST;
+    private static final String USERNAME = TTN_APP_ID;
+    private static final String PASSWORD = TTN_APP_ACCESS_KEY;
 
     HashMap<String, String> pubTopics;
     HashMap<String, String> subTopics;
@@ -62,18 +60,18 @@ import com.eclipsesource.json.JsonValue;
     private void init(String configHost) {
         // TODO: get from host or use generic pattern
         subTopics = new HashMap<String, String>();
-        subTopics.put(BUTTON_ID, TTN_APP_ID + "/devices/" + BUTTON_ID + "/up");
-        subTopics.put(BUZZER_ID, TTN_APP_ID + "/devices/" + BUZZER_ID + "/up");
-        subTopics.put(DISTANCE_ID, TTN_APP_ID + "/devices/" + DISTANCE_ID + "/up");
-        subTopics.put(HUMITEMP_0_ID, TTN_APP_ID + "/devices/" + HUMITEMP_0_ID + "/up");
-        subTopics.put(HUMITEMP_1_ID, TTN_APP_ID + "/devices/" + HUMITEMP_1_ID + "/up");
-        subTopics.put(HUMITEMP_2_ID, TTN_APP_ID + "/devices/" + HUMITEMP_2_ID + "/up");
-        subTopics.put(LCDDISPLAY_ID, TTN_APP_ID + "/devices/" + LCDDISPLAY_ID + "/up");
-        subTopics.put(LED_ID, TTN_APP_ID + "/devices/" + LED_ID + "/up");
+        subTopics.put(BUTTON_ID, TTN_APP_ID + "/devices/fhnw-iot-5/up");
+        subTopics.put(BUZZER_ID, TTN_APP_ID + "/devices/fhnw-iot-6/up");
+        subTopics.put(DISTANCE_ID, TTN_APP_ID + "/devices/fhnw-iot-7/up");
+        subTopics.put(HUMITEMP_0_ID, TTN_APP_ID + "/devices/fhnw-iot-0/up");
+        subTopics.put(HUMITEMP_1_ID, TTN_APP_ID + "/devices/fhnw-iot-1/up");
+        subTopics.put(HUMITEMP_2_ID, TTN_APP_ID + "/devices/fhnw-iot-2/up");
+        subTopics.put(LCDDISPLAY_ID, TTN_APP_ID + "/devices/fhnw-iot-3/up");
+        subTopics.put(LED_ID, TTN_APP_ID + "/devices/fhnw-iot-4/up");
         pubTopics = new HashMap<String, String>();
-        pubTopics.put(BUZZER_ID, TTN_APP_ID + "/devices/" + BUZZER_ID + "/down");
-        pubTopics.put(LCDDISPLAY_ID, TTN_APP_ID + "/devices/" + LCDDISPLAY_ID + "/down");
-        pubTopics.put(LED_ID, TTN_APP_ID + "/devices/" + LED_ID + "/down");
+        pubTopics.put(BUZZER_ID, TTN_APP_ID + "/devices/fhnw-iot-6/down");
+        pubTopics.put(LCDDISPLAY_ID, TTN_APP_ID + "/devices/fhnw-iot-3/down");
+        pubTopics.put(LED_ID, TTN_APP_ID + "/devices/fhnw-iot-4/down");
     }
 
     public static MqttConfig fromHost(String configHost) {
@@ -82,4 +80,3 @@ import com.eclipsesource.json.JsonValue;
         return config;
     }
 }
-
