@@ -37,6 +37,7 @@ import ch.fhnw.imvs.bricks.core.Proxy;
 import ch.fhnw.imvs.bricks.http.HttpProxy;
 import ch.fhnw.imvs.bricks.mock.MockProxy;
 import ch.fhnw.imvs.bricks.mqtt.MqttProxy;
+import ch.fhnw.imvs.bricks.mqtt.TtnMqttProxy;
 import ch.fhnw.imvs.bricks.sensors.ButtonBrick;
 import ch.fhnw.imvs.bricks.actuators.BuzzerBrick;
 import ch.fhnw.imvs.bricks.sensors.DistanceBrick;
@@ -105,9 +106,10 @@ public final class Bricks {
             for (HumiTempBrick brick : bricks) {
                 String id = brick.getID();
                 String time = brick.getTimestampIsoUtc();
+                int batt = brick.getBatteryLevel();
                 double temp = brick.getTemperature();
                 double humi = brick.getHumidity();
-                String line = String.format(Locale.US, "%s, %s, %.2f, %.2f", id, time, temp, humi);
+                String line = String.format(Locale.US, "%s, %s, %d, %.2f, %.2f", id, time, batt, temp, humi);
                 System.out.println(line);
             }
             proxy.waitForUpdate();
@@ -143,7 +145,7 @@ public final class Bricks {
 
     public static void main(String args[]) {
         final String BASE_URL = "https://brick.li";
-        final String USAGE = "usage: java Bricks http|mqtt|mock d|l|a|m";
+        final String USAGE = "usage: java Bricks http|mqtt|mock|ttn d|l|a|m";
         if (args.length == 2) {
             Proxy proxy = null;
             if ("http".equals(args[0])) {
@@ -152,6 +154,8 @@ public final class Bricks {
                 proxy = MqttProxy.fromConfig(BASE_URL);
             } else if ("mock".equals(args[0])) {
                 proxy = MockProxy.fromConfig(BASE_URL);
+            } else if ("ttn".equals(args[0])) {
+                proxy = TtnMqttProxy.fromConfig(BASE_URL);
             } else {
                 System.out.println(USAGE);
                 System.exit(-1);
