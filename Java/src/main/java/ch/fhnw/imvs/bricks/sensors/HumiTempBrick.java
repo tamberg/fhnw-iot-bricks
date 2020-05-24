@@ -6,19 +6,21 @@ package ch.fhnw.imvs.bricks.sensors;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Base64;
 
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
-/* package */ final class LppHumiTempBrick extends HumiTempBrick {
-    /* package */ LppHumiTempBrick(Proxy proxy, String brickID) {
+/* package */ final class BinHumiTempBrick extends HumiTempBrick {
+    /* package */ BinHumiTempBrick(Proxy proxy, String brickID) {
         super(proxy, brickID);
     }
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
         ByteBuffer buf = ByteBuffer.wrap(payload);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         super.setBatteryLevel(buf.getShort());
         super.setHumidity(buf.getShort() / 100.0);
         super.setTemperature(buf.getShort() / 100.0);
@@ -32,6 +34,7 @@ import ch.fhnw.imvs.bricks.core.Proxy;
             short mockHumi = (short) (100 * (Math.random() * 99 + 1));
             short mockTemp = (short) (100 * (Math.random() * 50 + 1)); 
             ByteBuffer buf = ByteBuffer.allocate(6);
+            buf.order(ByteOrder.BIG_ENDIAN); // network byte order
             buf.putShort(mockBatt);
             buf.putShort(mockHumi);
             buf.putShort(mockTemp);
@@ -100,7 +103,7 @@ public abstract class HumiTempBrick extends Brick {
     public double getTemperature() { return currentTemp; }
 
     public static HumiTempBrick connect(Proxy proxy, String brickID) {
-        HumiTempBrick brick = new LppHumiTempBrick(proxy, brickID); // TODO: dynamic
+        HumiTempBrick brick = new BinHumiTempBrick(proxy, brickID); // TODO: dynamic
         //HumiTempBrick brick = new Utf8HumiTempBrick(proxy, brickID); // TODO: dynamic
         brick.connect();
         return brick;
