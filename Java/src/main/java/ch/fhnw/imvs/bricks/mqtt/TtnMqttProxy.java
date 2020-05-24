@@ -15,6 +15,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
+// TtnMqttProxy knows how to (un)pack TTN LoRaWAN / MQTT payload.
+
 public final class TtnMqttProxy extends Proxy {
     private TtnMqttProxy(MqttConfig config) {
         mqttConfig = config;
@@ -48,7 +50,7 @@ public final class TtnMqttProxy extends Proxy {
         String topic = mqttConfig.getSubscribeTopic(brick.getID());
         IMqttMessageListener listener = new IMqttMessageListener() {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                System.out.printf("messageArrived topic = \"%s\", payload = \"%s\"\n", topic, message);
+                //System.out.printf("messageArrived topic = \"%s\", payload = \"%s\"\n", topic, message);
                 byte[] ttnMqttPayloadBytes = message.getPayload();
                 String ttnMqttPayloadJson = new String(ttnMqttPayloadBytes, StandardCharsets.UTF_8);
                 String ttnLoRaPayloadBase64 = TtnMqttProxy.this.getValueOf(
@@ -79,7 +81,7 @@ public final class TtnMqttProxy extends Proxy {
         }
         String topic = mqttConfig.getPublishTopic(brick.getID());
         mqttService.publish(topic, ttnMqttPayloadBytes);
-        System.out.printf("publish topic = \"%s\"\n", topic);
+        //System.out.printf("publish topic = \"%s\"\n", topic);
     }
 
     @Override
