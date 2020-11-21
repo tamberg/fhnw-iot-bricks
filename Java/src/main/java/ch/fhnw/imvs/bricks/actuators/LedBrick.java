@@ -4,8 +4,8 @@
 package ch.fhnw.imvs.bricks.actuators;
 
 import java.awt.Color;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
@@ -15,7 +15,6 @@ public final class LedBrick extends Brick {
         super(proxy, brickID);
     }
 
-    private final String SEPARATOR = ";";
     private volatile Color currentColor = Color.BLACK;
     private volatile Color targetColor = Color.BLACK;
 
@@ -32,33 +31,31 @@ public final class LedBrick extends Brick {
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        try {
-            String message = new String(payload, StandardCharsets.UTF_8);
-            String[] parts = message.split(SEPARATOR);
-            super.setBatteryLevel(Integer.parseInt(parts[0]));
-            currentColor = Color.decode(parts[1]);
-        } catch(NumberFormatException e) {
-            e.printStackTrace();
-        }
+        ByteBuffer buf = ByteBuffer.wrap(payload);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        super.setBatteryLevel(buf.getShort());
+        // https://stackoverflow.com/questions/4266756/can-we-make-unsigned-byte-in-java
+        int r = buf.get() & (0xff); // or Byte.toUnsignedInt(buf.get()); // Java 8+
+        int g = buf.get() & (0xff);
+        int b = buf.get() & (0xff);
+        currentColor = new Color(r, g, b);
     }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
-        byte[] payload;
-        try {
-            int mockBatt = (int) (Math.random() * 99 + 1);
-            int r = targetColor.getRed();
-            int g = targetColor.getGreen();
-            int b = targetColor.getBlue();
-            String payloadString = 
-                (mock ? Integer.toString(mockBatt) + SEPARATOR : "") +
-                String.format("#%02x%02x%02x", r, g, b);
-            payload = payloadString.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            payload = null;
+        short mockBatt = (short) (Math.random() * 99 + 1);
+        ByteBuffer buf = ByteBuffer.allocate(mock ? 5 : 3);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        if (mock) {
+            buf.putShort(mockBatt);
         }
-        return payload;
+        int r = targetColor.getRed();
+        int g = targetColor.getGreen();
+        int b = targetColor.getBlue();
+        buf.put((byte) r);
+        buf.put((byte) g);
+        buf.put((byte) b);
+        return buf.array();
     }
 
     public static LedBrick connect(Proxy proxy, String brickID) {
