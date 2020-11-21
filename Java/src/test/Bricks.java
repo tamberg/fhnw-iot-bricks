@@ -136,7 +136,7 @@ public final class Bricks {
             int dist = distBrick.getDistance(); // cm
             String time = distBrick.getTimestampIsoUtc();
             Color color = dist < 200 ? Color.RED : Color.GREEN;
-            String line = String.format(Locale.US, "%s, %.2d, %s\n", time, dist, color);
+            String line = String.format(Locale.US, "%s, %d, %s\n", time, dist, color);
             System.out.print(line);
             ledBrick.setColor(color);
             proxy.waitForUpdate();
