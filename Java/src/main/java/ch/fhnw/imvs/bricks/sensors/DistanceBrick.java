@@ -3,8 +3,8 @@
 
 package ch.fhnw.imvs.bricks.sensors;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
@@ -14,39 +14,31 @@ public final class DistanceBrick extends Brick {
         super(proxy, brickID);
     }
 
-    private final String SEPARATOR = ";";
-    private volatile int currentDist;
+    private volatile short currentDist;
 
-    public int getDistance() {
+    public int getDistance() { // int is more familiar
         return currentDist;
     }
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        try {
-            String message = new String(payload, StandardCharsets.UTF_8);
-            String[] parts = message.split(SEPARATOR);
-            super.setBatteryLevel(Integer.parseInt(parts[0]));
-            currentDist = Integer.parseInt(parts[1]);
-        } catch(NumberFormatException e) {
-            e.printStackTrace();
-        }
+        ByteBuffer buf = ByteBuffer.wrap(payload);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        super.setBatteryLevel(buf.getShort());
+        currentDist = buf.getShort();
     }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload = null;
         if (mock) {
-            int mockBatt = (int) (Math.random() * 99 + 1);
-            int mockDist = (int) (Math.random() * 255 + 1);
-            try {
-                String payloadString = 
-                    Integer.toString(mockBatt) + SEPARATOR +
-                    Integer.toString(mockDist);
-                payload = payloadString.getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            short mockBatt = (short) (Math.random() * 99 + 1);
+            short mockDist = (short) (Math.random() * 255 + 1);
+            ByteBuffer buf = ByteBuffer.allocate(4);
+            buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+            buf.putShort(mockBatt);
+            buf.putShort(mockDist);
+            payload = buf.array();
         }
         return payload;
     }
