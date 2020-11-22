@@ -85,7 +85,7 @@ public final class TtnMqttProxy extends Proxy {
     }
 
     @Override
-    public void waitForUpdate() {
+    public void waitForUpdate() { // TODO: waitForAnyUpdate vs. waitForAllUpdates
         boolean updated = false;
         while (!updated) {
             for (Brick brick : bricks) {
