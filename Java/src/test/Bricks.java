@@ -73,11 +73,8 @@ public final class Bricks {
     private static void runLoggingExample(Proxy proxy) {
         HumiTempBrick brick = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
         FileWriter fileWriter = null;
-        String title = "Timestamp (UTC)\tTemperature\tHumidity\n";
-        System.out.print(title);
         try {
             fileWriter = new FileWriter("log.csv", true); // append
-            fileWriter.append(title);
         } catch (IOException e) {
             e.printStackTrace();
         }
