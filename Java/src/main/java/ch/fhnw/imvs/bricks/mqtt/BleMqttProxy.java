@@ -15,10 +15,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
-// TtnMqttProxy knows how to (un)pack TTN LoRaWAN / MQTT payload.
+// BleMqttProxy knows how to (un)pack TTN LoRaWAN / MQTT payload.
 
-public final class TtnMqttProxy extends Proxy {
-    private TtnMqttProxy(MqttConfig config) {
+public final class BleMqttProxy extends Proxy {
+    private BleMqttProxy(MqttConfig config) {
         mqttConfig = config;
         mqttService = new MqttService();
         bricks = new ArrayList<Brick>();
@@ -53,10 +53,10 @@ public final class TtnMqttProxy extends Proxy {
                 //System.out.printf("messageArrived topic = \"%s\", payload = \"%s\"\n", topic, message);
                 byte[] ttnMqttPayloadBytes = message.getPayload();
                 String ttnMqttPayloadJson = new String(ttnMqttPayloadBytes, StandardCharsets.UTF_8);
-                String ttnLoRaPayloadBase64 = TtnMqttProxy.this.getValueOf(
+                String ttnLoRaPayloadBase64 = BleMqttProxy.this.getValueOf(
                     ttnMqttPayloadJson, "payload_raw");
                 byte[] ttnLoRaPayloadBytes = Base64.getDecoder().decode(ttnLoRaPayloadBase64);
-                TtnMqttProxy.this.setPendingPayload(brick, ttnLoRaPayloadBytes);
+                BleMqttProxy.this.setPendingPayload(brick, ttnLoRaPayloadBytes);
             }
         };
         mqttService.subscribe(topic, listener);
@@ -99,9 +99,9 @@ public final class TtnMqttProxy extends Proxy {
         }
     }
 
-    public static TtnMqttProxy fromConfig(String configHost) {
-        MqttConfig config = TtnMqttConfig.fromHost(configHost); // TODO: too early to get config?
-        TtnMqttProxy proxy = new TtnMqttProxy(config); // TODO: singleton per configHost?
+    public static BleMqttProxy fromConfig(String configHost) {
+        MqttConfig config = BleMqttConfig.fromHost(configHost); // TODO: too early to get config?
+        BleMqttProxy proxy = new BleMqttProxy(config); // TODO: singleton per configHost?
         proxy.connect();
         return proxy;
     }
