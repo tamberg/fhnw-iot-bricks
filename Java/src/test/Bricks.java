@@ -2,11 +2,7 @@
 // Licensed under MIT License, see LICENSE for details.
 
 // $ cd Java
-// $ curl -Lo lib/minimal-json-0.9.5.jar https://github.com/ralfstx/minimal-json/\
-//   releases/download/0.9.5/minimal-json-0.9.5.jar
-// $ curl -Lo lib/org.eclipse.paho.client.mqttv3-1.2.3.jar \
-//   https://repo.eclipse.org/content/repositories/paho-releases/org/eclipse/paho/\
-//   org.eclipse.paho.client.mqttv3/1.2.3/org.eclipse.paho.client.mqttv3-1.2.3.jar
+// $ ./setup.sh
 // $ ./clean.sh
 // $ ./compile.sh
 // $ java -cp ./src:target:lib/minimal-json-0.9.5.jar:lib/org.eclipse.paho.client.mqttv3-1.2.3.jar Bricks
@@ -36,8 +32,8 @@ import java.util.Locale;
 import ch.fhnw.imvs.bricks.core.Proxy;
 import ch.fhnw.imvs.bricks.http.HttpProxy;
 import ch.fhnw.imvs.bricks.mock.MockProxy;
-import ch.fhnw.imvs.bricks.mqtt.MqttProxy;
 import ch.fhnw.imvs.bricks.mqtt.TtnMqttProxy;
+import ch.fhnw.imvs.bricks.mqtt.BleMqttProxy;
 import ch.fhnw.imvs.bricks.sensors.ButtonBrick;
 import ch.fhnw.imvs.bricks.actuators.BuzzerBrick;
 import ch.fhnw.imvs.bricks.sensors.DistanceBrick;
@@ -142,17 +138,17 @@ public final class Bricks {
 
     public static void main(String args[]) {
         final String BASE_URL = "https://brick.li";
-        final String USAGE = "usage: java Bricks http|mqtt|mock|ttn d|l|a|m";
+        final String USAGE = "usage: java Bricks http|mock|ttn|ble d|l|a|m";
         if (args.length == 2) {
             Proxy proxy = null;
             if ("http".equals(args[0])) {
                 proxy = HttpProxy.fromConfig(BASE_URL);
-            } else if ("mqtt".equals(args[0])) {
-                proxy = MqttProxy.fromConfig(BASE_URL);
             } else if ("mock".equals(args[0])) {
                 proxy = MockProxy.fromConfig(BASE_URL);
             } else if ("ttn".equals(args[0])) {
                 proxy = TtnMqttProxy.fromConfig(BASE_URL);
+            } else if ("ble".equals(args[0])) {
+                proxy = BleMqttProxy.fromConfig(BASE_URL);
             } else {
                 System.out.println(USAGE);
                 System.exit(-1);
