@@ -4,7 +4,6 @@
 package ch.fhnw.imvs.bricks.mock;
 
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
 import java.util.List;
 
 import ch.fhnw.imvs.bricks.core.Brick;
@@ -20,25 +19,13 @@ public final class MockProxy extends Proxy {
     @Override
     public void connectBrick(Brick brick) {
         bricks.add(brick);
+        super.addBrick(brick);
     }
 
     @Override
-    protected void syncBrick(Brick brick) {}
-
-    @Override
-    public void waitForUpdate() {
-        for (Brick brick : bricks) {
-            byte[] payload = super.getTargetPayload(brick, true); // mock
-            if (payload != null) {
-                super.setPendingPayload(brick, payload);
-                super.tryUpdate(brick); // ignore result
-            }
-        }
-        try {
-            TimeUnit.MILLISECONDS.sleep(1000); // ms
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    protected void syncBrick(Brick brick) { // TODO: who calls this?
+        byte[] payload = super.getTargetPayload(brick, true); // mock
+        super.setPendingPayload(brick, payload);
     }
 
     public static MockProxy fromConfig(String configHost) {
