@@ -3,7 +3,6 @@
 
 package ch.fhnw.imvs.bricks.mock;
 
-import java.lang.Runnable;
 import java.lang.Thread;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -12,7 +11,7 @@ import java.util.List;
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
-public final class MockProxy extends Proxy implements Runnable {
+public final class MockProxy extends Proxy {
     private MockProxy() {
         bricks = new ArrayList<Brick>();
     }
@@ -31,7 +30,7 @@ public final class MockProxy extends Proxy implements Runnable {
         super.setPendingPayload(brick, payload);
     }
 
-    public void run() { // Runnable interface
+    private void run() {
         while (true) {
             for (Brick brick : bricks) {
                 syncBrick(brick);
@@ -46,7 +45,11 @@ public final class MockProxy extends Proxy implements Runnable {
 
     public static MockProxy fromConfig(String configHost) {
         MockProxy proxy = new MockProxy();
-        Thread thread = new Thread(proxy);
+        Thread thread = new Thread() {
+            public void run() {
+                proxy.run();
+            }
+        };
         thread.start();
         return proxy;
     }
