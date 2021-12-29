@@ -36,7 +36,7 @@ public final class MockProxy extends Proxy {
                 syncBrick(brick);
             }
             try {
-                TimeUnit.MILLISECONDS.sleep(1000); // ms
+                TimeUnit.MILLISECONDS.sleep(100); // ms
             } catch (InterruptedException e) {
                e.printStackTrace();
             }
