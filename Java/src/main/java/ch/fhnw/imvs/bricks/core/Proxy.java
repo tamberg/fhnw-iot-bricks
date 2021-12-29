@@ -29,7 +29,6 @@ public abstract class Proxy {
     	brick.setPendingPayload(payload); // package level access
     }
 
-    // TODO: waitForAnyUpdate vs. waitForAllUpdates?
     public void waitForUpdate() { // called by client code
         boolean updated = false;
         while (!updated) {
