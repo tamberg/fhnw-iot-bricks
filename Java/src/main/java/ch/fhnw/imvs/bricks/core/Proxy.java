@@ -34,7 +34,7 @@ public abstract class Proxy {
         boolean updated = false;
         while (!updated) {
             for (Brick brick : bricks) {
-                updated = updated || brick.tryUpdate();
+                updated = brick.tryUpdate() || updated; // sequence matters
             }
             try {
                 TimeUnit.MILLISECONDS.sleep(100); // ms
