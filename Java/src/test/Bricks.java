@@ -32,6 +32,7 @@ import java.util.Locale;
 import ch.fhnw.imvs.bricks.core.Proxy;
 import ch.fhnw.imvs.bricks.http.HttpProxy;
 import ch.fhnw.imvs.bricks.mock.MockProxy;
+import ch.fhnw.imvs.bricks.mqtt.AnyMqttProxy;
 import ch.fhnw.imvs.bricks.mqtt.TtnMqttProxy;
 import ch.fhnw.imvs.bricks.mqtt.BleMqttProxy;
 import ch.fhnw.imvs.bricks.sensors.ButtonBrick;
@@ -138,11 +139,13 @@ public final class Bricks {
 
     public static void main(String args[]) {
         final String BASE_URL = "https://brick.li";
-        final String USAGE = "usage: java Bricks http|mock|ttn|ble d|l|a|m";
+        final String USAGE = "usage: java Bricks http|mqtt|mock|ttn|ble d|l|a|m|p";
         if (args.length == 2) {
             Proxy proxy = null;
             if ("http".equals(args[0])) {
                 proxy = HttpProxy.fromConfig(BASE_URL);
+            } else if ("mqtt".equals(args[0])) {
+                proxy = AnyMqttProxy.fromConfig(BASE_URL);
             } else if ("mock".equals(args[0])) {
                 proxy = MockProxy.fromConfig(BASE_URL);
             } else if ("ttn".equals(args[0])) {
