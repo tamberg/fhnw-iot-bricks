@@ -46,7 +46,6 @@ public final class AnyMqttProxy extends Proxy {
         byte[] payload = super.getTargetPayload(brick, false); // not a mock
         String topic = mqttConfig.getPublishTopic(brick.getID());
         mqttService.publish(topic, payload);
-        System.out.printf("publish topic = \"%s\"\n", topic);
     }
 
     public static AnyMqttProxy fromConfig(String configHost) {
