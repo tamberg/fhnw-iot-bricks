@@ -33,7 +33,6 @@ void setup() {
 }
 
 void loop() {
-  //client.handle();
   if (mqtt.connected()) {
     // Readings take about 250 ms, may be up to 2 s old
     float batt = 3.7; // V, TODO
