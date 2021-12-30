@@ -34,7 +34,7 @@ public final class LedBrick extends Brick {
         ByteBuffer buf = ByteBuffer.allocate(mock ? 5 : 3);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         if (mock) {
-            float mockBatt = (float) (Math.random() * 3.7 + 1);
+            float mockBatt = (float) (Math.random() * 3.7);
             buf.putShort((short) (mockBatt * 100.0f));
         }
         int r = targetColor.getRed();

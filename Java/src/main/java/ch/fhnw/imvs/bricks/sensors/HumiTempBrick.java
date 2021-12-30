@@ -35,9 +35,9 @@ public final class HumiTempBrick extends Brick {
         if (mock) {
             ByteBuffer buf = ByteBuffer.allocate(6);
             buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-            float mockBatt = (float) (Math.random() * 3.7 + 1);
-            float mockHumi = (float) (Math.random() * 99 + 1);
-            float mockTemp = (float) (Math.random() * 50 + 1);
+            float mockBatt = (float) (Math.random() * 3.7);
+            float mockHumi = (float) (Math.random() * 99);
+            float mockTemp = (float) (Math.random() * 50);
             buf.putShort((short) (mockBatt * 100.0f));
             buf.putShort((short) (mockHumi * 100.0f));
             buf.putShort((short) (mockTemp * 100.0f));

@@ -34,8 +34,8 @@ public final class DistanceBrick extends Brick {
         if (mock) {
             ByteBuffer buf = ByteBuffer.allocate(6);
             buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-            float mockBatt = (float) (Math.random() * 3.7 + 1);
-            int mockDist = (int) (Math.random() * 350 + 1);
+            float mockBatt = (float) (Math.random() * 3.7);
+            int mockDist = (int) (Math.random() * 350);
             buf.putShort((short) (mockBatt * 100.0f));
             buf.putInt(mockDist);
             payload = buf.array();

@@ -34,7 +34,7 @@ public final class BuzzerBrick extends Brick {
         ByteBuffer buf = ByteBuffer.allocate(mock ? 3 : 1);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         if (mock) {
-            float mockBatt = (float) (Math.random() * 3.7 + 1);
+            float mockBatt = (float) (Math.random() * 3.7);
             buf.putShort((short) (mockBatt * 100.0f));
         }
         buf.put((byte) (targetEnabled ? 1 : 0));

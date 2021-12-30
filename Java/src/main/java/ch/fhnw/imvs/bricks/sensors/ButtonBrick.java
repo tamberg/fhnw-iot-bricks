@@ -34,7 +34,7 @@ public final class ButtonBrick extends Brick {
         if (mock) {
             ByteBuffer buf = ByteBuffer.allocate(3);
             buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-            float mockBatt = (float) (Math.random() * 3.7 + 1);
+            float mockBatt = (float) (Math.random() * 3.7);
             boolean mockPressed = Math.random() < 0.5;
             buf.putShort((short) (mockBatt * 100.0f));
             buf.put((byte) (mockPressed ? 1 : 0));
