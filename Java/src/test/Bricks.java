@@ -103,7 +103,7 @@ public final class Bricks {
                 float batt = brick.getBatteryLevel();
                 double temp = brick.getTemperature();
                 double humi = brick.getHumidity();
-                String line = String.format(Locale.US, "%s, %s, %d, %.2f, %.2f", id, time, batt, temp, humi);
+                String line = String.format(Locale.US, "%s, %s, %.2f, %.2f, %.2f", id, time, batt, temp, humi);
                 System.out.println(line);
             }
             proxy.waitForUpdate();
