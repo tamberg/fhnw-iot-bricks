@@ -7,8 +7,8 @@ package ch.fhnw.imvs.bricks.mqtt;
     private AnyMqttConfig() {}
 
     private static final String HOST = "test.mosquitto.org";
-    private static final String USERNAME = "";
-    private static final String PASSWORD = "";
+    private static final String USERNAME = null;
+    private static final String PASSWORD = null;
 
     @Override
     public String getHost() {

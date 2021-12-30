@@ -24,7 +24,7 @@ public final class HumiTempBrick extends Brick {
     protected void setCurrentPayload(byte[] payload) {
         ByteBuffer buf = ByteBuffer.wrap(payload);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        super.setBatteryLevel(buf.getShort());
+        super.setBatteryLevel(buf.getShort() / 100.0f);
         currentHumi = buf.getShort() / 100.0;
         currentTemp = buf.getShort() / 100.0;
     }
@@ -33,14 +33,14 @@ public final class HumiTempBrick extends Brick {
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload = null;
         if (mock) {
-            short mockBatt = (short) (Math.random() * 99 + 1);
-            short mockHumi = (short) (100 * (Math.random() * 99 + 1));
-            short mockTemp = (short) (100 * (Math.random() * 50 + 1)); 
             ByteBuffer buf = ByteBuffer.allocate(6);
             buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-            buf.putShort(mockBatt);
-            buf.putShort(mockHumi);
-            buf.putShort(mockTemp);
+            float mockBatt = (float) (Math.random() * 3.7 + 1);
+            float mockHumi = (float) (Math.random() * 99 + 1);
+            float mockTemp = (float) (Math.random() * 50 + 1);
+            buf.putShort((short) (mockBatt * 100.0f));
+            buf.putShort((short) (mockHumi * 100.0f));
+            buf.putShort((short) (mockTemp * 100.0f));
             payload = buf.array();
         }
         return payload;

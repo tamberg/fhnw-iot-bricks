@@ -30,24 +30,12 @@ public final class LedBrick extends Brick {
     }
 
     @Override
-    protected void setCurrentPayload(byte[] payload) {
-        ByteBuffer buf = ByteBuffer.wrap(payload);
-        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        super.setBatteryLevel(buf.getShort());
-        // https://stackoverflow.com/questions/4266756/can-we-make-unsigned-byte-in-java
-        int r = buf.get() & (0xff); // or Byte.toUnsignedInt(buf.get()); // Java 8+
-        int g = buf.get() & (0xff);
-        int b = buf.get() & (0xff);
-        currentColor = new Color(r, g, b);
-    }
-
-    @Override
     protected byte[] getTargetPayload(boolean mock) {
-        short mockBatt = (short) (Math.random() * 99 + 1);
         ByteBuffer buf = ByteBuffer.allocate(mock ? 5 : 3);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         if (mock) {
-            buf.putShort(mockBatt);
+            float mockBatt = (float) (Math.random() * 3.7 + 1);
+            buf.putShort((short) (mockBatt * 100.0f));
         }
         int r = targetColor.getRed();
         int g = targetColor.getGreen();
@@ -56,6 +44,18 @@ public final class LedBrick extends Brick {
         buf.put((byte) g);
         buf.put((byte) b);
         return buf.array();
+    }
+
+    @Override
+    protected void setCurrentPayload(byte[] payload) {
+        ByteBuffer buf = ByteBuffer.wrap(payload);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        super.setBatteryLevel(buf.getShort() / 100.0f);
+        // https://stackoverflow.com/questions/4266756/can-we-make-unsigned-byte-in-java
+        int r = buf.get() & (0xff); // or Byte.toUnsignedInt(buf.get()); // Java 8+
+        int g = buf.get() & (0xff);
+        int b = buf.get() & (0xff);
+        currentColor = new Color(r, g, b);
     }
 
     public static LedBrick connect(Proxy proxy, String brickID) {
