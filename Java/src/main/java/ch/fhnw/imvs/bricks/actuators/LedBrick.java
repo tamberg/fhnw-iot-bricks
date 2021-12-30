@@ -34,8 +34,8 @@ public final class LedBrick extends Brick {
         ByteBuffer buf = ByteBuffer.allocate(mock ? 5 : 3);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         if (mock) {
-            float mockBatt = (float) (Math.random() * 3.7);
-            buf.putShort((short) (mockBatt * 100.0f));
+            double mockBatt = Math.random() * 3.7;
+            buf.putShort((short) (mockBatt * 100));
         }
         int r = targetColor.getRed();
         int g = targetColor.getGreen();
@@ -50,7 +50,7 @@ public final class LedBrick extends Brick {
     protected void setCurrentPayload(byte[] payload) {
         ByteBuffer buf = ByteBuffer.wrap(payload);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        super.setBatteryLevel(buf.getShort() / 100.0f);
+        super.setBatteryVoltage(buf.getShort() / 100.0);
         // https://stackoverflow.com/questions/4266756/can-we-make-unsigned-byte-in-java
         int r = buf.get() & (0xff); // or Byte.toUnsignedInt(buf.get()); // Java 8+
         int g = buf.get() & (0xff);
