@@ -100,7 +100,7 @@ public final class Bricks {
             for (HumiTempBrick brick : bricks) {
                 String id = brick.getID();
                 String time = brick.getTimestampIsoUtc();
-                float batt = brick.getBatteryLevel();
+                double batt = brick.getBatteryVoltage();
                 double temp = brick.getTemperature();
                 double humi = brick.getHumidity();
                 String line = String.format(Locale.US, "%s, %s, %.2f, %.2f, %.2f", id, time, batt, temp, humi);
