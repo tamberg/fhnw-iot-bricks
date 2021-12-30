@@ -3,6 +3,7 @@
 
 package ch.fhnw.imvs.bricks.mock;
 
+import java.lang.Thread;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.List;
@@ -20,28 +21,36 @@ public final class MockProxy extends Proxy {
     @Override
     public void connectBrick(Brick brick) {
         bricks.add(brick);
+        super.addBrick(brick);
     }
 
     @Override
-    protected void syncBrick(Brick brick) {}
+    protected void syncBrick(Brick brick) {
+        byte[] payload = super.getTargetPayload(brick, true); // mock
+        super.setPendingPayload(brick, payload);
+    }
 
-    @Override
-    public void waitForUpdate() {
-        for (Brick brick : bricks) {
-            byte[] payload = super.getTargetPayload(brick, true); // mock
-            if (payload != null) {
-                super.setPendingPayload(brick, payload);
-                super.tryUpdate(brick); // ignore result
+    private void run() {
+        while (true) {
+            for (Brick brick : bricks) {
+                syncBrick(brick);
             }
-        }
-        try {
-            TimeUnit.MILLISECONDS.sleep(1000); // ms
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            try {
+                TimeUnit.MILLISECONDS.sleep(100); // ms
+            } catch (InterruptedException e) {
+               e.printStackTrace();
+            }
         }
     }
 
     public static MockProxy fromConfig(String configHost) {
-        return new MockProxy();
+        MockProxy proxy = new MockProxy();
+        Thread thread = new Thread() {
+            public void run() {
+                proxy.run();
+            }
+        };
+        thread.start();
+        return proxy;
     }
 }

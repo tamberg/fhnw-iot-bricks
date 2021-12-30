@@ -3,8 +3,8 @@
 
 package ch.fhnw.imvs.bricks.actuators;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
@@ -14,7 +14,6 @@ public final class LcdDisplayBrick extends Brick {
         super(proxy, brickID);
     }
 
-    private final String SEPARATOR = ";";
     private volatile double currentValue = 0.0;
     private volatile double targetValue = 0.0;
 
@@ -30,31 +29,23 @@ public final class LcdDisplayBrick extends Brick {
     }
 
     @Override
-    protected void setCurrentPayload(byte[] payload) {
-        try {
-            String message = new String(payload, StandardCharsets.UTF_8);
-            String[] parts = message.split(SEPARATOR);
-            super.setBatteryLevel(Integer.parseInt(parts[0]));
-            currentValue = Double.parseDouble(parts[1]);
-        } catch(NumberFormatException e) {
-            e.printStackTrace();
+    protected byte[] getTargetPayload(boolean mock) {
+        ByteBuffer buf = ByteBuffer.allocate(mock ? 4 : 2);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        if (mock) {
+            float mockBatt = (float) (Math.random() * 3.7);
+            buf.putShort((short) (mockBatt * 100.0f));
         }
+        buf.putShort((short) (targetValue * 100.0f));
+        return buf.array();
     }
 
     @Override
-    protected byte[] getTargetPayload(boolean mock) {
-        byte[] payload;
-        try {
-            int mockBatt = (int) (Math.random() * 99 + 1);
-            String payloadString = 
-                (mock ? Integer.toString(mockBatt) + SEPARATOR : "") +
-                Double.toString(targetValue);
-            payload = payloadString.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            payload = null;
-        }
-        return payload;
+    protected void setCurrentPayload(byte[] payload) {
+        ByteBuffer buf = ByteBuffer.wrap(payload);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        super.setBatteryLevel(buf.getShort() / 100.0f);
+        currentValue = buf.getShort() / 100.0f;
     }
 
     public static LcdDisplayBrick connect(Proxy proxy, String brickID) {

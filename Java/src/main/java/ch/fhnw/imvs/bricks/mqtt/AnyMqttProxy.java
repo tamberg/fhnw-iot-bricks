@@ -3,29 +3,20 @@
 
 package ch.fhnw.imvs.bricks.mqtt;
 
-import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-import java.util.List;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
-// TODO: proxy could unwrap payload from transport
-// => TtnMqttProxy, ThingSpeakHttpProxy, ...
-// => or just TtnProxy, ThingSpeakProxy, ...
-
-public final class MqttProxy extends Proxy {
-    private MqttProxy(MqttConfig config) {
+public final class AnyMqttProxy extends Proxy {
+    private AnyMqttProxy(MqttConfig config) {
         mqttConfig = config;
         mqttService = new MqttService();
-        bricks = new ArrayList<Brick>();
     }
 
     private final MqttConfig mqttConfig;
     private final MqttService mqttService;
-    private final List<Brick> bricks;
 
     // calLed exactly once
     private void connect() {
@@ -41,13 +32,17 @@ public final class MqttProxy extends Proxy {
         String topic = mqttConfig.getSubscribeTopic(brick.getID());
         IMqttMessageListener listener = new IMqttMessageListener() {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                System.out.printf("messageArrived topic = \"%s\", payload = \"%s\"\n", topic, message);
+                System.out.printf("messageArrived topic = \"%s\", payload = ", topic);
                 byte[] payload = message.getPayload();
-                MqttProxy.this.setPendingPayload(brick, payload);
+                for (byte b : payload) {
+                    System.out.printf("x%02X ", b);
+                }
+                System.out.printf("\n");
+                AnyMqttProxy.this.setPendingPayload(brick, payload);
             }
         };
         mqttService.subscribe(topic, listener);
-        bricks.add(brick);
+        super.addBrick(brick);
     }
 
     @Override
@@ -55,27 +50,11 @@ public final class MqttProxy extends Proxy {
         byte[] payload = super.getTargetPayload(brick, false); // not a mock
         String topic = mqttConfig.getPublishTopic(brick.getID());
         mqttService.publish(topic, payload);
-        System.out.printf("publish topic = \"%s\"\n", topic);
     }
 
-    @Override
-    public void waitForUpdate() {
-        boolean updated = false;
-        while (!updated) {
-            for (Brick brick : bricks) {
-                updated = updated || super.tryUpdate(brick);
-            }
-            try {
-                TimeUnit.MILLISECONDS.sleep(100); // ms
-            } catch (InterruptedException e) {
-               e.printStackTrace();
-            }
-        }
-    }
-
-    public static MqttProxy fromConfig(String configHost) {
-        MqttConfig config = MqttConfig.fromHost(configHost); // TODO: too early to get config?
-        MqttProxy proxy = new MqttProxy(config); // TODO: singleton per configHost?
+    public static AnyMqttProxy fromConfig(String configHost) {
+        MqttConfig config = AnyMqttConfig.fromHost(configHost); // TODO: too early to get config?
+        AnyMqttProxy proxy = new AnyMqttProxy(config); // TODO: singleton per configHost?
         proxy.connect();
         return proxy;
     }

@@ -5,10 +5,7 @@ package ch.fhnw.imvs.bricks.mqtt;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Base64;
-import java.util.concurrent.TimeUnit;
-import java.util.List;
 import org.eclipse.paho.client.mqttv3.IMqttMessageListener;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
@@ -21,12 +18,10 @@ public final class TtnMqttProxy extends Proxy {
     private TtnMqttProxy(MqttConfig config) {
         mqttConfig = config;
         mqttService = new MqttService();
-        bricks = new ArrayList<Brick>();
     }
 
     private final MqttConfig mqttConfig;
     private final MqttService mqttService;
-    private final List<Brick> bricks;
 
     // calLed exactly once
     private void connect() {
@@ -60,7 +55,7 @@ public final class TtnMqttProxy extends Proxy {
             }
         };
         mqttService.subscribe(topic, listener);
-        bricks.add(brick);
+        super.addBrick(brick);
     }
 
     @Override
@@ -84,23 +79,8 @@ public final class TtnMqttProxy extends Proxy {
         //System.out.printf("publish topic = \"%s\"\n", topic);
     }
 
-    @Override
-    public void waitForUpdate() {
-        boolean updated = false;
-        while (!updated) {
-            for (Brick brick : bricks) {
-                updated = updated || super.tryUpdate(brick);
-            }
-            try {
-                TimeUnit.MILLISECONDS.sleep(100); // ms
-            } catch (InterruptedException e) {
-               e.printStackTrace();
-            }
-        }
-    }
-
     public static TtnMqttProxy fromConfig(String configHost) {
-        MqttConfig config = MqttConfig.fromHost(configHost); // TODO: too early to get config?
+        MqttConfig config = TtnMqttConfig.fromHost(configHost); // TODO: too early to get config?
         TtnMqttProxy proxy = new TtnMqttProxy(config); // TODO: singleton per configHost?
         proxy.connect();
         return proxy;

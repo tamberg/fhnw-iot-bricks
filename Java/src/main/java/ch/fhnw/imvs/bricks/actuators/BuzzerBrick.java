@@ -3,8 +3,8 @@
 
 package ch.fhnw.imvs.bricks.actuators;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
@@ -14,7 +14,6 @@ public final class BuzzerBrick extends Brick {
         super(proxy, brickID);
     }
 
-    private final String SEPARATOR = ";";
     private volatile boolean currentEnabled = false;
     private volatile boolean targetEnabled = false;
 
@@ -31,31 +30,23 @@ public final class BuzzerBrick extends Brick {
     }
 
     @Override
-    protected void setCurrentPayload(byte[] payload) {
-        try {
-            String message = new String(payload, StandardCharsets.UTF_8);
-            String[] parts = message.split(SEPARATOR);
-            super.setBatteryLevel(Integer.parseInt(parts[0]));
-            currentEnabled = Boolean.parseBoolean(parts[1]);
-        } catch(NumberFormatException e) {
-            e.printStackTrace();
+    protected byte[] getTargetPayload(boolean mock) {
+        ByteBuffer buf = ByteBuffer.allocate(mock ? 3 : 1);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        if (mock) {
+            float mockBatt = (float) (Math.random() * 3.7);
+            buf.putShort((short) (mockBatt * 100.0f));
         }
+        buf.put((byte) (targetEnabled ? 1 : 0));
+        return buf.array();
     }
 
     @Override
-    protected byte[] getTargetPayload(boolean mock) {
-        byte[] payload;
-        int mockBatt = (int) (Math.random() * 99 + 1);
-        try {
-            String payloadString = 
-                (mock ? Integer.toString(mockBatt) + SEPARATOR : "") +
-                Boolean.toString(targetEnabled);
-            payload = payloadString.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-            payload = null;
-        }
-        return payload;
+    protected void setCurrentPayload(byte[] payload) {
+        ByteBuffer buf = ByteBuffer.wrap(payload);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        super.setBatteryLevel(buf.getShort() / 100.0f);
+        currentEnabled = buf.get() != 0;
     }
 
     public static BuzzerBrick connect(Proxy proxy, String brickID) {

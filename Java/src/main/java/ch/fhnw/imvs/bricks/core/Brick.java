@@ -20,7 +20,7 @@ public abstract class Brick {
     private final String brickID;
     private final Proxy proxy;
     private final DateFormat formatter;
-    private int currentBatteryLevel = 0;
+    private float currentBatteryLevel = 0.0f;
     private Date currentTimestamp = new Date(0L);
     private Date pendingTimestamp = new Date(0L);
     private byte[] pendingPayload = null;
@@ -29,7 +29,7 @@ public abstract class Brick {
         return brickID;
     }
 
-    public int getBatteryLevel() {
+    public float getBatteryLevel() {
         return currentBatteryLevel;
     }
 
@@ -41,11 +41,11 @@ public abstract class Brick {
         return formatter.format(currentTimestamp);
     }
 
-    protected void setBatteryLevel(int level) { // called by Brick subclasses
+    protected void setBatteryLevel(float level) { // called by Brick subclasses
         currentBatteryLevel = level;
     }
 
-    protected void connect() {
+    protected void connect() { // called by Brick factories
         proxy.connectBrick(this);
     }
 

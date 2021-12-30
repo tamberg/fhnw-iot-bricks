@@ -3,8 +3,8 @@
 
 package ch.fhnw.imvs.bricks.sensors;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
@@ -14,7 +14,6 @@ public final class ButtonBrick extends Brick {
         super(proxy, brickID);
     }
 
-    private final String SEPARATOR = ";";
     private volatile boolean currentPressed;
 
     public boolean isPressed() {
@@ -23,30 +22,23 @@ public final class ButtonBrick extends Brick {
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        try {
-            String message = new String(payload, StandardCharsets.UTF_8);
-            String[] parts = message.split(SEPARATOR);
-            super.setBatteryLevel(Integer.parseInt(parts[0]));
-            currentPressed = Boolean.parseBoolean(parts[1]);
-        } catch(NumberFormatException e) {
-            e.printStackTrace();
-        }
+        ByteBuffer buf = ByteBuffer.wrap(payload);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        super.setBatteryLevel(buf.getShort() / 100.0f);
+        currentPressed = buf.get() != 0;
     }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload = null;
         if (mock) {
-            int mockBatt = (int) (Math.random() * 99 + 1);
+            ByteBuffer buf = ByteBuffer.allocate(3);
+            buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+            float mockBatt = (float) (Math.random() * 3.7);
             boolean mockPressed = Math.random() < 0.5;
-            try {
-                String payloadString = 
-                    Integer.toString(mockBatt) + SEPARATOR +
-                    Boolean.toString(mockPressed);
-                payload = payloadString.getBytes("UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            buf.putShort((short) (mockBatt * 100.0f));
+            buf.put((byte) (mockPressed ? 1 : 0));
+            payload = buf.array();
         }
         return payload;
     }

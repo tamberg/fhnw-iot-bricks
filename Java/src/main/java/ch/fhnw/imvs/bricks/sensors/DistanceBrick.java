@@ -14,9 +14,9 @@ public final class DistanceBrick extends Brick {
         super(proxy, brickID);
     }
 
-    private volatile short currentDist;
+    private volatile int currentDist;
 
-    public int getDistance() { // int is more familiar
+    public int getDistance() { // cm
         return currentDist;
     }
 
@@ -24,20 +24,20 @@ public final class DistanceBrick extends Brick {
     protected void setCurrentPayload(byte[] payload) {
         ByteBuffer buf = ByteBuffer.wrap(payload);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        super.setBatteryLevel(buf.getShort());
-        currentDist = buf.getShort();
+        super.setBatteryLevel(buf.getShort() / 100.0f);
+        currentDist = buf.getInt();
     }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload = null;
         if (mock) {
-            short mockBatt = (short) (Math.random() * 99 + 1);
-            short mockDist = (short) (Math.random() * 255 + 1);
-            ByteBuffer buf = ByteBuffer.allocate(4);
+            ByteBuffer buf = ByteBuffer.allocate(6);
             buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-            buf.putShort(mockBatt);
-            buf.putShort(mockDist);
+            float mockBatt = (float) (Math.random() * 3.7);
+            int mockDist = (int) (Math.random() * 350);
+            buf.putShort((short) (mockBatt * 100.0f));
+            buf.putInt(mockDist);
             payload = buf.array();
         }
         return payload;

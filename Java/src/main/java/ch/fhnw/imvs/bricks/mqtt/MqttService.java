@@ -84,7 +84,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
     public void subscribe(String topic, IMqttMessageListener listener) {
         try {
-            System.out.println("subscribe: topic = " + topic);
+            System.out.printf("subscribe to \"%s\"\n", topic);
             client.subscribe(topic, 1, listener);
         } catch (MqttException e) {
             e.printStackTrace();
@@ -93,6 +93,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
     public void publish(String topic, byte[] payload) {
         try {
+            System.out.printf("publish to \"%s\"\n", topic);
             client.publish(topic, payload, 1, false);
         } catch (MqttException e) {
             e.printStackTrace();
