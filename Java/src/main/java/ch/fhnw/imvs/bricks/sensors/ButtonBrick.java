@@ -25,7 +25,7 @@ public final class ButtonBrick extends Brick {
         ByteBuffer buf = ByteBuffer.wrap(payload);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         super.setBatteryLevel(buf.getShort() / 100.0f);
-        currentPressed = buf.getShort() != 0;
+        currentPressed = buf.get() != 0;
     }
 
     @Override
