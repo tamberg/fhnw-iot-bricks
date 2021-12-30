@@ -39,15 +39,11 @@ public final class HumiTempBrick extends Brick {
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
-        if (payload.length == 6) {
-            ByteBuffer buf = ByteBuffer.wrap(payload);
-            buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-            super.setBatteryVoltage(buf.getShort() / 100.0);
-            currentHumi = buf.getShort() / 100.0;
-            currentTemp = buf.getShort() / 100.0;
-        } else {
-            System.out.println("HumiTempBrick.setCurrentPayload() skip");
-        }
+        ByteBuffer buf = ByteBuffer.wrap(payload);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        super.setBatteryVoltage(buf.getShort() / 100.0);
+        currentHumi = buf.getShort() / 100.0;
+        currentTemp = buf.getShort() / 100.0;
     }
 
     public static HumiTempBrick connect(Proxy proxy, String brickID) {
