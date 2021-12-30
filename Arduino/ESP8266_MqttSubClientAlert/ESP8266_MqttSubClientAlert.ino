@@ -1,28 +1,27 @@
-#include <ESP8266WiFi.h> // v2.4.2
-#include <ESP8266MQTTClient.h> // v1.0.4
+#include <ESP8266WiFi.h>
+#include "Adafruit_MQTT.h"
+#include "Adafruit_MQTT_Client.h"
 
 const char *ssid = "MY_SSID"; // TODO
 const char *password = "MY_PASSWORD"; // TODO
-const char *host = "mqtt://LOCAL_IP"; // TODO
+const char *host = "test.mosquitto.org"; // TODO
+const int port = 8883;
+const char *topicStr = "bricks/0000-0006/target"; // TODO
 const int buzzerPin = 5;
 
-MQTTClient client;
+BearSSL::WiFiClientSecure client;
+Adafruit_MQTT_Client mqtt(&client, host, port);
+Adafruit_MQTT_Subscribe topic(&mqtt, topicStr);
 
-void handleConnected() {
-  Serial.println("Connected to broker");
-  client.subscribe("alert");
-}
-
-void handleSubscribed(int topicId) {
-  Serial.println("Subscribed");
-}
-
-void handleDataReceived(String topic, String data, bool b) {
-  Serial.print("Received topic: ");
-  Serial.print(topic);
-  Serial.print(", data: ");
-  Serial.println(data);
-  if (data == "on") {  
+void handleMessage(char *buf, uint16_t len) {
+  Serial.print("handleMessage(), len = ");
+  Serial.println(len);
+  Serial.print('"');
+  Serial.print((char) buf[0]);
+  Serial.print((char) buf[1]);
+  Serial.println('"');
+  //printBuffer((uint8_t *) buf, len);
+  if (len == 2 && buf[0] == 0x01) {
     digitalWrite(buzzerPin, HIGH);
   } else {
     digitalWrite(buzzerPin, LOW);
@@ -41,13 +40,23 @@ void setup() {
   }
   Serial.print("Connected to network, local IP = "); 
   Serial.println(WiFi.localIP());
-
-  client.onConnect(handleConnected);
-  client.onSubscribe(handleSubscribed);
-  client.onData(handleDataReceived);
-  client.begin(host);
+  client.setInsecure(); // no cert validation
+  topic.setCallback(handleMessage);
+  mqtt.subscribe(&topic);
 }
 
 void loop() {
-  client.handle();
+  if (mqtt.connected()) {
+    Serial.println("Connected (still)");
+    mqtt.processPackets(10000); // ms, calls callbacks
+    if (!mqtt.ping()) {
+      mqtt.disconnect();  
+    }
+  } else {
+    int result = mqtt.connect(); // calls client.connect()
+    if (result != 0) {
+      Serial.println(mqtt.connectErrorString(result));
+      delay(3000);
+    }
+  }
 }
