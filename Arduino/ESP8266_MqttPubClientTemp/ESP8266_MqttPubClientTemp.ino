@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>
-#include "Adafruit_MQTT.h"
-#include "Adafruit_MQTT_Client.h"
-#include "DHTesp.h"
+#include <Adafruit_MQTT.h>
+#include <Adafruit_MQTT_Client.h>
+#include <DHTesp.h>
 
 const int dhtPin = 5; // Grove adapter I2C_1 or _2 used as D6
 const DHTesp::DHT_MODEL_t dhtModel = DHTesp::DHT11;
