@@ -48,10 +48,11 @@ void loop() {
       int b = batt * 100.0f;
       int h = humi * 100.0f;
       int t = temp * 100.0f;
-      char payload[] = {
+      char payload[] = { // TODO: fix "null bytes cut off payload"
         highByte(b), lowByte(b),
         highByte(h), lowByte(h),
-        highByte(t), lowByte(t)
+        highByte(t), lowByte(t),
+        '\0'
       };
       printf("measure humi = %f, temp = %f\n", humi, temp);
       printf("publish to %s\n", topicStr);
