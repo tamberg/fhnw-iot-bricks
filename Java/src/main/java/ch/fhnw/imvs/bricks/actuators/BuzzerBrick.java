@@ -45,7 +45,7 @@ public final class BuzzerBrick extends Brick {
     protected void setCurrentPayload(byte[] payload) {
         ByteBuffer buf = ByteBuffer.wrap(payload);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        super.setBatteryVoltage(buf.getShort() / 100.0f);
+        super.setBatteryVoltage(buf.getShort() / 100.0);
         currentEnabled = buf.get() != 0;
     }
 
