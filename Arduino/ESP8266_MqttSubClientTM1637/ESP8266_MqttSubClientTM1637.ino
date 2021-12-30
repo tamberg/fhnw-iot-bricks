@@ -1,9 +1,9 @@
 #include <ESP8266WiFi.h>
-#include "Adafruit_MQTT.h"
-#include "Adafruit_MQTT_Client.h"
+#include <Adafruit_MQTT.h>
+#include <Adafruit_MQTT_Client.h>
 #include <TM1637.h>
 
-#define CLK 5 // Grove D6
+#define CLK 5 // Grove adapter I2C_1 or _2 used as D6
 #define DIO 4 // Grove D7
 
 TM1637 tm1637(CLK, DIO);
