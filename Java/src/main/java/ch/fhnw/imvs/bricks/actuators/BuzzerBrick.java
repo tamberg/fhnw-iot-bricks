@@ -17,11 +17,10 @@ public final class BuzzerBrick extends Brick {
     private volatile boolean currentEnabled = false;
     private volatile boolean targetEnabled = false;
 
-    public boolean isEnabled() {
-        return currentEnabled;
-    }
+//    public boolean isEnabled() {
+//        return currentEnabled;
+//    }
 
-    // TODO: rename to triggerAlert(int ms)?
     public void setEnabled(boolean enabled) {
         if (targetEnabled != enabled) {
             targetEnabled = enabled;
