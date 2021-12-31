@@ -15,12 +15,12 @@ import ch.fhnw.imvs.bricks.core.Proxy;
 // TtnMqttProxy knows how to (un)pack TTN LoRaWAN / MQTT payload.
 
 public final class TtnMqttProxy extends Proxy {
-    private TtnMqttProxy(MqttConfig config) {
+    private TtnMqttProxy(TtnMqttConfig config) {
         mqttConfig = config;
         mqttService = new MqttService();
     }
 
-    private final MqttConfig mqttConfig;
+    private final TtnMqttConfig mqttConfig;
     private final MqttService mqttService;
 
     // calLed exactly once
@@ -80,7 +80,7 @@ public final class TtnMqttProxy extends Proxy {
     }
 
     public static TtnMqttProxy fromConfig(String configHost) {
-        MqttConfig config = TtnMqttConfig.fromHost(configHost); // TODO: too early to get config?
+        TtnMqttConfig config = TtnMqttConfig.fromHost(configHost); // TODO: too early to get config?
         TtnMqttProxy proxy = new TtnMqttProxy(config); // TODO: singleton per configHost?
         proxy.connect();
         return proxy;
