@@ -32,6 +32,7 @@ public final class MqttProxy extends Proxy {
         String topic = mqttConfig.getSubscribeTopic(brick.getID());
         IMqttMessageListener listener = new IMqttMessageListener() {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
+                System.out.printf("message on \"%s\"\n", topic);
                 byte[] payload = message.getPayload();
                 MqttProxy.this.setPendingPayload(brick, payload);
             }
