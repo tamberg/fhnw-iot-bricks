@@ -117,3 +117,7 @@ while (true) {
     proxy.waitForUpdate();
 }
 ```
+
+## Software architecture
+### Class diagram
+<table><tr><td><img width="600" src="IoTBricksClassDiagram.jpg"></td></tr></table>
