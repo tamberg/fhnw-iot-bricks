@@ -14,20 +14,11 @@ public final class HumiTempBrick extends Brick {
         super(proxy, brickID);
     }
 
-    private volatile float currentHumi;
-    private volatile float currentTemp;
+    private volatile double currentHumi;
+    private volatile double currentTemp;
 
     public double getHumidity() { return currentHumi; }
     public double getTemperature() { return currentTemp; }
-
-    @Override
-    protected void setCurrentPayload(byte[] payload) {
-        ByteBuffer buf = ByteBuffer.wrap(payload);
-        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        super.setBatteryLevel(buf.getShort() / 100.0f);
-        currentHumi = buf.getShort() / 100.0f;
-        currentTemp = buf.getShort() / 100.0f;
-    }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
@@ -35,15 +26,24 @@ public final class HumiTempBrick extends Brick {
         if (mock) {
             ByteBuffer buf = ByteBuffer.allocate(6);
             buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-            float mockBatt = (float) (Math.random() * 3.7);
-            float mockHumi = (float) (Math.random() * 99);
-            float mockTemp = (float) (Math.random() * 50);
-            buf.putShort((short) (mockBatt * 100.0f));
-            buf.putShort((short) (mockHumi * 100.0f));
-            buf.putShort((short) (mockTemp * 100.0f));
+            double mockBatt = Math.random() * 3.7;
+            double mockHumi = Math.random() * 99;
+            double mockTemp = Math.random() * 50;
+            buf.putShort((short) (mockBatt * 100));
+            buf.putShort((short) (mockHumi * 100));
+            buf.putShort((short) (mockTemp * 100));
             payload = buf.array();
         }
         return payload;
+    }
+
+    @Override
+    protected void setCurrentPayload(byte[] payload) {
+        ByteBuffer buf = ByteBuffer.wrap(payload);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        super.setBatteryVoltage(buf.getShort() / 100.0);
+        currentHumi = buf.getShort() / 100.0;
+        currentTemp = buf.getShort() / 100.0;
     }
 
     public static HumiTempBrick connect(Proxy proxy, String brickID) {

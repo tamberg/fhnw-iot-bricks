@@ -21,26 +21,26 @@ public final class ButtonBrick extends Brick {
     }
 
     @Override
-    protected void setCurrentPayload(byte[] payload) {
-        ByteBuffer buf = ByteBuffer.wrap(payload);
-        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        super.setBatteryLevel(buf.getShort() / 100.0f);
-        currentPressed = buf.get() != 0;
-    }
-
-    @Override
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload = null;
         if (mock) {
             ByteBuffer buf = ByteBuffer.allocate(3);
             buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-            float mockBatt = (float) (Math.random() * 3.7);
+            double mockBatt = Math.random() * 3.7;
             boolean mockPressed = Math.random() < 0.5;
-            buf.putShort((short) (mockBatt * 100.0f));
+            buf.putShort((short) (mockBatt * 100));
             buf.put((byte) (mockPressed ? 1 : 0));
             payload = buf.array();
         }
         return payload;
+    }
+
+    @Override
+    protected void setCurrentPayload(byte[] payload) {
+        ByteBuffer buf = ByteBuffer.wrap(payload);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        super.setBatteryVoltage(buf.getShort() / 100.0);
+        currentPressed = buf.get() != 0;
     }
 
     public static ButtonBrick connect(Proxy proxy, String brickID) {

@@ -1,7 +1,7 @@
 // Copyright (c) 2020 FHNW, Switzerland. All rights reserved.
 // Licensed under MIT License, see LICENSE for details.
 
-// LoRaWAN-connected DHT11 temperature sensor
+// LoRaWAN-connected ultrasonic distance sensor
 
 // https://github.com/tamberg/fhnw-iot/wiki/Feather-nRF52840-Express
 // https://github.com/tamberg/fhnw-iot/wiki/FeatherWing-RFM95W

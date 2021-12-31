@@ -5,7 +5,7 @@ package ch.fhnw.imvs.bricks.mqtt;
 
 import java.util.HashMap;
 
-/* package */ final class TtnMqttConfig extends MqttConfig { // TODO: get IDs, keys from config files
+/* package */ final class TtnMqttConfig { // TODO: get IDs, keys from config files
     private TtnMqttConfig() {}
 
     private static final String BUTTON_ID = "0000-0002";
@@ -29,22 +29,10 @@ import java.util.HashMap;
     HashMap<String, String> pubTopics;
     HashMap<String, String> subTopics;
 
-    @Override
-    public String getHost() {
-        return HOST;
-    }
+    public String getHost() { return HOST; }
+    public String getUsername() { return USERNAME; }
+    public String getPassword() { return PASSWORD; }
 
-    @Override
-    public String getUsername() {
-        return USERNAME;
-    }
-
-    @Override
-    public String getPassword() {
-        return PASSWORD;
-    }
-
-    @Override
     public String getSubscribeTopic(String brickID) { // TODO: move to MqttBrickConfig?
         String topic = subTopics.get(brickID);
         if (topic == null) {
@@ -53,7 +41,6 @@ import java.util.HashMap;
         return topic;
     }
 
-    @Override
     public String getPublishTopic(String brickID) {
         String topic = pubTopics.get(brickID);
         if (topic == null) {
@@ -79,7 +66,7 @@ import java.util.HashMap;
         pubTopics.put(LED_ID, TTN_APP_ID + "/devices/fhnw-iot-4/down");
     }
 
-    public static MqttConfig fromHost(String configHost) {
+    public static TtnMqttConfig fromHost(String configHost) {
         TtnMqttConfig config = new TtnMqttConfig();
         config.init(configHost);
         return config;

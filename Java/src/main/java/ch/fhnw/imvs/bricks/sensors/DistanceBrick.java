@@ -21,26 +21,26 @@ public final class DistanceBrick extends Brick {
     }
 
     @Override
-    protected void setCurrentPayload(byte[] payload) {
-        ByteBuffer buf = ByteBuffer.wrap(payload);
-        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        super.setBatteryLevel(buf.getShort() / 100.0f);
-        currentDist = buf.getInt();
-    }
-
-    @Override
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload = null;
         if (mock) {
             ByteBuffer buf = ByteBuffer.allocate(6);
             buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-            float mockBatt = (float) (Math.random() * 3.7);
+            double mockBatt = Math.random() * 3.7;
             int mockDist = (int) (Math.random() * 350);
-            buf.putShort((short) (mockBatt * 100.0f));
+            buf.putShort((short) (mockBatt * 100));
             buf.putInt(mockDist);
             payload = buf.array();
         }
         return payload;
+    }
+
+    @Override
+    protected void setCurrentPayload(byte[] payload) {
+        ByteBuffer buf = ByteBuffer.wrap(payload);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        super.setBatteryVoltage(buf.getShort() / 100.0f);
+        currentDist = buf.getInt();
     }
 
     public static DistanceBrick connect(Proxy proxy, String brickID) {

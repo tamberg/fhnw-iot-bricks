@@ -9,8 +9,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
-public final class AnyMqttProxy extends Proxy {
-    private AnyMqttProxy(MqttConfig config) {
+public final class MqttProxy extends Proxy {
+    private MqttProxy(MqttConfig config) {
         mqttConfig = config;
         mqttService = new MqttService();
     }
@@ -32,13 +32,8 @@ public final class AnyMqttProxy extends Proxy {
         String topic = mqttConfig.getSubscribeTopic(brick.getID());
         IMqttMessageListener listener = new IMqttMessageListener() {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                System.out.printf("messageArrived topic = \"%s\", payload = ", topic);
                 byte[] payload = message.getPayload();
-                for (byte b : payload) {
-                    System.out.printf("x%02X ", b);
-                }
-                System.out.printf("\n");
-                AnyMqttProxy.this.setPendingPayload(brick, payload);
+                MqttProxy.this.setPendingPayload(brick, payload);
             }
         };
         mqttService.subscribe(topic, listener);
@@ -52,9 +47,9 @@ public final class AnyMqttProxy extends Proxy {
         mqttService.publish(topic, payload);
     }
 
-    public static AnyMqttProxy fromConfig(String configHost) {
-        MqttConfig config = AnyMqttConfig.fromHost(configHost); // TODO: too early to get config?
-        AnyMqttProxy proxy = new AnyMqttProxy(config); // TODO: singleton per configHost?
+    public static MqttProxy fromConfig(String configHost) {
+        MqttConfig config = MqttConfig.fromHost(configHost); // TODO: too early to get config?
+        MqttProxy proxy = new MqttProxy(config); // TODO: singleton per configHost?
         proxy.connect();
         return proxy;
     }

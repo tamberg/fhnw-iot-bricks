@@ -33,10 +33,10 @@ public final class LcdDisplayBrick extends Brick {
         ByteBuffer buf = ByteBuffer.allocate(mock ? 4 : 2);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         if (mock) {
-            float mockBatt = (float) (Math.random() * 3.7);
-            buf.putShort((short) (mockBatt * 100.0f));
+            double mockBatt = Math.random() * 3.7;
+            buf.putShort((short) (mockBatt * 100));
         }
-        buf.putShort((short) (targetValue * 100.0f));
+        buf.putShort((short) (targetValue * 100));
         return buf.array();
     }
 
@@ -44,8 +44,8 @@ public final class LcdDisplayBrick extends Brick {
     protected void setCurrentPayload(byte[] payload) {
         ByteBuffer buf = ByteBuffer.wrap(payload);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        super.setBatteryLevel(buf.getShort() / 100.0f);
-        currentValue = buf.getShort() / 100.0f;
+        super.setBatteryVoltage(buf.getShort() / 100.0);
+        currentValue = buf.getShort() / 100.0;
     }
 
     public static LcdDisplayBrick connect(Proxy proxy, String brickID) {

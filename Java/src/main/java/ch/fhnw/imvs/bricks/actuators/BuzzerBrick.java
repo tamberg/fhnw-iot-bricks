@@ -34,8 +34,8 @@ public final class BuzzerBrick extends Brick {
         ByteBuffer buf = ByteBuffer.allocate(mock ? 3 : 1);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         if (mock) {
-            float mockBatt = (float) (Math.random() * 3.7);
-            buf.putShort((short) (mockBatt * 100.0f));
+            double mockBatt = Math.random() * 3.7;
+            buf.putShort((short) (mockBatt * 100));
         }
         buf.put((byte) (targetEnabled ? 1 : 0));
         return buf.array();
@@ -45,7 +45,7 @@ public final class BuzzerBrick extends Brick {
     protected void setCurrentPayload(byte[] payload) {
         ByteBuffer buf = ByteBuffer.wrap(payload);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        super.setBatteryLevel(buf.getShort() / 100.0f);
+        super.setBatteryVoltage(buf.getShort() / 100.0);
         currentEnabled = buf.get() != 0;
     }
 

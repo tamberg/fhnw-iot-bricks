@@ -3,12 +3,28 @@
 
 package ch.fhnw.imvs.bricks.mqtt;
 
-/* package */ abstract class MqttConfig {
-    protected MqttConfig() {}
+/* package */ final class MqttConfig {
+    private MqttConfig() {}
 
-    public abstract String getHost();
-    public abstract String getUsername();
-    public abstract String getPassword();
-    public abstract String getSubscribeTopic(String brickID);
-    public abstract String getPublishTopic(String brickID);
+    private static final String HOST = "test.mosquitto.org";
+    private static final String USERNAME = null;
+    private static final String PASSWORD = null;
+
+    public String getHost() { return HOST; }
+    public String getUsername() { return USERNAME; }
+    public String getPassword() { return PASSWORD; }
+
+    public String getSubscribeTopic(String brickID) {
+        return "bricks/" + brickID + "/actual";
+    }
+
+    public String getPublishTopic(String brickID) {
+        return "bricks/" + brickID + "/target";
+    }
+
+    public static MqttConfig fromHost(String configHost) {
+        MqttConfig config = new MqttConfig();
+        // TODO: get from host or use generic pattern
+        return config;
+    }
 }
