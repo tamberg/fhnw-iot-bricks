@@ -95,9 +95,7 @@ public final class Bricks {
         bricks[0] = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_0_ID);
         bricks[1] = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_1_ID);
         bricks[2] = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_2_ID);
-        LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, LCDDISPLAY_BRICK_ID);
         while (true) {
-            double avg = 0.0;
             for (HumiTempBrick brick : bricks) {
                 String id = brick.getID();
                 String time = brick.getTimestampIsoUtc();
@@ -106,9 +104,7 @@ public final class Bricks {
                 double humi = brick.getHumidity();
                 String line = String.format(Locale.US, "%s, %s, %.2f, %.2f, %.2f", id, time, batt, temp, humi);
                 System.out.println(line);
-                avg += temp;
             }
-            displayBrick.setDoubleValue(avg / bricks.length);
             proxy.waitForUpdate();
         }
     }
