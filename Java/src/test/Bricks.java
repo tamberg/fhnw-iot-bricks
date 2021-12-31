@@ -32,9 +32,8 @@ import java.util.Locale;
 import ch.fhnw.imvs.bricks.core.Proxy;
 import ch.fhnw.imvs.bricks.http.HttpProxy;
 import ch.fhnw.imvs.bricks.mock.MockProxy;
-import ch.fhnw.imvs.bricks.mqtt.AnyMqttProxy;
+import ch.fhnw.imvs.bricks.mqtt.MqttProxy;
 import ch.fhnw.imvs.bricks.mqtt.TtnMqttProxy;
-import ch.fhnw.imvs.bricks.mqtt.BleMqttProxy;
 import ch.fhnw.imvs.bricks.sensors.ButtonBrick;
 import ch.fhnw.imvs.bricks.actuators.BuzzerBrick;
 import ch.fhnw.imvs.bricks.sensors.DistanceBrick;
@@ -96,7 +95,9 @@ public final class Bricks {
         bricks[0] = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_0_ID);
         bricks[1] = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_1_ID);
         bricks[2] = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_2_ID);
+        LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, LCDDISPLAY_BRICK_ID);
         while (true) {
+            double avg = 0.0;
             for (HumiTempBrick brick : bricks) {
                 String id = brick.getID();
                 String time = brick.getTimestampIsoUtc();
@@ -105,7 +106,9 @@ public final class Bricks {
                 double humi = brick.getHumidity();
                 String line = String.format(Locale.US, "%s, %s, %.2f, %.2f, %.2f", id, time, batt, temp, humi);
                 System.out.println(line);
+                avg += temp;
             }
+            displayBrick.setDoubleValue(avg / bricks.length);
             proxy.waitForUpdate();
         }
     }
@@ -139,19 +142,17 @@ public final class Bricks {
 
     public static void main(String args[]) {
         final String BASE_URL = "https://brick.li";
-        final String USAGE = "usage: java Bricks http|mqtt|mock|ttn|ble d|l|a|m|p";
+        final String USAGE = "usage: java Bricks http|mock|mqtt|ttn d|l|a|m|p";
         if (args.length == 2) {
             Proxy proxy = null;
             if ("http".equals(args[0])) {
                 proxy = HttpProxy.fromConfig(BASE_URL);
             } else if ("mqtt".equals(args[0])) {
-                proxy = AnyMqttProxy.fromConfig(BASE_URL);
+                proxy = MqttProxy.fromConfig(BASE_URL);
             } else if ("mock".equals(args[0])) {
                 proxy = MockProxy.fromConfig(BASE_URL);
             } else if ("ttn".equals(args[0])) {
                 proxy = TtnMqttProxy.fromConfig(BASE_URL);
-            } else if ("ble".equals(args[0])) {
-                proxy = BleMqttProxy.fromConfig(BASE_URL);
             } else {
                 System.out.println(USAGE);
                 System.exit(-1);
