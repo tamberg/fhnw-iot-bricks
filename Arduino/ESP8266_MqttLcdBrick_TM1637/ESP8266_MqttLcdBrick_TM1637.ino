@@ -1,3 +1,6 @@
+// Copyright (c) 2021 FHNW, Switzerland. All rights reserved.
+// Licensed under MIT License, see LICENSE for details.
+
 #include <ESP8266WiFi.h>
 #include <Adafruit_MQTT.h>
 #include <Adafruit_MQTT_Client.h>
