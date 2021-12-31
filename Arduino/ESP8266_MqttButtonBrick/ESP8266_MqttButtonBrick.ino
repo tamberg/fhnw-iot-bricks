@@ -31,13 +31,15 @@ void setup() {
   client.setInsecure(); // no cert validation
 }
 
+long t0 = 0;
 int oldPressed = -1;
 
 void loop() {
   if (mqtt.connected()) {
     int pressed = digitalRead(buttonPin);
-    if (pressed != oldPressed) {
+    if (pressed != oldPressed || (millis() - t0) > 10000) {
       oldPressed = pressed;
+      t0 = millis();
       float batt = 3.7; // V, TODO
       int b = batt * 100.0f;
       uint8_t payload[] = {
