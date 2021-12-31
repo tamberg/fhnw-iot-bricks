@@ -136,9 +136,31 @@ public final class Bricks {
         }  
     }
 
+    private static void runSwitchExample(Proxy proxy) {
+        ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
+        BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, BUZZER_BRICK_ID);
+        int state = 0;
+        while (true) {
+            boolean pressed = buttonBrick.isPressed();
+            if (state == 0 && pressed) {
+                buzzerBrick.setEnabled(true);
+                state = 1;
+            } else if (state == 1 && !pressed) {
+                state = 2;
+            } else if (state == 2 && pressed) {
+                state = 3;
+                buzzerBrick.setEnabled(false);
+            } else if (state == 3 && !pressed) {
+                state = 0;
+            }
+            System.out.println(state);
+            proxy.waitForUpdate();
+        }
+    }
+
     public static void main(String args[]) {
         final String BASE_URL = "https://brick.li";
-        final String USAGE = "usage: java Bricks http|mock|mqtt|ttn d|l|a|m|p";
+        final String USAGE = "usage: java Bricks http|mock|mqtt|ttn d|l|a|m|p|s";
         if (args.length == 2) {
             Proxy proxy = null;
             if ("http".equals(args[0])) {
@@ -163,6 +185,8 @@ public final class Bricks {
                 runMonitoringExample(proxy);
             } else if ("p".equals(args[1])) {
                 runParkingExample(proxy);    
+            } else if ("s".equals(args[1])) {
+                runSwitchExample(proxy);
             } else {
                 System.out.println(USAGE);
                 System.exit(-1);
