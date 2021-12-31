@@ -2,31 +2,23 @@
 // Licensed under MIT License, see LICENSE for details.
 
 #include <ESP8266WiFi.h>
-#include "Adafruit_MQTT.h"
-#include "Adafruit_MQTT_Client.h"
+#include <Adafruit_MQTT.h>
+#include <Adafruit_MQTT_Client.h>
+
+const int buttonPin = 5; // Grove adapter I2C_1 or _2 used as D6
 
 const char *ssid = "MY_SSID"; // TODO
 const char *password = "MY_PASSWORD"; // TODO
 const char *host = "test.mosquitto.org"; // TODO
 const int port = 8883;
-const char *topicStr = "bricks/0000-0006/target"; // TODO
-const int buzzerPin = 5;
+const char *topicStr = "bricks/0000-0002/actual"; // TODO
 
 BearSSL::WiFiClientSecure client;
 Adafruit_MQTT_Client mqtt(&client, host, port);
-Adafruit_MQTT_Subscribe topic(&mqtt, topicStr);
-
-void handleMessage(char *buf, uint16_t len) {
-  if (len == 1 && buf[0] == 0x01) {
-    digitalWrite(buzzerPin, HIGH);
-  } else {
-    digitalWrite(buzzerPin, LOW);
-  }
-}
 
 void setup() {
   Serial.begin(115200);
-  pinMode(buzzerPin, OUTPUT);
+  pinMode(buttonPin, INPUT);
   Serial.print("\nConnecting to network ");
   Serial.println(ssid);
   WiFi.mode(WIFI_STA);
@@ -37,17 +29,26 @@ void setup() {
   Serial.print("Connected to network, local IP = "); 
   Serial.println(WiFi.localIP());
   client.setInsecure(); // no cert validation
-  topic.setCallback(handleMessage);
-  mqtt.subscribe(&topic);
 }
+
+int oldPressed = -1;
 
 void loop() {
   if (mqtt.connected()) {
-    Serial.println("Connected (still)");
-    mqtt.processPackets(10000); // ms, calls callbacks
-    if (!mqtt.ping()) {
-      mqtt.disconnect();  
+    int pressed = digitalRead(buttonPin);
+    if (pressed != oldPressed) {
+      oldPressed = pressed;
+      float batt = 3.7; // V, TODO
+      int b = batt * 100.0f;
+      uint8_t payload[] = {
+        highByte(b), lowByte(b),
+        (uint8_t) pressed
+      };
+      printf("batt = %.2f, pressed = %d\n", batt, pressed);
+      printf("publish to %s\n", topicStr);
+      mqtt.publish(topicStr, payload, sizeof(payload));
     }
+    delay(1);
   } else {
     int result = mqtt.connect(); // calls client.connect()
     if (result != 0) {
