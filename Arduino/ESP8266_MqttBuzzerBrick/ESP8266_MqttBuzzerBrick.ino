@@ -17,14 +17,7 @@ Adafruit_MQTT_Client mqtt(&client, host, port);
 Adafruit_MQTT_Subscribe topic(&mqtt, topicStr);
 
 void handleMessage(char *buf, uint16_t len) {
-  Serial.print("handleMessage(), len = ");
-  Serial.println(len);
-  Serial.print('"');
-  Serial.print((char) buf[0]);
-  Serial.print((char) buf[1]);
-  Serial.println('"');
-  //printBuffer((uint8_t *) buf, len);
-  if (len == 2 && buf[0] == 0x01) {
+  if (len == 1 && buf[0] == 0x01) {
     digitalWrite(buzzerPin, HIGH);
   } else {
     digitalWrite(buzzerPin, LOW);
