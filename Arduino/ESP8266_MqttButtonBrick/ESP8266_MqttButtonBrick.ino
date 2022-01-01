@@ -5,6 +5,8 @@
 #include <Adafruit_MQTT.h>
 #include <Adafruit_MQTT_Client.h>
 
+#define MQTT_CONN_KEEPALIVE 30
+
 const int buttonPin = 5; // Grove adapter I2C_1 or _2 used as D6
 
 const char *ssid = "MY_SSID"; // TODO
@@ -31,15 +33,13 @@ void setup() {
   client.setInsecure(); // no cert validation
 }
 
-long t0 = 0;
 int oldPressed = -1;
 
 void loop() {
   if (mqtt.connected()) {
     int pressed = digitalRead(buttonPin);
-    if (pressed != oldPressed || (millis() - t0) > 10000) {
+    if (pressed != oldPressed) {
       oldPressed = pressed;
-      t0 = millis();
       float batt = 3.7; // V, TODO
       int b = batt * 100.0f;
       uint8_t payload[] = {
