@@ -55,6 +55,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);
             options.setAutomaticReconnect(true);
+            options.setKeepAliveInterval(30); // s
             if (username != null) {
                 options.setUserName(username);
             }
