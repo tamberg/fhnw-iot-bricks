@@ -41,6 +41,7 @@ public final class HumiTempBrick extends Brick {
 }
 
 public final class DisplayBrick extends Brick;
+    public void setDecimalPlaces(int value);
     public void setDoubleValue(double value);
     public static DisplayBrick connect(Proxy proxy, String brickID);
 }
