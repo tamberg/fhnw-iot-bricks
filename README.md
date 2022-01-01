@@ -71,7 +71,7 @@ Proxy proxy = MqttProxy.fromConfig(BASE_URI);
 ### Monitoring System
 ```
 HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
-LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, LCD_DISPLAY_BRICK_ID);
+DisplayBrick displayBrick = DisplayBrick.connect(proxy, DISPLAY_BRICK_ID);
 LedBrick ledBrick = LedBrick.connect(proxy, LED_BRICK_ID);
 
 while (true) {
