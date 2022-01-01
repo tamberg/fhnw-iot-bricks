@@ -2,10 +2,11 @@
 // Licensed under MIT License, see LICENSE for details.
 
 // $ cd Java
-// $ ./setup.sh
 // $ ./clean.sh
-// $ ./compile.sh
+// $ ./setup.sh
+// $ ./build.sh
 // $ java -cp ./src:target:lib/minimal-json-0.9.5.jar:lib/org.eclipse.paho.client.mqttv3-1.2.3.jar Bricks
+// $ ./pack.sh
 
 // Design principles:
 // - keep it simple to use
@@ -19,7 +20,7 @@
 //     - transport x encoding x brick type
 // - minimize dependencies
 //     - provide a single jar library
-//     - use as few libraries as possible
+//     - use as few 3rd party libraries as possible
 //     - provide server/client certs in code
 
 import java.awt.Color;
@@ -38,8 +39,8 @@ import ch.fhnw.imvs.bricks.sensors.ButtonBrick;
 import ch.fhnw.imvs.bricks.actuators.BuzzerBrick;
 import ch.fhnw.imvs.bricks.sensors.DistanceBrick;
 import ch.fhnw.imvs.bricks.sensors.HumiTempBrick;
+import ch.fhnw.imvs.bricks.actuators.DisplayBrick;
 import ch.fhnw.imvs.bricks.actuators.LedBrick;
-import ch.fhnw.imvs.bricks.actuators.LcdDisplayBrick;
 
 public final class Bricks {
     private Bricks() {}
@@ -51,7 +52,7 @@ public final class Bricks {
     private static final String HUMITEMP_BRICK_0_ID = HUMITEMP_BRICK_ID;
     private static final String HUMITEMP_BRICK_1_ID = "0000-0007";
     private static final String HUMITEMP_BRICK_2_ID = "0000-0004";
-    private static final String LCDDISPLAY_BRICK_ID = "0000-0005";
+    private static final String DISPLAY_BRICK_ID = "0000-0005";
     private static final String LED_BRICK_ID = "0000-0000";
 
     private static void runDoorbellExample(Proxy proxy) {
@@ -111,7 +112,7 @@ public final class Bricks {
 
     private static void runMonitoringExample(Proxy proxy) {
         HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
-        LcdDisplayBrick displayBrick = LcdDisplayBrick.connect(proxy, LCDDISPLAY_BRICK_ID);
+        DisplayBrick displayBrick = DisplayBrick.connect(proxy, DISPLAY_BRICK_ID);
         while (true) {
             double temp = humiTempBrick.getTemperature();
             String time = humiTempBrick.getTimestampIsoUtc();
