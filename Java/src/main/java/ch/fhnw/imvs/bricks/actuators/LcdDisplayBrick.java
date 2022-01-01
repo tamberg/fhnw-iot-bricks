@@ -17,9 +17,9 @@ public final class LcdDisplayBrick extends Brick {
     private volatile double currentValue = 0.0;
     private volatile double targetValue = 0.0;
 
-    public double getDoubleValue() {
-        return currentValue;
-    }
+//    public double getDoubleValue() {
+//        return currentValue;
+//    }
 
     public void setDoubleValue(double value) {
         if (targetValue != value) {

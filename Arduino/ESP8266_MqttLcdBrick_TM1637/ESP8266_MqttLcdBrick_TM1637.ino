@@ -6,6 +6,8 @@
 #include <Adafruit_MQTT_Client.h>
 #include <TM1637.h>
 
+#define MQTT_CONN_KEEPALIVE 30
+
 #define CLK 5 // Grove adapter I2C_1 or _2 used as D6
 #define DIO 4 // Grove D7
 

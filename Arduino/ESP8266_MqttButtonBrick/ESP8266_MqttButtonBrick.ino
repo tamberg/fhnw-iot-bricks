@@ -5,6 +5,8 @@
 #include <Adafruit_MQTT.h>
 #include <Adafruit_MQTT_Client.h>
 
+#define MQTT_CONN_KEEPALIVE 30
+
 const int buttonPin = 5; // Grove adapter I2C_1 or _2 used as D6
 
 const char *ssid = "MY_SSID"; // TODO
