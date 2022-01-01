@@ -40,10 +40,9 @@ public final class HumiTempBrick extends Brick {
     public static HumiTempBrick connect(Proxy proxy, String brickID);
 }
 
-public final class LcdDisplayBrick extends Brick;
+public final class DisplayBrick extends Brick;
     public void setDoubleValue(double value);
-    public double getDoubleValue();
-    public static LcdDisplayBrick connect(Proxy proxy, String brickID);
+    public static DisplayBrick connect(Proxy proxy, String brickID);
 }
 
 public abstract class Proxy {
