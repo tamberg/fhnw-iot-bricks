@@ -5,6 +5,8 @@
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 
+#define MQTT_CONN_KEEPALIVE 30
+
 const char *ssid = "MY_SSID"; // TODO
 const char *password = "MY_PASSWORD"; // TODO
 const char *host = "test.mosquitto.org"; // TODO
