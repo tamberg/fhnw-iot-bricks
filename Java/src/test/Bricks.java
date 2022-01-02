@@ -170,20 +170,20 @@ public final class Bricks {
         PresenceBrick presenceBrick1 = PresenceBrick.connect(proxy, PRESENCE_BRICK_1_ID);
         DisplayBrick displayBrick = DisplayBrick.connect(proxy, DISPLAY_BRICK_ID);
 
-        double score = 0.0;
+        double score = 00.00;
         while (true) {
             boolean resetPressed = buttonBrick.isPressed();
             boolean team0Scored = presenceBrick1.isActive();
             boolean team1Scored = presenceBrick0.isActive();
             if (resetPressed) {
                 System.out.print("reset, ");
-                score = 0.0;
+                score = 00.00;
             } else if (team0Scored && !team1Scored) {
                 System.out.print("team 0 scored, ");
-                score += 1.0;
+                score += 01.00;
             } else if (team1Scored && !team0Scored) {
                 System.out.print("team 1 scored, ");
-                score += 0.01;
+                score += 00.01;
             }
             displayBrick.setDoubleValue(score);
             System.out.printf("score = %05.2f\n", score);
