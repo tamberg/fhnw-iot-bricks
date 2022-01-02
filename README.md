@@ -29,9 +29,9 @@ public final class BuzzerBrick extends Brick {
     public static BuzzerBrick connect(Proxy proxy, String brickID);
 }
 
-public final class LedBrick extends Brick {
+public final class ColorLedBrick extends Brick {
     public void setColor(Color value);
-    public static LedBrick connect(Proxy proxy, String brickID);
+    public static ColorLedBrick connect(Proxy proxy, String brickID);
 }
 
 public final class HumiTempBrick extends Brick {
