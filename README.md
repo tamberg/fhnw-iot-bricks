@@ -115,6 +115,8 @@ while (true) {
 ## Software architecture
 ### Public interfaces
 ```
+// package ch.fhnw.imvs.bricks.core;
+
 public abstract class Brick {
     public String getID();
     public double getBatteryVoltage();
@@ -122,32 +124,32 @@ public abstract class Brick {
     public String getTimestampIsoUtc();
 }
 
+public abstract class Proxy {
+    public final void waitForUpdate();
+}
+
+// package ch.fhnw.imvs.bricks.mqtt;
+
+public final class MqttProxy extends Proxy {
+    public static MqttProxy fromConfig(String configBaseURI);
+}     
+
+// package ch.fhnw.imvs.bricks.mock;
+
+public final class MockProxy extends Proxy {
+    public static MockProxy fromConfig(String configBaseURI);
+}
+
+// package ch.fhnw.imvs.bricks.impl;
+
 public abstract class DigitalOutputBrick extends Brick {}
 public abstract class DigitalInputBrick extends Brick {}
+
+// package ch.fhnw.imvs.bricks.sensors;
 
 public final class ButtonBrick extends DigitalInputBrick {
     public boolean isPressed();
     public static ButtonBrick connect(Proxy proxy, String brickID);
-}
-
-public final class PresenceBrick extends DigitalInputBrick {
-    public boolean isActive();
-    public static PresenceBrick connect(Proxy proxy, String brickID);
-}
-
-public final class BuzzerBrick extends DigitalOutputBrick {
-    public void setEnabled(boolean enabled);
-    public static BuzzerBrick connect(Proxy proxy, String brickID);
-}
-
-public final class RelayBrick extends DigitalOutputBrick {
-    public void setEnabled(boolean enabled);
-    public static RelayBrick connect(Proxy proxy, String brickID);
-}
-
-public final class ColorLedBrick extends Brick {
-    public void setColor(Color value);
-    public static ColorLedBrick connect(Proxy proxy, String brickID);
 }
 
 public final class HumiTempBrick extends Brick {
@@ -156,22 +158,32 @@ public final class HumiTempBrick extends Brick {
     public static HumiTempBrick connect(Proxy proxy, String brickID);
 }
 
+public final class PresenceBrick extends DigitalInputBrick {
+    public boolean isActive();
+    public static PresenceBrick connect(Proxy proxy, String brickID);
+}
+
+// package ch.fhnw.imvs.bricks.actuators;
+
+public final class BuzzerBrick extends DigitalOutputBrick {
+    public void setEnabled(boolean enabled);
+    public static BuzzerBrick connect(Proxy proxy, String brickID);
+}
+
+public final class ColorLedBrick extends Brick {
+    public void setColor(Color value);
+    public static ColorLedBrick connect(Proxy proxy, String brickID);
+}
+
 public final class DisplayBrick extends Brick;
     public void setDecimalPlaces(int value);
     public void setDoubleValue(double value);
     public static DisplayBrick connect(Proxy proxy, String brickID);
 }
 
-public abstract class Proxy {
-    public final void waitForUpdate();
-}
-
-public final class MqttProxy extends Proxy {
-    public static MqttProxy fromConfig(String configBaseURI);
-}     
-
-public final class MockProxy extends Proxy {
-    public static MockProxy fromConfig(String configBaseURI);
+public final class RelayBrick extends DigitalOutputBrick {
+    public void setEnabled(boolean enabled);
+    public static RelayBrick connect(Proxy proxy, String brickID);
 }
 ```
 ### Class diagram
