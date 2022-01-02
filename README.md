@@ -10,7 +10,7 @@ IoT Bricks come with connectivity and a simple Java SDK.
 [IoT Brick Temperature](https://www.thingiverse.com/thing:3638252) on Thingiverse.
 
 ## Software examples
-### Config
+### Minimal config
 ```
 final String BASE_URI = "brick.li"; // the registry has a base URI
 final String BRICK_ID = "0000-0001"; // each brick has a unique ID
