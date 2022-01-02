@@ -114,8 +114,9 @@ while (true) {
 ```
 ## Software architecture
 ### Public interfaces
-Package [ch.fhnw.imvs.bricks.core](Java/src/main/java/ch/fhnw/imvs/bricks/core);
 ```
+// package ch.fhnw.imvs.bricks.core;
+
 public abstract class Brick {
     public String getID();
     public double getBatteryVoltage();
@@ -126,26 +127,26 @@ public abstract class Brick {
 public abstract class Proxy {
     public final void waitForUpdate();
 }
-```
-Package [ch.fhnw.imvs.bricks.mqtt](Java/src/main/java/ch/fhnw/imvs/bricks/mqtt);
-```
+
+// package ch.fhnw.imvs.bricks.mqtt;
+
 public final class MqttProxy extends Proxy {
     public static MqttProxy fromConfig(String configBaseURI);
 }     
-```
-Package [ch.fhnw.imvs.bricks.mock](Java/src/main/java/ch/fhnw/imvs/bricks/mock);
-```
+
+// package ch.fhnw.imvs.bricks.mock;
+
 public final class MockProxy extends Proxy {
     public static MockProxy fromConfig(String configBaseURI);
 }
-```
-Package [ch.fhnw.imvs.bricks.impl](Java/src/main/java/ch/fhnw/imvs/bricks/impl);
-```
+
+// package ch.fhnw.imvs.bricks.impl;
+
 public abstract class DigitalInputBrick extends Brick {}
 public abstract class DigitalOutputBrick extends Brick {}
-```
-Package [ch.fhnw.imvs.bricks.sensors](Java/src/main/java/ch/fhnw/imvs/bricks/sensors);
-```
+
+// package ch.fhnw.imvs.bricks.sensors;
+
 public final class ButtonBrick extends DigitalInputBrick {
     public boolean isPressed();
     public static ButtonBrick connect(Proxy proxy, String brickID);
@@ -161,9 +162,9 @@ public final class PresenceBrick extends DigitalInputBrick {
     public boolean isActive();
     public static PresenceBrick connect(Proxy proxy, String brickID);
 }
-```
-Package [ch.fhnw.imvs.bricks.actuators](Java/src/main/java/ch/fhnw/imvs/bricks/actuators);
-```
+
+// package ch.fhnw.imvs.bricks.actuators;
+
 public final class BuzzerBrick extends DigitalOutputBrick {
     public void setEnabled(boolean enabled);
     public static BuzzerBrick connect(Proxy proxy, String brickID);
