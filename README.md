@@ -89,7 +89,7 @@ while (true) {
     proxy.waitForUpdate();
 }
 ```
-### Foosball
+### Foosball counter
 ```
 ButtonBrick reset = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
 PresenceBrick sensor0 = PresenceBrick.connect(proxy, PRESENCE_BRICK_0_ID);
