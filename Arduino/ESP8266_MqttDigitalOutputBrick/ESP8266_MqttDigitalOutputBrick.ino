@@ -12,7 +12,7 @@ const char *password = "MY_PASSWORD"; // TODO
 const char *host = "test.mosquitto.org"; // TODO
 const int port = 8883;
 const char *topicStr = "bricks/0000-0006/target"; // TODO
-const int buzzerPin = 5;
+const int outputPin = 5;
 
 BearSSL::WiFiClientSecure client;
 Adafruit_MQTT_Client mqtt(&client, host, port);
@@ -20,15 +20,15 @@ Adafruit_MQTT_Subscribe topic(&mqtt, topicStr);
 
 void handleMessage(char *buf, uint16_t len) {
   if (len == 1 && buf[0] == 0x01) {
-    digitalWrite(buzzerPin, HIGH);
+    digitalWrite(outputPin, HIGH);
   } else {
-    digitalWrite(buzzerPin, LOW);
+    digitalWrite(outputPin, LOW);
   }
 }
 
 void setup() {
   Serial.begin(115200);
-  pinMode(buzzerPin, OUTPUT);
+  pinMode(outputPin, OUTPUT);
   Serial.print("\nConnecting to network ");
   Serial.println(ssid);
   WiFi.mode(WIFI_STA);
