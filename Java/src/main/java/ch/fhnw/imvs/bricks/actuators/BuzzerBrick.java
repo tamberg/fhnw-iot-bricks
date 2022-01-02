@@ -12,11 +12,11 @@ public final class BuzzerBrick extends DigitalOutputBrick {
     }
 
 //    public boolean isEnabled() {
-//        return super.isEnabled();
+//        return super.isActive();
 //    }
 
     public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
+        super.setActive(enabled);
     }
 
     public static BuzzerBrick connect(Proxy proxy, String brickID) {

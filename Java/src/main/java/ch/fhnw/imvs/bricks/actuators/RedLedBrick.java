@@ -12,11 +12,11 @@ public final class RedLedBrick extends DigitalOutputBrick {
     }
 
 //    public boolean isEnabled() {
-//        return super.isEnabled();
+//        return super.isActive();
 //    }
 
     public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
+        super.setActive(enabled);
     }
 
     public static RedLedBrick connect(Proxy proxy, String brickID) {
