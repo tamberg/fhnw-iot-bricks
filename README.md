@@ -17,8 +17,8 @@ final String BRICK_ID = "0000-0001"; // each brick has a unique ID
 ```
 ### Shared proxy
 ```
-Proxy proxy = MqttProxy.fromConfig(BASE_URI);
-// or proxy = MockProxy.fromConfig(BASE_URI);
+//Proxy proxy = MockProxy.fromConfig(BASE_URI); // simulate it first
+Proxy proxy = MqttProxy.fromConfig(BASE_URI); // then run for real
 ```
 ### Door bell
 ```
