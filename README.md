@@ -165,6 +165,11 @@ public final class PresenceBrick extends DigitalInputBrick {
 
 // package ch.fhnw.imvs.bricks.actuators;
 
+public final class BasicLedBrick extends DigitalOutputBrick {
+    public void setEnabled(boolean enabled);
+    public static BasicLedBrick connect(Proxy proxy, String brickID);
+}
+
 public final class BuzzerBrick extends DigitalOutputBrick {
     public void setEnabled(boolean enabled);
     public static BuzzerBrick connect(Proxy proxy, String brickID);
