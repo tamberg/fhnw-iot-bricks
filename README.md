@@ -96,17 +96,17 @@ PresenceBrick sensor0 = PresenceBrick.connect(proxy, PRESENCE_BRICK_0_ID);
 PresenceBrick sensor1 = PresenceBrick.connect(proxy, PRESENCE_BRICK_1_ID);
 DisplayBrick display = DisplayBrick.connect(proxy, DISPLAY_BRICK_ID);
 
-double score = 0.0;
+double score = 00.00;
 while (true) {
     boolean resetPressed = reset.isPressed();
     boolean team0Scored = sensor1.isActive();
     boolean team1Scored = sensor0.isActive();
     if (resetPressed) {
-        score = 0.0;
+        score = 00.00;
     } else if (team0Scored && !team1Scored) {
-        score += 1.0;
+        score += 01.00;
     } else if (team1Scored && !team0Scored) {
-        score += 0.01;
+        score += 00.01;
     }
     display.setDoubleValue(score);
     proxy.waitForUpdate();
