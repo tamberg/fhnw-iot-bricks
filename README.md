@@ -3,7 +3,7 @@
 ## Building blocks for distributed IoT use cases
 IoT Bricks enable IoT prototyping in a room, building or city.
 ## Simple, self-contained, connected
-IoT Bricks come with connectivity and a simple SDK.
+IoT Bricks come with connectivity and a simple Java SDK.
 ## Hardware example
 <img src="IoTBrickTemperature.jpg"/>
 
