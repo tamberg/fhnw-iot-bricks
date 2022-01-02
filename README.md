@@ -107,9 +107,19 @@ public final class ButtonBrick extends DigitalInputBrick {
     public static ButtonBrick connect(Proxy proxy, String brickID);
 }
 
+public final class PresenceBrick extends DigitalInputBrick {
+    public boolean isActive();
+    public static PresenceBrick connect(Proxy proxy, String brickID);
+}
+
 public final class BuzzerBrick extends DigitalOutputBrick {
     public void setEnabled(boolean enabled);
     public static BuzzerBrick connect(Proxy proxy, String brickID);
+}
+
+public final class RelayBrick extends DigitalOutputBrick {
+    public void setEnabled(boolean enabled);
+    public static RelayBrick connect(Proxy proxy, String brickID);
 }
 
 public final class ColorLedBrick extends Brick {
