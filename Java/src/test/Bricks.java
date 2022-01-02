@@ -40,20 +40,20 @@ import ch.fhnw.imvs.bricks.actuators.BuzzerBrick;
 import ch.fhnw.imvs.bricks.sensors.DistanceBrick;
 import ch.fhnw.imvs.bricks.sensors.HumiTempBrick;
 import ch.fhnw.imvs.bricks.actuators.DisplayBrick;
-import ch.fhnw.imvs.bricks.actuators.LedBrick;
+import ch.fhnw.imvs.bricks.actuators.ColorLedBrick;
 
 public final class Bricks {
     private Bricks() {}
 
     private static final String BUTTON_BRICK_ID = "0000-0002";
     private static final String BUZZER_BRICK_ID = "0000-0006";
+    private static final String COLORLED_BRICK_ID = "0000-0000";
+    private static final String DISPLAY_BRICK_ID = "0000-0005";
     private static final String DISTANCE_BRICK_ID = "0000-0003";
     private static final String HUMITEMP_BRICK_ID = "0000-0001";
     private static final String HUMITEMP_BRICK_0_ID = HUMITEMP_BRICK_ID;
     private static final String HUMITEMP_BRICK_1_ID = "0000-0007";
     private static final String HUMITEMP_BRICK_2_ID = "0000-0004";
-    private static final String DISPLAY_BRICK_ID = "0000-0005";
-    private static final String LED_BRICK_ID = "0000-0000";
 
     private static void runDoorbellExample(Proxy proxy) {
         ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
@@ -125,14 +125,14 @@ public final class Bricks {
 
     private static void runParkingExample(Proxy proxy) {
         DistanceBrick distBrick = DistanceBrick.connect(proxy, DISTANCE_BRICK_ID);
-        LedBrick ledBrick = LedBrick.connect(proxy, LED_BRICK_ID);
+        ColorLedBrick colorLedBrick = ColorLedBrick.connect(proxy, COLORLED_BRICK_ID);
         while (true) {
             int dist = distBrick.getDistance(); // cm
             String time = distBrick.getTimestampIsoUtc();
             Color color = dist < 200 ? Color.RED : Color.GREEN;
             String line = String.format(Locale.US, "%s, %d, %s\n", time, dist, color);
             System.out.print(line);
-            ledBrick.setColor(color);
+            colorLedBrick.setColor(color);
             proxy.waitForUpdate();
         }  
     }
