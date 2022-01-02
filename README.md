@@ -72,13 +72,13 @@ Proxy proxy = MqttProxy.fromConfig(BASE_URI);
 ```
 HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
 DisplayBrick displayBrick = DisplayBrick.connect(proxy, DISPLAY_BRICK_ID);
-LedBrick ledBrick = LedBrick.connect(proxy, LED_BRICK_ID);
+ColorLedBrick colorLedBrick = ColorLedBrick.connect(proxy, COLORLED_BRICK_ID);
 
 while (true) {
     double temp = humiTempBrick.getTemperature();
     displayBrick.setDoubleValue(temp);
     Color color = temp > 23 ? Color.RED : Color.GREEN;
-    ledBrick.setColor(color);
+    colorLedBrick.setColor(color);
     proxy.waitForUpdate();
 }
 ```
