@@ -7,7 +7,7 @@
 
 #define MQTT_CONN_KEEPALIVE 30
 
-const int buttonPin = 5; // Grove adapter I2C_1 or _2 used as D6
+const int inputPin = 5; // Grove adapter I2C_1 or _2 used as D6
 
 const char *ssid = "MY_SSID"; // TODO
 const char *password = "MY_PASSWORD"; // TODO
@@ -20,7 +20,7 @@ Adafruit_MQTT_Client mqtt(&client, host, port);
 
 void setup() {
   Serial.begin(115200);
-  pinMode(buttonPin, INPUT);
+  pinMode(inputPin, INPUT);
   Serial.print("\nConnecting to network ");
   Serial.println(ssid);
   WiFi.mode(WIFI_STA);
@@ -33,20 +33,20 @@ void setup() {
   client.setInsecure(); // no cert validation
 }
 
-int oldPressed = -1;
+int oldActive = -1;
 
 void loop() {
   if (mqtt.connected()) {
-    int pressed = digitalRead(buttonPin);
-    if (pressed != oldPressed) {
-      oldPressed = pressed;
+    int active = digitalRead(inputPin);
+    if (active != oldActive) {
+      oldActive = active;
       float batt = 3.7; // V, TODO
       int b = batt * 100.0f;
       uint8_t payload[] = {
         highByte(b), lowByte(b),
-        (uint8_t) pressed
+        (uint8_t) active
       };
-      printf("batt = %.2f, pressed = %d\n", batt, pressed);
+      printf("batt = %.2f, active = %d\n", batt, active);
       printf("publish to %s\n", topicStr);
       mqtt.publish(topicStr, payload, sizeof(payload));
     }
