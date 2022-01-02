@@ -1,5 +1,6 @@
 #!/bin/sh
 javac -d target -cp src:target src/main/java/ch/fhnw/imvs/bricks/core/*.java
+javac -d target -cp src:target src/main/java/ch/fhnw/imvs/bricks/impl/*.java
 javac -d target -cp src:target src/main/java/ch/fhnw/imvs/bricks/http/*.java
 javac -d target -cp src:target src/main/java/ch/fhnw/imvs/bricks/mock/*.java
 javac -d target -cp src:target:lib/minimal-json-0.9.5.jar:lib/org.eclipse.paho.client.mqttv3-1.2.3.jar src/main/java/ch/fhnw/imvs/bricks/mqtt/*.java
