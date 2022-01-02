@@ -142,8 +142,8 @@ public final class MockProxy extends Proxy {
 
 // package ch.fhnw.imvs.bricks.impl;
 
-public abstract class DigitalOutputBrick extends Brick {}
 public abstract class DigitalInputBrick extends Brick {}
+public abstract class DigitalOutputBrick extends Brick {}
 
 // package ch.fhnw.imvs.bricks.sensors;
 
