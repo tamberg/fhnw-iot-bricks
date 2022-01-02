@@ -28,8 +28,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Locale;
 
-// TODO: import ch.fhnw.imvs.bricks.*;
-
 import ch.fhnw.imvs.bricks.core.Proxy;
 
 import ch.fhnw.imvs.bricks.http.HttpProxy;
@@ -45,6 +43,7 @@ import ch.fhnw.imvs.bricks.sensors.PresenceBrick;
 import ch.fhnw.imvs.bricks.actuators.BuzzerBrick;
 import ch.fhnw.imvs.bricks.actuators.ColorLedBrick;
 import ch.fhnw.imvs.bricks.actuators.DisplayBrick;
+import ch.fhnw.imvs.bricks.actuators.RelayBrick;
 
 public final class Bricks {
     private Bricks() {}
@@ -145,18 +144,18 @@ public final class Bricks {
 
     private static void runSwitchExample(Proxy proxy) {
         ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
-        BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, BUZZER_BRICK_ID);
+        RelayBrick relayBrick = RelayBrick.connect(proxy, BUZZER_BRICK_ID);
         int state = 0;
         while (true) {
             boolean pressed = buttonBrick.isPressed();
             if (state == 0 && pressed) {
-                buzzerBrick.setEnabled(true);
+                relayBrick.setEnabled(true);
                 state = 1;
             } else if (state == 1 && !pressed) {
                 state = 2;
             } else if (state == 2 && pressed) {
                 state = 3;
-                buzzerBrick.setEnabled(false);
+                relayBrick.setEnabled(false);
             } else if (state == 3 && !pressed) {
                 state = 0;
             }
