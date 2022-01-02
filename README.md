@@ -19,12 +19,15 @@ public abstract class Brick {
     public String getTimestampIsoUtc();
 }
 
-public final class ButtonBrick extends Brick {
+public abstract class DigitalOutputBrick extends Brick {}
+public abstract class DigitalInputBrick extends Brick {}
+
+public final class ButtonBrick extends DigitalInputBrick {
     public boolean isPressed();
     public static ButtonBrick connect(Proxy proxy, String brickID);
 }
 
-public final class BuzzerBrick extends Brick {
+public final class BuzzerBrick extends DigitalOutputBrick {
     public void setEnabled(boolean enabled);
     public static BuzzerBrick connect(Proxy proxy, String brickID);
 }
