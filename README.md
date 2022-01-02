@@ -31,6 +31,28 @@ while (true) {
     proxy.waitForUpdate();
 }
 ```
+### Light switch
+```
+ButtonBrick button = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
+RelayBrick relay = RelayBrick.connect(proxy, RELAY_BRICK_ID);
+
+int state = 0;
+while (true) {
+    boolean pressed = button.isPressed();
+    if (state == 0 && pressed) {
+        relay.setEnabled(true);
+        state = 1;
+    } else if (state == 1 && !pressed) {
+        state = 2;
+    } else if (state == 2 && pressed) {
+        state = 3;
+        relay.setEnabled(false);
+    } else if (state == 3 && !pressed) {
+        state = 0;
+    }
+    proxy.waitForUpdate();
+}
+```
 ### Monitoring system
 ```
 HumiTempBrick sensor = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
