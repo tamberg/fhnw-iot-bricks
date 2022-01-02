@@ -10,57 +10,6 @@ IoT Bricks come with connectivity and a simple Java SDK.
 [IoT Brick Temperature](https://www.thingiverse.com/thing:3638252) on Thingiverse.
 
 ## Software example
-### Interface
-```
-public abstract class Brick {
-    public String getID();
-    public double getBatteryVoltage();
-    public Date getTimestamp();
-    public String getTimestampIsoUtc();
-}
-
-public abstract class DigitalOutputBrick extends Brick {}
-public abstract class DigitalInputBrick extends Brick {}
-
-public final class ButtonBrick extends DigitalInputBrick {
-    public boolean isPressed();
-    public static ButtonBrick connect(Proxy proxy, String brickID);
-}
-
-public final class BuzzerBrick extends DigitalOutputBrick {
-    public void setEnabled(boolean enabled);
-    public static BuzzerBrick connect(Proxy proxy, String brickID);
-}
-
-public final class ColorLedBrick extends Brick {
-    public void setColor(Color value);
-    public static ColorLedBrick connect(Proxy proxy, String brickID);
-}
-
-public final class HumiTempBrick extends Brick {
-    public double getHumidity();
-    public double getTemperature();
-    public static HumiTempBrick connect(Proxy proxy, String brickID);
-}
-
-public final class DisplayBrick extends Brick;
-    public void setDecimalPlaces(int value);
-    public void setDoubleValue(double value);
-    public static DisplayBrick connect(Proxy proxy, String brickID);
-}
-
-public abstract class Proxy {
-    public final void waitForUpdate();
-}
-
-public final class MqttProxy extends Proxy {
-    public static MqttProxy fromConfig(String configBaseURI);
-}     
-
-public final class MockProxy extends Proxy {
-    public static MockProxy fromConfig(String configBaseURI);
-}
-```
 ### Config
 ```
 final String BASE_URI = "brick.li"; // the registry has a base URI
@@ -122,5 +71,57 @@ while (true) {
 ```
 
 ## Software architecture
+### Public interfaces
+```
+public abstract class Brick {
+    public String getID();
+    public double getBatteryVoltage();
+    public Date getTimestamp();
+    public String getTimestampIsoUtc();
+}
+
+public abstract class DigitalOutputBrick extends Brick {}
+public abstract class DigitalInputBrick extends Brick {}
+
+public final class ButtonBrick extends DigitalInputBrick {
+    public boolean isPressed();
+    public static ButtonBrick connect(Proxy proxy, String brickID);
+}
+
+public final class BuzzerBrick extends DigitalOutputBrick {
+    public void setEnabled(boolean enabled);
+    public static BuzzerBrick connect(Proxy proxy, String brickID);
+}
+
+public final class ColorLedBrick extends Brick {
+    public void setColor(Color value);
+    public static ColorLedBrick connect(Proxy proxy, String brickID);
+}
+
+public final class HumiTempBrick extends Brick {
+    public double getHumidity();
+    public double getTemperature();
+    public static HumiTempBrick connect(Proxy proxy, String brickID);
+}
+
+public final class DisplayBrick extends Brick;
+    public void setDecimalPlaces(int value);
+    public void setDoubleValue(double value);
+    public static DisplayBrick connect(Proxy proxy, String brickID);
+}
+
+public abstract class Proxy {
+    public final void waitForUpdate();
+}
+
+public final class MqttProxy extends Proxy {
+    public static MqttProxy fromConfig(String configBaseURI);
+}     
+
+public final class MockProxy extends Proxy {
+    public static MockProxy fromConfig(String configBaseURI);
+}
+```
+
 ### Class diagram
 <table><tr><td><img width="600" src="IoTBricksClassDiagram.jpg"></td></tr></table>
