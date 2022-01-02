@@ -9,18 +9,18 @@ IoT Bricks come with connectivity and a simple Java SDK.
 
 [IoT Brick Temperature](https://www.thingiverse.com/thing:3638252) on Thingiverse.
 
-## Software example
+## Software examples
 ### Config
 ```
 final String BASE_URI = "brick.li"; // the registry has a base URI
 final String BRICK_ID = "0000-0001"; // each brick has a unique ID
 ```
-### Shared Proxy
+### Shared proxy
 ```
 Proxy proxy = MqttProxy.fromConfig(BASE_URI);
 // or proxy = MockProxy.fromConfig(BASE_URI);
 ```
-### Door Bell
+### Door bell
 ```
 ButtonBrick button = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
 BuzzerBrick buzzer = BuzzerBrick.connect(proxy, BUZZER_BRICK_ID);
@@ -31,7 +31,7 @@ while (true) {
     proxy.waitForUpdate();
 }
 ```
-### Monitoring System
+### Monitoring system
 ```
 HumiTempBrick sensor = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
 DisplayBrick display = DisplayBrick.connect(proxy, DISPLAY_BRICK_ID);
@@ -45,7 +45,7 @@ while (true) {
     proxy.waitForUpdate();
 }
 ```
-### Logging System
+### Logging system
 ```
 HumiTempBrick sensor = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
 FileWriter fileWriter = null;
