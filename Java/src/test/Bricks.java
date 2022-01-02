@@ -40,6 +40,7 @@ import ch.fhnw.imvs.bricks.mqtt.TtnMqttProxy;
 import ch.fhnw.imvs.bricks.sensors.ButtonBrick;
 import ch.fhnw.imvs.bricks.sensors.DistanceBrick;
 import ch.fhnw.imvs.bricks.sensors.HumiTempBrick;
+import ch.fhnw.imvs.bricks.sensors.PresenceBrick;
 
 import ch.fhnw.imvs.bricks.actuators.BuzzerBrick;
 import ch.fhnw.imvs.bricks.actuators.ColorLedBrick;
@@ -57,6 +58,8 @@ public final class Bricks {
     private static final String HUMITEMP_BRICK_0_ID = HUMITEMP_BRICK_ID;
     private static final String HUMITEMP_BRICK_1_ID = "0000-0007";
     private static final String HUMITEMP_BRICK_2_ID = "0000-0004";
+    private static final String PRESENCE_BRICK_0_ID = "0000-0020";
+    private static final String PRESENCE_BRICK_1_ID = "0000-0021";
 
     private static void runDoorbellExample(Proxy proxy) {
         ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
@@ -162,9 +165,36 @@ public final class Bricks {
         }
     }
 
+    private static void runFoosballExample(Proxy proxy) {
+        ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
+        PresenceBrick presenceBrick0 = PresenceBrick.connect(proxy, PRESENCE_BRICK_0_ID);
+        PresenceBrick presenceBrick1 = PresenceBrick.connect(proxy, PRESENCE_BRICK_1_ID);
+        DisplayBrick displayBrick = DisplayBrick.connect(proxy, DISPLAY_BRICK_ID);
+
+        double score = 0.0;
+        while (true) {
+            boolean resetPressed = buttonBrick.isPressed();
+            boolean team0Scored = presenceBrick1.isActive();
+            boolean team1Scored = presenceBrick0.isActive();
+            if (resetPressed) {
+                System.out.print("reset, ");
+                score = 0.0;
+            } else if (team0Scored && !team1Scored) {
+                System.out.print("team 0 scored, ");
+                score += 1.0;
+            } else if (team1Scored && !team0Scored) {
+                System.out.print("team 1 scored, ");
+                score += 0.01;
+            }
+            displayBrick.setDoubleValue(score);
+            System.out.printf("score = %05.2f\n", score);
+            proxy.waitForUpdate();
+        }
+    }
+
     public static void main(String args[]) {
         final String BASE_URL = "https://brick.li";
-        final String USAGE = "usage: java Bricks http|mock|mqtt|ttn d|l|a|m|p|s";
+        final String USAGE = "usage: java Bricks http|mock|mqtt|ttn d|l|a|m|p|s|f";
         if (args.length == 2) {
             Proxy proxy = null;
             if ("http".equals(args[0])) {
@@ -191,6 +221,8 @@ public final class Bricks {
                 runParkingExample(proxy);    
             } else if ("s".equals(args[1])) {
                 runSwitchExample(proxy);
+            } else if ("f".equals(args[1])) {
+                runFoosballExample(proxy);
             } else {
                 System.out.println(USAGE);
                 System.exit(-1);
