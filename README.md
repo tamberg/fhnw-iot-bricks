@@ -22,32 +22,32 @@ Proxy proxy = MqttProxy.fromConfig(BASE_URI);
 ```
 ### Door Bell
 ```
-ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
-BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, BUZZER_BRICK_ID);
+ButtonBrick button = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
+BuzzerBrick buzzer = BuzzerBrick.connect(proxy, BUZZER_BRICK_ID);
 
 while (true) {
-    boolean pressed = buttonBrick.isPressed();
-    buzzerBrick.setEnabled(pressed);
+    boolean pressed = button.isPressed();
+    buzzer.setEnabled(pressed);
     proxy.waitForUpdate();
 }
 ```
 ### Monitoring System
 ```
-HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
-DisplayBrick displayBrick = DisplayBrick.connect(proxy, DISPLAY_BRICK_ID);
-ColorLedBrick colorLedBrick = ColorLedBrick.connect(proxy, COLORLED_BRICK_ID);
+HumiTempBrick sensor = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
+DisplayBrick display = DisplayBrick.connect(proxy, DISPLAY_BRICK_ID);
+ColorLedBrick led = ColorLedBrick.connect(proxy, COLORLED_BRICK_ID);
 
 while (true) {
-    double temp = humiTempBrick.getTemperature();
-    displayBrick.setDoubleValue(temp);
+    double temp = sensor.getTemperature();
+    display.setDoubleValue(temp);
     Color color = temp > 23 ? Color.RED : Color.GREEN;
-    colorLedBrick.setColor(color);
+    led.setColor(color);
     proxy.waitForUpdate();
 }
 ```
 ### Logging System
 ```
-HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
+HumiTempBrick sensor = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
 FileWriter fileWriter = null;
 try {
     fileWriter = new FileWriter("log.csv", true); // append
@@ -56,8 +56,8 @@ try {
 }
 
 while (true) {
-    double temp = humiTempBrick.getTemperature();
-    String time = humiTempBrick.getTimestampIsoUtc();
+    double temp = sensor.getTemperature();
+    String time = sensor.getTimestampIsoUtc();
     try {
         fileWriter.append(time + ", " + temp + "\n");
         fileWriter.flush();
