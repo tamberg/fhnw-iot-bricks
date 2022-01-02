@@ -6,8 +6,8 @@ package ch.fhnw.imvs.bricks.actuators;
 import ch.fhnw.imvs.bricks.impl.DigitalOutputBrick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
-public final class BuzzerBrick extends DigitalOutputBrick {
-    private BuzzerBrick(Proxy proxy, String brickID) {
+public final class RelayBrick extends DigitalOutputBrick {
+    private RelayBrick(Proxy proxy, String brickID) {
         super(proxy, brickID);
     }
 
@@ -19,8 +19,8 @@ public final class BuzzerBrick extends DigitalOutputBrick {
         super.setEnabled(enabled);
     }
 
-    public static BuzzerBrick connect(Proxy proxy, String brickID) {
-        BuzzerBrick brick = new BuzzerBrick(proxy, brickID);
+    public static RelayBrick connect(Proxy proxy, String brickID) {
+        RelayBrick brick = new RelayBrick(proxy, brickID);
         brick.connect();
         return brick;
     }
