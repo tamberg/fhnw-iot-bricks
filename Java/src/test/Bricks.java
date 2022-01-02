@@ -31,16 +31,19 @@ import java.util.Locale;
 // TODO: import ch.fhnw.imvs.bricks.*;
 
 import ch.fhnw.imvs.bricks.core.Proxy;
+
 import ch.fhnw.imvs.bricks.http.HttpProxy;
 import ch.fhnw.imvs.bricks.mock.MockProxy;
 import ch.fhnw.imvs.bricks.mqtt.MqttProxy;
 import ch.fhnw.imvs.bricks.mqtt.TtnMqttProxy;
+
 import ch.fhnw.imvs.bricks.sensors.ButtonBrick;
-import ch.fhnw.imvs.bricks.actuators.BuzzerBrick;
 import ch.fhnw.imvs.bricks.sensors.DistanceBrick;
 import ch.fhnw.imvs.bricks.sensors.HumiTempBrick;
-import ch.fhnw.imvs.bricks.actuators.DisplayBrick;
+
+import ch.fhnw.imvs.bricks.actuators.BuzzerBrick;
 import ch.fhnw.imvs.bricks.actuators.ColorLedBrick;
+import ch.fhnw.imvs.bricks.actuators.DisplayBrick;
 
 public final class Bricks {
     private Bricks() {}
