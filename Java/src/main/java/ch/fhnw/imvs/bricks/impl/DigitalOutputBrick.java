@@ -3,11 +3,11 @@
 
 package ch.fhnw.imvs.bricks.impl;
 
-import ch.fhnw.imvs.bricks.core.Brick;
-import ch.fhnw.imvs.bricks.core.Proxy;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+
+import ch.fhnw.imvs.bricks.core.Brick;
+import ch.fhnw.imvs.bricks.core.Proxy;
 
 public abstract class DigitalOutputBrick extends Brick {
     protected DigitalOutputBrick(Proxy proxy, String brickID) {
