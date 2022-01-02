@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FHNW, Switzerland. All rights reserved.
+// Copyright (c) 2022 FHNW, Switzerland. All rights reserved.
 // Licensed under MIT License, see LICENSE for details.
 
 package ch.fhnw.imvs.bricks.actuators;
@@ -12,11 +12,11 @@ public final class RedLedBrick extends DigitalOutputBrick {
     }
 
 //    public boolean isEnabled() {
-//        return super.isEnabled();
+//        return super.isActive();
 //    }
 
     public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
+        super.setActive(enabled);
     }
 
     public static RedLedBrick connect(Proxy proxy, String brickID) {

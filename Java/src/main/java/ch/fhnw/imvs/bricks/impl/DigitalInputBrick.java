@@ -3,41 +3,36 @@
 
 package ch.fhnw.imvs.bricks.impl;
 
-import ch.fhnw.imvs.bricks.core.Brick;
-import ch.fhnw.imvs.bricks.core.Proxy;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public abstract class DigitalOutputBrick extends Brick {
-    protected DigitalOutputBrick(Proxy proxy, String brickID) {
+import ch.fhnw.imvs.bricks.core.Brick;
+import ch.fhnw.imvs.bricks.core.Proxy;
+
+public abstract class DigitalInputBrick extends Brick {
+    protected DigitalInputBrick(Proxy proxy, String brickID) {
         super(proxy, brickID);
     }
 
-    private volatile boolean currentActive = false;
-    private volatile boolean targetActive = false;
+    private volatile boolean currentActive;
 
-//    protected boolean isActive() {
-//        return currentActive;
-//    }
-
-    protected void setActive(boolean value) {
-        if (targetActive != value) {
-            targetActive = value;
-            super.sync();
-        }
+    protected boolean isActive() {
+        return currentActive;
     }
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
-        ByteBuffer buf = ByteBuffer.allocate(mock ? 3 : 1);
-        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        byte[] payload = null;
         if (mock) {
+            ByteBuffer buf = ByteBuffer.allocate(3);
+            buf.order(ByteOrder.BIG_ENDIAN); // network byte order
             double mockBatt = Math.random() * 3.7;
+            boolean mockActive = Math.random() < 0.5;
             buf.putShort((short) (mockBatt * 100));
+            buf.put((byte) (mockActive ? 1 : 0));
+            payload = buf.array();
         }
-        buf.put((byte) (targetActive ? 1 : 0));
-        return buf.array();
+        return payload;
     }
 
     @Override
