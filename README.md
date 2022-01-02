@@ -20,6 +20,17 @@ final String BRICK_ID = "0000-0001"; // each brick has a unique ID
 Proxy proxy = MqttProxy.fromConfig(BASE_URI);
 // or proxy = MockProxy.fromConfig(BASE_URI);
 ```
+### Door Bell
+```
+ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
+BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, BUZZER_BRICK_ID);
+
+while (true) {
+    boolean pressed = buttonBrick.isPressed();
+    buzzerBrick.setEnabled(pressed);
+    proxy.waitForUpdate();
+}
+```
 ### Monitoring System
 ```
 HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
@@ -34,7 +45,6 @@ while (true) {
     proxy.waitForUpdate();
 }
 ```
-
 ### Logging System
 ```
 HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
@@ -57,19 +67,6 @@ while (true) {
     proxy.waitForUpdate();
 }
 ```
-
-### Door Bell
-```
-ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
-BuzzerBrick buzzerBrick = BuzzerBrick.connect(proxy, BUZZER_BRICK_ID);
-
-while (true) {
-    boolean pressed = buttonBrick.isPressed();
-    buzzerBrick.setEnabled(pressed);
-    proxy.waitForUpdate();
-}
-```
-
 ## Software architecture
 ### Public interfaces
 ```
@@ -122,6 +119,5 @@ public final class MockProxy extends Proxy {
     public static MockProxy fromConfig(String configBaseURI);
 }
 ```
-
 ### Class diagram
 <table><tr><td><img width="600" src="IoTBricksClassDiagram.jpg"></td></tr></table>
