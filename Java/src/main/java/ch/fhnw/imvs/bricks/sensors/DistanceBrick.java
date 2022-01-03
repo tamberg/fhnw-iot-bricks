@@ -24,12 +24,12 @@ public final class DistanceBrick extends Brick {
     protected byte[] getTargetPayload(boolean mock) {
         byte[] payload = null;
         if (mock) {
-            ByteBuffer buf = ByteBuffer.allocate(6);
+            ByteBuffer buf = ByteBuffer.allocate(4);
             buf.order(ByteOrder.BIG_ENDIAN); // network byte order
             double mockBatt = Math.random() * 3.7;
-            int mockDist = (int) (Math.random() * 350);
+            short mockDist = (short) (Math.random() * 350);
             buf.putShort((short) (mockBatt * 100));
-            buf.putInt(mockDist);
+            buf.putShort(mockDist);
             payload = buf.array();
         }
         return payload;
@@ -40,7 +40,7 @@ public final class DistanceBrick extends Brick {
         ByteBuffer buf = ByteBuffer.wrap(payload);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         super.setBatteryVoltage(buf.getShort() / 100.0f);
-        currentDist = buf.getInt();
+        currentDist = buf.getShort();
     }
 
     public static DistanceBrick connect(Proxy proxy, String brickID) {
