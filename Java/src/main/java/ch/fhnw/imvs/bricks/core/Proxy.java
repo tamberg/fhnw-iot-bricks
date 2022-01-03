@@ -29,12 +29,16 @@ public abstract class Proxy {
     	brick.setPendingPayload(payload); // package level access
     }
 
-    public void waitForUpdate() { // called by client code
+    /* package */ boolean tryUpdate() { // called by ProxyGroup and waitForUpdate()
         boolean updated = false;
-        while (!updated) {
-            for (Brick brick : bricks) {
-                updated = brick.tryUpdate() || updated; // sequence matters
-            }
+        for (Brick brick : bricks) {
+            updated = brick.tryUpdate() || updated; // sequence matters
+        }
+        return updated;
+    }
+
+    public void waitForUpdate() { // called by client code
+        while (!tryUpdate()) {
             try {
                 TimeUnit.MILLISECONDS.sleep(100); // ms
             } catch (InterruptedException e) {
