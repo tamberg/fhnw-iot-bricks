@@ -1,4 +1,4 @@
-// Copyright (c) 2021 FHNW, Switzerland. All rights reserved.
+// Copyright (c) 2022 FHNW, Switzerland. All rights reserved.
 // Licensed under MIT License, see LICENSE for details.
 
 #include <ESP8266WiFi.h>
