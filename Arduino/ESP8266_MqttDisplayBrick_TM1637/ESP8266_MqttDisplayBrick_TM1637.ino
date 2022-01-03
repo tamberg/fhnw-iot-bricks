@@ -18,7 +18,6 @@ const char *password = "MY_PASSWORD"; // TODO
 const char *host = "test.mosquitto.org"; // TODO
 const int port = 8883;
 const char *topicStr = "bricks/0000-0005/target"; // TODO
-const int buzzerPin = 5;
 
 BearSSL::WiFiClientSecure client;
 Adafruit_MQTT_Client mqtt(&client, host, port);
