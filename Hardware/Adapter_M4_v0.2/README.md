@@ -38,6 +38,6 @@
     * Set its `stroke-width` to `0.203`
 * The result should look like this<pre>
 	&lt;svg&gt;...
-       &lt;g id="board"&gt;&lt;path d="..." stroke="none" fill="lightgray" stroke-width="0"/>&lt;/g&gt;
-       &lt;g id="silkscreen">&lt;path d="..." stroke="black" fill="none" stroke-width="0.203"/&gt;&lt;/g&gt;
+        &lt;g id="board"&gt;&lt;path d="..." stroke="none" fill="lightgray" stroke-width="0"/>&lt;/g&gt;
+        &lt;g id="silkscreen">&lt;path d="..." stroke="black" fill="none" stroke-width="0.203"/&gt;&lt;/g&gt;
     &lt;/svg&gt;</pre>
