@@ -26,7 +26,8 @@
 * Design a board outline according to the noted size
 * Render the design to enable exporting it
 * Export the 2D design as SVG
-* Edit the SVG file manually
+* Edit the SVG file manually (based on [this video](https://www.youtube.com/watch?v=ydcOzbCJltg
+))
     * Enclose the `<path .../>` section(s) in a `<g>...</g>`
     * Set the `id` to `board`
     * Set the `stroke` to `none`
