@@ -1,5 +1,5 @@
 # Adapter_M4_v0.2
-<img src="Adapter_M4_v0.2.png" width="320"/>
+<img src="Adapter_M4_v0.2.png" width="320" alt="(c) Aisler Board Inspector"/>
 
 ## Order
 * Create an account at https://aisler.net/
