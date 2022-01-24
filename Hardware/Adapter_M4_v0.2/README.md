@@ -29,7 +29,7 @@
 
 ### OpenScad
 * Install OpenScad from https://openscad.org/
-* Design a board outline according to the noted size
+* Design a board outline according to the noted size (in mm)
 * Render the design to enable exporting it
 * Export the 2D design as SVG
 * Edit the SVG file manually (based on [this video](https://www.youtube.com/watch?v=ydcOzbCJltg
