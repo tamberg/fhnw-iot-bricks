@@ -1,4 +1,11 @@
 # Adapter_M4_v0.2
+<img src="Adapter_M4_v0.2.png" width="320" title="(c) Aisler Board Inspector"/>
+
+## Order
+### Aisler
+* Create an account at https://aisler.net/
+* Go to https://aisler.net/tamberg/fhnw-iot-bricks/adapter_m4_v0-2-1
+* Checkout to order the board (~EUR 27 for 9 PCBs plus shipping to Switzerland)
 
 ## Workflow
 ### Fritzing
@@ -23,10 +30,11 @@
 
 ### OpenScad
 * Install OpenScad from https://openscad.org/
-* Design a board outline according to the noted size
+* Design a board outline according to the noted size (in mm)
 * Render the design to enable exporting it
 * Export the 2D design as SVG
-* Edit the SVG file manually
+* Edit the SVG file manually (based on [this video](https://www.youtube.com/watch?v=ydcOzbCJltg
+))
     * Enclose the `<path .../>` section(s) in a `<g>...</g>`
     * Set the `id` to `board`
     * Set the `stroke` to `none`
