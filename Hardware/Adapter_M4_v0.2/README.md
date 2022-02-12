@@ -5,7 +5,7 @@
 ### Aisler
 * Create an account at https://aisler.net/
 * Go to https://aisler.net/tamberg/fhnw-iot-bricks/adapter_m4_v0-2-1
-* Checkout to order the board (EUR 23 for 12 PCBs plus shipping to Switzerland)
+* Checkout to order the board (~EUR 23 for 12 PCBs plus shipping to Switzerland)
 
 ## Workflow
 ### Fritzing
