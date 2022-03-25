@@ -33,13 +33,13 @@ public final class ServoBrick extends Brick {
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
-        ByteBuffer buf = ByteBuffer.allocate(mock ? 5 : 3);
+        ByteBuffer buf = ByteBuffer.allocate(mock ? 4 : 2);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         if (mock) {
             double mockBatt = Math.random() * 3.7;
             buf.putShort((short) (mockBatt * 100));
         }
-        buf.put((byte) targetPosition);
+        buf.putShort((short) targetPosition);
         return buf.array();
     }
 
@@ -48,8 +48,7 @@ public final class ServoBrick extends Brick {
         ByteBuffer buf = ByteBuffer.wrap(payload);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         super.setBatteryVoltage(buf.getShort() / 100.0);
-        // https://stackoverflow.com/questions/4266756/can-we-make-unsigned-byte-in-java
-        currentPosition = buf.get() & (0xff); // or Byte.toUnsignedInt(buf.get()); // Java 8+
+        currentPosition = buf.getShort();
     }
 
     public static ServoBrick connect(Proxy proxy, String brickID) {
