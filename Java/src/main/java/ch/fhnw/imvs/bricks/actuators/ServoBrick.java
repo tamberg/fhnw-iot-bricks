@@ -1,4 +1,4 @@
-// Copyright (c) 2020 FHNW, Switzerland. All rights reserved.
+// Copyright (c) 2022 FHNW, Switzerland. All rights reserved.
 // Licensed under MIT License, see LICENSE for details.
 
 package ch.fhnw.imvs.bricks.actuators;
@@ -22,6 +22,9 @@ public final class ServoBrick extends Brick {
 //    }
 
     public void setPosition(int position) {
+        if (position < 0 || position > 180) { // degree
+            throw new IllegalArgumentException();
+        }
         if (targetPosition != position) {
             targetPosition = position;
             super.sync();
