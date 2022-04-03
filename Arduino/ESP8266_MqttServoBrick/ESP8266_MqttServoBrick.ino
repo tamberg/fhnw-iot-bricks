@@ -4,7 +4,6 @@
 #include <ESP8266WiFi.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
-#include <Servo.h>
 
 #define MQTT_CONN_KEEPALIVE 30
 
@@ -12,28 +11,40 @@ const char *ssid = "MY_SSID"; // TODO
 const char *password = "MY_PASSWORD"; // TODO
 const char *host = "test.mosquitto.org"; // TODO
 const int port = 8883;
-const char *topicStr = "bricks/????-????/target"; // TODO
+const char *topicStr = "bricks/0000-0008/target"; // TODO
 const int servoPin = 12; // Grove adapter D12
 
 int oldPos = 0;
-Servo servo;
 BearSSL::WiFiClientSecure client;
 Adafruit_MQTT_Client mqtt(&client, host, port);
 Adafruit_MQTT_Subscribe topic(&mqtt, topicStr);
 
+// based on https://www.adeept.com/blog/tutorials/control-servo-to-rotate-180-degrees.html
+void setPos(int pos) { // 0 - 180
+  //Serial.print("setPos, pos = ");
+  //Serial.println(pos);
+  int w = map(180 - pos, 0, 180, 500, 2348);
+  digitalWrite(servoPin,HIGH);
+  delayMicroseconds(w);
+  digitalWrite(servoPin,LOW);
+  //delayMicroseconds(20000 - w);
+  delayMicroseconds(3000 - w);
+  delay(17); // ms
+}
+
 void handleMessage(char *buf, uint16_t len) {
   if (len == 2) {
     int pos = (int) ((buf[0] << 8) | buf[1]);
-    pos = min(max(pos, 2), 178); // prevents buzzing
+    Serial.print("handleMessage, pos = ");
+    Serial.println(pos);
+    pos = min(max(pos, 0), 180); // prevents buzzing
     if (pos < oldPos) {
       for (int i = oldPos; i > pos; i--) {
-        servo.write(i);
-        delay(20); // ms to reach pos
+        setPos(i);
       }
     } else if (oldPos < pos) {
       for (int i = oldPos; i < pos; i++) {
-        servo.write(i);
-        delay(20); // ms to reach pos
+        setPos(i);
       }
     }
     oldPos = pos;
@@ -42,7 +53,7 @@ void handleMessage(char *buf, uint16_t len) {
 
 void setup() {
   Serial.begin(115200);
-  servo.attach(servoPin);
+  pinMode(servoPin,OUTPUT);
   Serial.print("\nConnecting to network ");
   Serial.println(ssid);
   WiFi.mode(WIFI_STA);
@@ -59,7 +70,7 @@ void setup() {
 
 void loop() {
   if (mqtt.connected()) {
-    Serial.println("Connected (still)");
+    Serial.println("Connected");
     mqtt.processPackets(10000); // ms, calls callbacks
     if (!mqtt.ping()) {
       mqtt.disconnect();  
