@@ -19,7 +19,7 @@ $ ./clean.sh
 $ ./setup.sh
 $ ./build.sh
 $ java -cp ./src:target:lib/minimal-json-0.9.5.jar:lib/org.eclipse.paho.client.mqttv3-1.2.3.jar Bricks
-usage: java Bricks http|mock|mqtt|ttn d|l|a|m|p|s|f
+usage: java Bricks mock|mqtt|ttn d|l|a|m|p|s|f
 ```
 
 ## Software examples
