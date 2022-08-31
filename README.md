@@ -10,8 +10,7 @@ IoT Bricks come with connectivity and a simple Java SDK.
 [IoT Brick Temperature](https://www.thingiverse.com/thing:3638252) on Thingiverse.
 
 ## Getting Started
-On MacOS
-
+On MacOS or Linux
 ```
 $ git clone https://github.com/tamberg/fhnw-iot-bricks
 $ cd fhnw-iot-bricks
