@@ -7,7 +7,7 @@
 
 #define MQTT_CONN_KEEPALIVE 30
 
-const int inputPin = 5; // Grove adapter I2C_1 or _2 used as D6
+const int inputPin = 12; // Grove adapter D12
 
 const char *ssid = "MY_SSID"; // TODO
 const char *password = "MY_PASSWORD"; // TODO
