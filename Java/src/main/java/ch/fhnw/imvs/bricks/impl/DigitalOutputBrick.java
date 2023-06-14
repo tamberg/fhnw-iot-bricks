@@ -17,9 +17,9 @@ public abstract class DigitalOutputBrick extends Brick {
     private volatile boolean currentActive = false;
     private volatile boolean targetActive = false;
 
-//    protected boolean isActive() {
-//        return currentActive;
-//    }
+    protected boolean isActive() {
+        return currentActive;
+    }
 
     protected void setActive(boolean value) {
         if (targetActive != value) {
