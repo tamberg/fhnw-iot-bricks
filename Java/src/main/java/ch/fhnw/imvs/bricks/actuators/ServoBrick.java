@@ -14,9 +14,6 @@ public final class ServoBrick extends Brick {
         super(proxy, brickID);
     }
 
-    private final int minPosition = 0;
-    private final int maxPosition = 180;
-
     private volatile int currentPosition = 0;
     private volatile int targetPosition = 0;
 
@@ -25,7 +22,7 @@ public final class ServoBrick extends Brick {
     }
 
     public void setPosition(int position) { // degree
-        if (position < minPosition || position > maxPosition) {
+        if (position < 0 || position > 180) {
             throw new IllegalArgumentException();
         }
         if (targetPosition != position) {
