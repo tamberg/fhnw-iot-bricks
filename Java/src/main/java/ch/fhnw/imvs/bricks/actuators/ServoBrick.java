@@ -17,12 +17,12 @@ public final class ServoBrick extends Brick {
     private volatile int currentPosition = 0;
     private volatile int targetPosition = 0;
 
-//    public int getPosition() {
-//        return currentPosition;
-//    }
+    public int getPosition() {
+        return currentPosition;
+    }
 
-    public void setPosition(int position) {
-        if (position < 0 || position > 180) { // degree
+    public void setPosition(int position) { // degree
+        if (position < 0 || position > 180) {
             throw new IllegalArgumentException();
         }
         if (targetPosition != position) {

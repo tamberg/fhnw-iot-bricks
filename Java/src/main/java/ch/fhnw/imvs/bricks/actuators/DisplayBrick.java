@@ -20,9 +20,9 @@ public final class DisplayBrick extends Brick {
     private volatile double currentDoubleValue = Double.MIN_VALUE;
     private volatile double targetDoubleValue = Double.MIN_VALUE;
 
-//    public int getDecimalPlaces() {
-//        return currentdecimalPlaces;
-//    }
+    public int getDecimalPlaces() {
+        return currentDecimalPlaces;
+    }
 
     public void setDecimalPlaces(int value) {
         if (value != 0 && value != 2) {

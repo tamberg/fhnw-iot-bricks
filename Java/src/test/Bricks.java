@@ -38,12 +38,14 @@ import ch.fhnw.imvs.bricks.mqtt.TtnMqttProxy;
 import ch.fhnw.imvs.bricks.sensors.ButtonBrick;
 import ch.fhnw.imvs.bricks.sensors.DistanceBrick;
 import ch.fhnw.imvs.bricks.sensors.HumiTempBrick;
+import ch.fhnw.imvs.bricks.sensors.RotAngleBrick;
 import ch.fhnw.imvs.bricks.sensors.PresenceBrick;
 
 import ch.fhnw.imvs.bricks.actuators.BuzzerBrick;
 import ch.fhnw.imvs.bricks.actuators.ColorLedBrick;
 import ch.fhnw.imvs.bricks.actuators.DisplayBrick;
 import ch.fhnw.imvs.bricks.actuators.RelayBrick;
+import ch.fhnw.imvs.bricks.actuators.ServoBrick;
 
 public final class Bricks {
     private Bricks() {}
@@ -59,6 +61,8 @@ public final class Bricks {
     private static final String HUMITEMP_BRICK_2_ID = "0000-0004";
     private static final String PRESENCE_BRICK_0_ID = "0000-0020";
     private static final String PRESENCE_BRICK_1_ID = "0000-0021";
+    private static final String ROTANGLE_BRICK_ID = "0000-0022";
+    private static final String SERVO_BRICK_ID = "0000-0023";
 
     private static void runDoorbellExample(Proxy proxy) {
         ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
@@ -164,6 +168,22 @@ public final class Bricks {
         }
     }
 
+    private static void runRemoteServoExample(Proxy proxy) {
+        RotAngleBrick angleBrick = RotAngleBrick.connect(proxy, ROTANGLE_BRICK_ID);
+        ServoBrick servoBrick = ServoBrick.connect(proxy, SERVO_BRICK_ID);
+        while (true) {
+            int pos = angleBrick.getAngle(); // degrees
+            System.out.println("pos = " + pos);
+            servoBrick.setPosition(pos); // can take up to 3 sec.
+            // TODO: move this to Proxy?
+            do { // wait for servo to reach its target position
+                 // only needed, if sensor changes faster
+                proxy.waitForUpdate();
+                System.out.println("... = " + servoBrick.getPosition());
+            } while (servoBrick.getPosition() != pos);
+        }
+    }
+
     private static void runFoosballExample(Proxy proxy) {
         ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
         PresenceBrick presenceBrick0 = PresenceBrick.connect(proxy, PRESENCE_BRICK_0_ID);
@@ -193,7 +213,7 @@ public final class Bricks {
 
     public static void main(String args[]) {
         final String BASE_URL = "https://brick.li";
-        final String USAGE = "usage: java Bricks http|mock|mqtt|ttn d|l|a|m|p|s|f";
+        final String USAGE = "usage: java Bricks http|mock|mqtt|ttn d|l|a|m|p|s|r|f";
         if (args.length == 2) {
             Proxy proxy = null;
             if ("http".equals(args[0])) {
@@ -220,6 +240,8 @@ public final class Bricks {
                 runParkingExample(proxy);    
             } else if ("s".equals(args[1])) {
                 runSwitchExample(proxy);
+            } else if ("r".equals(args[1])) {
+                runRemoteServoExample(proxy);
             } else if ("f".equals(args[1])) {
                 runFoosballExample(proxy);
             } else {
