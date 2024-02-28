@@ -19,7 +19,7 @@ public final class ServoBrick extends Brick {
 
     public int getPosition() {
         throw new IllegalArgumentException(); // Not yet implemented on Arduino side
-        return currentPosition;
+        //return currentPosition;
     }
 
     public void setPosition(int position) { // degree
