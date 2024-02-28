@@ -22,7 +22,7 @@ public final class DisplayBrick extends Brick {
 
     public int getDecimalPlaces() {
         throw new IllegalArgumentException(); // Not yet implemented on Arduino side
-        return currentDecimalPlaces;
+        //return currentDecimalPlaces;
     }
 
     public void setDecimalPlaces(int value) {
@@ -37,7 +37,7 @@ public final class DisplayBrick extends Brick {
 
     public double getDoubleValue() {
         throw new IllegalArgumentException(); // Not yet implemented on Arduino side
-        return currentDoubleValue;
+        //return currentDoubleValue;
     }
 
     public void setDoubleValue(double value) {
