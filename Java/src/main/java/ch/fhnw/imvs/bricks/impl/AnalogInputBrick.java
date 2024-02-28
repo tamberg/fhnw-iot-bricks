@@ -10,6 +10,11 @@ import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
 public abstract class AnalogInputBrick extends Brick {
+    // https://stackoverflow.com/questions/7505991/arduino-map-equivalent-function-in-java
+    private static int map(int x, int min, int max, int min2, int max2) {
+        return (x - min) * (max2 - min2) / (max - min) + min2;
+    }
+
     protected AnalogInputBrick(Proxy proxy, String brickID) {
         super(proxy, brickID);
     }
@@ -18,6 +23,10 @@ public abstract class AnalogInputBrick extends Brick {
 
     protected int getValue() {
         return currentValue;
+    }
+
+    protected int getValueMapped(int from, int to) {
+        return map(currentValue, 0, 1024, from, to);
     }
 
     @Override

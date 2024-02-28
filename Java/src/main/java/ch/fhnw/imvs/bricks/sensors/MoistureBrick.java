@@ -7,18 +7,12 @@ import ch.fhnw.imvs.bricks.impl.AnalogInputBrick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
 public final class MoistureBrick extends AnalogInputBrick {
-    // https://stackoverflow.com/questions/7505991/arduino-map-equivalent-function-in-java
-    private static int map(int x, int min, int max, int min2, int max2) {
-        return (x - min) * (max2 - min2) / (max - min) + min2;
-    }
-
     private MoistureBrick(Proxy proxy, String brickID) {
         super(proxy, brickID);
     }
 
-    public int getMoisture() { // 0 - 100
-        int value = map(super.getValue(), 0, 1024, 0, 100); // TODO: config?
-        return value;
+    public int getMoisture() {
+        return super.getValueMapped(0, 100);
     }
 
     public static MoistureBrick connect(Proxy proxy, String brickID) {

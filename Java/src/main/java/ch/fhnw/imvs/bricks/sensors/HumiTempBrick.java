@@ -10,7 +10,7 @@ import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
 public final class HumiTempBrick extends Brick {
-    protected HumiTempBrick(Proxy proxy, String brickID) {
+    private HumiTempBrick(Proxy proxy, String brickID) {
         super(proxy, brickID);
     }
 
