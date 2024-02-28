@@ -53,10 +53,10 @@ public final class CameraBrick extends Brick {
     protected void setCurrentPayload(byte[] payload) {
         ByteBuffer buf = ByteBuffer.wrap(payload);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        super.setBatteryVoltage(buf.getShort() / 100.0f);
-        int imageLength = buf.getInt();
+        super.setBatteryVoltage(buf.getShort() / 100.0f); // 2 bytes
+        int imageLength = buf.getInt(); // 4 bytes
         byte[] imageBytes = new byte[imageLength];
-        buf.get(imageBytes);
+        buf.get(imageBytes); // imageBytes.length bytes
         ByteArrayInputStream inputStream =
             new ByteArrayInputStream(imageBytes);
         try {
