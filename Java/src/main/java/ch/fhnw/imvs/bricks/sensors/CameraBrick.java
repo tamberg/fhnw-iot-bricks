@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,8 +37,11 @@ public final class CameraBrick extends Brick {
             try {
                 Path filePath = Paths.get("test.jpg");
                 byte[] imageBytes = Files.readAllBytes(filePath);
-                ByteBuffer buf = ByteBuffer.allocate(imageBytes.length);
-                // TODO: battery, length
+                ByteBuffer buf = ByteBuffer.allocate(imageBytes.length + 6);
+                buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+                double mockBatt = Math.random() * 3.7;
+                buf.putShort((short) (mockBatt * 100)); // 2 bytes
+                buf.putInt(imageBytes.length); // 4 bytes
                 buf.put(imageBytes);
                 payload = buf.array();
             } catch (IOException e) {} // give up
@@ -47,8 +51,14 @@ public final class CameraBrick extends Brick {
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
+        ByteBuffer buf = ByteBuffer.wrap(payload);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        super.setBatteryVoltage(buf.getShort() / 100.0f);
+        int imageLength = buf.getInt();
+        byte[] imageBytes = new byte[imageLength];
+        buf.get(imageBytes);
         ByteArrayInputStream inputStream =
-            new ByteArrayInputStream(payload);
+            new ByteArrayInputStream(imageBytes);
         try {
             currentImage = ImageIO.read(inputStream);
         } catch (IOException e) {} // give up
