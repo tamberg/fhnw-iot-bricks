@@ -175,12 +175,7 @@ public final class Bricks {
             int pos = angleBrick.getAngle(); // degrees
             System.out.println("pos = " + pos);
             servoBrick.setPosition(pos); // can take up to 3 sec.
-            // TODO: move this to Proxy?
-            do { // wait for servo to reach its target position
-                 // only needed, if sensor changes faster
-                proxy.waitForUpdate();
-                System.out.println("... = " + servoBrick.getPosition());
-            } while (servoBrick.getPosition() != pos);
+            proxy.waitForUpdate();
         }
     }
 

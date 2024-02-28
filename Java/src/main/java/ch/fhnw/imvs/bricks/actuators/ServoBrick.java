@@ -18,6 +18,7 @@ public final class ServoBrick extends Brick {
     private volatile int targetPosition = 0;
 
     public int getPosition() {
+        throw new IllegalArgumentException(); // Not yet implemented on Arduino side
         return currentPosition;
     }
 

@@ -21,6 +21,7 @@ public final class DisplayBrick extends Brick {
     private volatile double targetDoubleValue = Double.MIN_VALUE;
 
     public int getDecimalPlaces() {
+        throw new IllegalArgumentException(); // Not yet implemented on Arduino side
         return currentDecimalPlaces;
     }
 
@@ -34,9 +35,10 @@ public final class DisplayBrick extends Brick {
         }
     }
 
-//    public double getDoubleValue() {
-//        return currentDoubleValue;
-//    }
+    public double getDoubleValue() {
+        throw new IllegalArgumentException(); // Not yet implemented on Arduino side
+        return currentDoubleValue;
+    }
 
     public void setDoubleValue(double value) {
         if (targetDoubleValue != value) {
