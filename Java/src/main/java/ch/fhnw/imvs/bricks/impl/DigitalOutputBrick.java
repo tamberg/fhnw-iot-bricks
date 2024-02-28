@@ -19,7 +19,7 @@ public abstract class DigitalOutputBrick extends Brick {
 
     protected boolean isActive() {
         throw new IllegalArgumentException(); // Not yet implemented on Arduino side
-        return currentActive;
+        //return currentActive;
     }
 
     protected void setActive(boolean value) {
