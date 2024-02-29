@@ -22,17 +22,14 @@ public abstract class DigitalInputBrick extends Brick {
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
-        byte[] payload = null;
-        if (mock) {
-            ByteBuffer buf = ByteBuffer.allocate(3);
-            buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-            double mockBatt = Math.random() * 3.7;
-            boolean mockActive = Math.random() < 0.5;
-            buf.putShort((short) (mockBatt * 100));
-            buf.put((byte) (mockActive ? 1 : 0));
-            payload = buf.array();
-        }
-        return payload;
+        assert mock; // sensor
+        ByteBuffer buf = ByteBuffer.allocate(3);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        double mockBatt = Math.random() * 3.7;
+        boolean mockActive = Math.random() < 0.5;
+        buf.putShort((short) (mockBatt * 100));
+        buf.put((byte) (mockActive ? 1 : 0));
+        return buf.array();
     }
 
     @Override

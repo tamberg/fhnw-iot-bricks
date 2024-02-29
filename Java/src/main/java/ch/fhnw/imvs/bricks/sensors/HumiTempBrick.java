@@ -22,19 +22,16 @@ public final class HumiTempBrick extends Brick {
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
-        byte[] payload = null;
-        if (mock) {
-            ByteBuffer buf = ByteBuffer.allocate(6);
-            buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-            double mockBatt = Math.random() * 3.7;
-            double mockHumi = Math.random() * 99;
-            double mockTemp = Math.random() * 50;
-            buf.putShort((short) (mockBatt * 100));
-            buf.putShort((short) (mockHumi * 100));
-            buf.putShort((short) (mockTemp * 100));
-            payload = buf.array();
-        }
-        return payload;
+        assert mock; // sensor
+        ByteBuffer buf = ByteBuffer.allocate(6);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        double mockBatt = Math.random() * 3.7;
+        double mockHumi = Math.random() * 99;
+        double mockTemp = Math.random() * 50;
+        buf.putShort((short) (mockBatt * 100));
+        buf.putShort((short) (mockHumi * 100));
+        buf.putShort((short) (mockTemp * 100));
+        return buf.array();
     }
 
     @Override

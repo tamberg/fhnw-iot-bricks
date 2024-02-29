@@ -32,21 +32,20 @@ public final class CameraBrick extends Brick {
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
+        assert mock; // sensor
         byte[] payload = null;
-        if (mock) {
-            try {
-                Path filePath = Paths.get("test.jpg");
-                byte[] imageBytes = Files.readAllBytes(filePath);
-                ByteBuffer buf = ByteBuffer.allocate(imageBytes.length + 6);
-                buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-                double mockBatt = Math.random() * 3.7;
-                buf.putShort((short) (mockBatt * 100)); // 2 bytes
-                buf.putInt(imageBytes.length); // 4 bytes
-                buf.put(imageBytes);
-                payload = buf.array();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            Path filePath = Paths.get("test.jpg");
+            byte[] imageBytes = Files.readAllBytes(filePath);
+            ByteBuffer buf = ByteBuffer.allocate(imageBytes.length + 6);
+            buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+            double mockBatt = Math.random() * 3.7;
+            buf.putShort((short) (mockBatt * 100)); // 2 bytes
+            buf.putInt(imageBytes.length); // 4 bytes
+            buf.put(imageBytes); // imageBytes.length bytes
+            payload = buf.array();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return payload;
     }

@@ -22,17 +22,14 @@ public final class DistanceBrick extends Brick {
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
-        byte[] payload = null;
-        if (mock) {
-            ByteBuffer buf = ByteBuffer.allocate(4);
-            buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-            double mockBatt = Math.random() * 3.7;
-            short mockDist = (short) (Math.random() * 350);
-            buf.putShort((short) (mockBatt * 100));
-            buf.putShort(mockDist);
-            payload = buf.array();
-        }
-        return payload;
+        assert mock; // sensor
+        ByteBuffer buf = ByteBuffer.allocate(4);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        double mockBatt = Math.random() * 3.7;
+        short mockDist = (short) (Math.random() * 350);
+        buf.putShort((short) (mockBatt * 100));
+        buf.putShort(mockDist);
+        return buf.array();
     }
 
     @Override
