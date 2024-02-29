@@ -14,12 +14,7 @@ public abstract class DigitalOutputBrick extends Brick {
         super(proxy, brickID);
     }
 
-    private volatile boolean currentActive = false;
     private volatile boolean targetActive = false;
-
-    //protected boolean isActive() {
-    //    return currentActive;
-    //}
 
     protected void setActive(boolean value) {
         if (targetActive != value) {
@@ -30,21 +25,13 @@ public abstract class DigitalOutputBrick extends Brick {
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
-        ByteBuffer buf = ByteBuffer.allocate(mock ? 3 : 1);
+        assert !mock; // actuator
+        ByteBuffer buf = ByteBuffer.allocate(1);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        if (mock) {
-            double mockBatt = Math.random() * 3.7;
-            buf.putShort((short) (mockBatt * 100));
-        }
         buf.put((byte) (targetActive ? 1 : 0));
         return buf.array();
     }
 
     @Override
-    protected void setCurrentPayload(byte[] payload) {
-        ByteBuffer buf = ByteBuffer.wrap(payload);
-        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        super.setBatteryVoltage(buf.getShort() / 100.0);
-        currentActive = buf.get() != 0;
-    }
+    protected void setCurrentPayload(byte[] payload) { assert false; } // actuator
 }

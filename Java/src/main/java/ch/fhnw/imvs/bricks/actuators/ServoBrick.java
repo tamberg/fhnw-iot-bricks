@@ -14,12 +14,7 @@ public final class ServoBrick extends Brick {
         super(proxy, brickID);
     }
 
-    private volatile int currentPosition = 0;
     private volatile int targetPosition = 0;
-
-    //public int getPosition() {
-    //    return currentPosition;
-    //}
 
     public void setPosition(int position) { // degree
         if (position < 0 || position > 180) {
@@ -33,23 +28,15 @@ public final class ServoBrick extends Brick {
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
-        ByteBuffer buf = ByteBuffer.allocate(mock ? 4 : 2);
+        assert !mock; // actuator
+        ByteBuffer buf = ByteBuffer.allocate(2);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        if (mock) {
-            double mockBatt = Math.random() * 3.7;
-            buf.putShort((short) (mockBatt * 100));
-        }
         buf.putShort((short) targetPosition);
         return buf.array();
     }
 
     @Override
-    protected void setCurrentPayload(byte[] payload) {
-        ByteBuffer buf = ByteBuffer.wrap(payload);
-        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-        super.setBatteryVoltage(buf.getShort() / 100.0);
-        currentPosition = buf.getShort();
-    }
+    protected void setCurrentPayload(byte[] payload) { assert false; } // actuator
 
     public static ServoBrick connect(Proxy proxy, String brickID) {
         ServoBrick brick = new ServoBrick(proxy, brickID);
