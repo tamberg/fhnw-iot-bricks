@@ -11,10 +11,6 @@ public final class BuzzerBrick extends DigitalOutputBrick {
         super(proxy, brickID);
     }
 
-    //public boolean isEnabled() {
-    //    return super.isActive();
-    //}
-
     public void setEnabled(boolean enabled) {
         super.setActive(enabled);
     }

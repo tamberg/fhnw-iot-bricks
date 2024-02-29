@@ -53,6 +53,8 @@ public abstract class Brick {
         proxy.syncBrick(this);
     }
 
+    /* returns downlink target payload (actuator), or null (sensor),
+       or mock uplink "target" payload (sensor, see MockProxy) */
     protected abstract byte[] getTargetPayload(boolean mock); // called by Proxy base
 
     /* package */ void setPendingPayload(byte[] payload) { // called by Proxy base
