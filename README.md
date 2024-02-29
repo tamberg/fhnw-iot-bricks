@@ -69,7 +69,7 @@ while (true) {
 ### Monitoring system
 ```
 HumiTempBrick sensor = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
-DisplayBrick display = DisplayBrick.connect(proxy, DISPLAY_BRICK_ID);
+DigitsBrick display = DigitsBrick.connect(proxy, DIGITS_BRICK_ID);
 ColorLedBrick led = ColorLedBrick.connect(proxy, COLORLED_BRICK_ID);
 
 while (true) {
@@ -107,7 +107,7 @@ while (true) {
 ButtonBrick reset = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
 PresenceBrick sensor0 = PresenceBrick.connect(proxy, PRESENCE_BRICK_0_ID);
 PresenceBrick sensor1 = PresenceBrick.connect(proxy, PRESENCE_BRICK_1_ID);
-DisplayBrick display = DisplayBrick.connect(proxy, DISPLAY_BRICK_ID);
+DigitsBrick display = DigitsBrick.connect(proxy, DIGITS_BRICK_ID);
 
 double score = 00.00;
 while (true) {
@@ -193,10 +193,10 @@ public final class ColorLedBrick extends Brick {
     public static ColorLedBrick connect(Proxy proxy, String brickID);
 }
 
-public final class DisplayBrick extends Brick;
+public final class DigitsBrick extends Brick;
     public void setDecimalPlaces(int value);
     public void setDoubleValue(double value);
-    public static DisplayBrick connect(Proxy proxy, String brickID);
+    public static DigitsBrick connect(Proxy proxy, String brickID);
 }
 
 public final class RelayBrick extends DigitalOutputBrick {
