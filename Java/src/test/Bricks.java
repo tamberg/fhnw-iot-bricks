@@ -174,6 +174,7 @@ public final class Bricks {
         while (true) {
             int pos = angleBrick.getAngle(); // degrees
             System.out.println("pos = " + pos);
+            pos = (pos > 180) ? 180 : pos; // TODO: move to ServoBrick?
             servoBrick.setPosition(pos); // can take up to 3 sec.
             proxy.waitForUpdate();
         }

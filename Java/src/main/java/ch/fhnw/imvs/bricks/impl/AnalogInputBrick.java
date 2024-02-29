@@ -31,17 +31,14 @@ public abstract class AnalogInputBrick extends Brick {
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
-        byte[] payload = null;
-        if (mock) {
-            ByteBuffer buf = ByteBuffer.allocate(4);
-            buf.order(ByteOrder.BIG_ENDIAN); // network byte order
-            double mockBatt = Math.random() * 3.7;
-            double mockValue = Math.random() * 1024;
-            buf.putShort((short) (mockBatt * 100));
-            buf.putShort((short) mockValue);
-            payload = buf.array();
-        }
-        return payload;
+        assert mock; // sensor
+        ByteBuffer buf = ByteBuffer.allocate(4);
+        buf.order(ByteOrder.BIG_ENDIAN); // network byte order
+        double mockBatt = Math.random() * 3.7;
+        double mockValue = Math.random() * 1024;
+        buf.putShort((short) (mockBatt * 100));
+        buf.putShort((short) mockValue);
+        return buf.array();
     }
 
     @Override
