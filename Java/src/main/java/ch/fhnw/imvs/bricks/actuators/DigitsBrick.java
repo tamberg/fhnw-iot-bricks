@@ -47,6 +47,7 @@ public final class DigitsBrick extends Brick {
 
     @Override
     protected byte[] getTargetPayload(boolean mock) {
+        assert !mock;
         ByteBuffer buf = ByteBuffer.allocate(mock ? 5 : 3);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         if (mock) {
@@ -60,6 +61,7 @@ public final class DigitsBrick extends Brick {
 
     @Override
     protected void setCurrentPayload(byte[] payload) {
+        assert false;
         ByteBuffer buf = ByteBuffer.wrap(payload);
         buf.order(ByteOrder.BIG_ENDIAN); // network byte order
         super.setBatteryVoltage(buf.getShort() / 100.0);
