@@ -43,7 +43,7 @@ import ch.fhnw.imvs.bricks.sensors.PresenceBrick;
 
 import ch.fhnw.imvs.bricks.actuators.BuzzerBrick;
 import ch.fhnw.imvs.bricks.actuators.ColorLedBrick;
-import ch.fhnw.imvs.bricks.actuators.DisplayBrick;
+import ch.fhnw.imvs.bricks.actuators.DigitsBrick;
 import ch.fhnw.imvs.bricks.actuators.RelayBrick;
 import ch.fhnw.imvs.bricks.actuators.ServoBrick;
 
@@ -53,7 +53,7 @@ public final class Bricks {
     private static final String BUTTON_BRICK_ID = "0000-0002";
     private static final String BUZZER_BRICK_ID = "0000-0006";
     private static final String COLORLED_BRICK_ID = "0000-0000";
-    private static final String DISPLAY_BRICK_ID = "0000-0005";
+    private static final String DIGITS_BRICK_ID = "0000-0005";
     private static final String DISTANCE_BRICK_ID = "0000-0003";
     private static final String HUMITEMP_BRICK_ID = "0000-0001";
     private static final String HUMITEMP_BRICK_0_ID = HUMITEMP_BRICK_ID;
@@ -121,13 +121,13 @@ public final class Bricks {
 
     private static void runMonitoringExample(Proxy proxy) {
         HumiTempBrick humiTempBrick = HumiTempBrick.connect(proxy, HUMITEMP_BRICK_ID);
-        DisplayBrick displayBrick = DisplayBrick.connect(proxy, DISPLAY_BRICK_ID);
+        DigitsBrick digitsBrick = DigitsBrick.connect(proxy, DIGITS_BRICK_ID);
         while (true) {
             double temp = humiTempBrick.getTemperature();
             String time = humiTempBrick.getTimestampIsoUtc();
             String line = String.format(Locale.US, "%s, %.2f\n", time, temp);
             System.out.print(line);
-            displayBrick.setDoubleValue(temp);
+            digitsBrick.setDoubleValue(temp);
             proxy.waitForUpdate();
         }
     }
@@ -183,7 +183,7 @@ public final class Bricks {
         ButtonBrick buttonBrick = ButtonBrick.connect(proxy, BUTTON_BRICK_ID);
         PresenceBrick presenceBrick0 = PresenceBrick.connect(proxy, PRESENCE_BRICK_0_ID);
         PresenceBrick presenceBrick1 = PresenceBrick.connect(proxy, PRESENCE_BRICK_1_ID);
-        DisplayBrick displayBrick = DisplayBrick.connect(proxy, DISPLAY_BRICK_ID);
+        DigitsBrick digitsBrick = DigitsBrick.connect(proxy, DIGITS_BRICK_ID);
 
         double score = 00.00;
         while (true) {
@@ -200,7 +200,7 @@ public final class Bricks {
                 System.out.print("team 1 scored, ");
                 score += 00.01;
             }
-            displayBrick.setDoubleValue(score);
+            digitsBrick.setDoubleValue(score);
             System.out.printf("score = %05.2f\n", score);
             proxy.waitForUpdate();
         }

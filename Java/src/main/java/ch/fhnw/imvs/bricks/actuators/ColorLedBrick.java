@@ -18,9 +18,9 @@ public final class ColorLedBrick extends Brick {
     private volatile Color currentColor = Color.BLACK;
     private volatile Color targetColor = Color.BLACK;
 
-    public Color getColor() {
-        return currentColor;
-    }
+    //public Color getColor() {
+    //    return currentColor;
+    //}
 
     public void setColor(Color color) {
         if (!targetColor.equals(color)) {
