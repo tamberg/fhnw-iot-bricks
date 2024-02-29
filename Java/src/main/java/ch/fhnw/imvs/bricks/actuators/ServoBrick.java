@@ -17,10 +17,9 @@ public final class ServoBrick extends Brick {
     private volatile int currentPosition = 0;
     private volatile int targetPosition = 0;
 
-    public int getPosition() {
-        throw new IllegalArgumentException(); // Not yet implemented on Arduino side
-        //return currentPosition;
-    }
+    //public int getPosition() {
+    //    return currentPosition;
+    //}
 
     public void setPosition(int position) { // degree
         if (position < 0 || position > 180) {

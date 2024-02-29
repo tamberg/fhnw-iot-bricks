@@ -9,8 +9,8 @@ import java.nio.ByteOrder;
 import ch.fhnw.imvs.bricks.core.Brick;
 import ch.fhnw.imvs.bricks.core.Proxy;
 
-public final class DisplayBrick extends Brick {
-    private DisplayBrick(Proxy proxy, String brickID) {
+public final class DigitsBrick extends Brick {
+    private DigitsBrick(Proxy proxy, String brickID) {
         super(proxy, brickID);
     }
 
@@ -20,10 +20,9 @@ public final class DisplayBrick extends Brick {
     private volatile double currentDoubleValue = Double.MIN_VALUE;
     private volatile double targetDoubleValue = Double.MIN_VALUE;
 
-    public int getDecimalPlaces() {
-        throw new IllegalArgumentException(); // Not yet implemented on Arduino side
-        //return currentDecimalPlaces;
-    }
+    //public int getDecimalPlaces() {
+    //    return currentDecimalPlaces;
+    //}
 
     public void setDecimalPlaces(int value) {
         if (value != 0 && value != 2) {
@@ -35,10 +34,9 @@ public final class DisplayBrick extends Brick {
         }
     }
 
-    public double getDoubleValue() {
-        throw new IllegalArgumentException(); // Not yet implemented on Arduino side
-        //return currentDoubleValue;
-    }
+    //public double getDoubleValue() {
+    //    return currentDoubleValue;
+    //}
 
     public void setDoubleValue(double value) {
         if (targetDoubleValue != value) {
@@ -69,8 +67,8 @@ public final class DisplayBrick extends Brick {
         currentDoubleValue = buf.getShort() / Math.pow(10, currentDecimalPlaces);
     }
 
-    public static DisplayBrick connect(Proxy proxy, String brickID) {
-        DisplayBrick brick = new DisplayBrick(proxy, brickID);
+    public static DigitsBrick connect(Proxy proxy, String brickID) {
+        DigitsBrick brick = new DigitsBrick(proxy, brickID);
         brick.connect();
         return brick;
     }

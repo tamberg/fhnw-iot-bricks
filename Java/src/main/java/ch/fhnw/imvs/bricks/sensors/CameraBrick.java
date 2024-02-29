@@ -44,7 +44,9 @@ public final class CameraBrick extends Brick {
                 buf.putInt(imageBytes.length); // 4 bytes
                 buf.put(imageBytes);
                 payload = buf.array();
-            } catch (IOException e) {} // give up
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return payload;
     }
@@ -61,7 +63,9 @@ public final class CameraBrick extends Brick {
             new ByteArrayInputStream(imageBytes);
         try {
             currentImage = ImageIO.read(inputStream);
-        } catch (IOException e) {} // give up
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static CameraBrick connect(Proxy proxy, String brickID) {
