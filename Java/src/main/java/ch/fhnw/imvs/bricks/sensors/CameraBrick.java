@@ -4,7 +4,6 @@
 package ch.fhnw.imvs.bricks.sensors;
 
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -24,7 +23,7 @@ public final class CameraBrick extends Brick {
         super(proxy, brickID);
     }
 
-    private BufferedImage currentImage = null;
+    private Image currentImage = null;
 
     public Image getImage() {
         return currentImage;
