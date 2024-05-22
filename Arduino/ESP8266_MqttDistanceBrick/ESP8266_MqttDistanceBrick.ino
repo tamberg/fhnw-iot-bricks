@@ -35,11 +35,14 @@ void setup() {
   client.setInsecure(); // no cert validation
 }
 
+int oldRange = -1;
+
 void loop() {
   if (mqtt.connected()) {
     float batt = 3.7; // V, TODO
     int range = ultrasonic.MeasureInCentimeters();
-    if (!isnan(range)) {
+    if (!isnan(range) && (range != oldRange)) {
+      oldRange = range;
       int b = batt * 100.0f;
       uint8_t payload[] = {
         highByte(b), lowByte(b),
