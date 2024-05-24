@@ -1,7 +1,8 @@
 // Copyright (c) 2024 FHNW, Switzerland. All rights reserved.
 // Licensed under MIT License, see LICENSE for details.
 
-// Based on https://github.com/adafruit/Adafruit_VS1053_Library licensed under BSD license.
+// Based on https://github.com/adafruit/Adafruit_MQTT_Library licensed under MIT License.
+// Based on https://github.com/adafruit/Adafruit_VS1053_Library licensed under BSD License.
 
 #include <SPI.h>
 #include <SD.h>
