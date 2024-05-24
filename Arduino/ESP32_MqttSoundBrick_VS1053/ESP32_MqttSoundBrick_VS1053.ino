@@ -21,7 +21,7 @@ const char *ssid = "MY_SSID"; // TODO
 const char *password = "MY_PASSWORD"; // TODO
 const char *host = "test.mosquitto.org"; // TODO
 const int port = 8883;
-const char *topicStr = "bricks/7233-0005/target"; // TODO
+const char *topicStr = "bricks/0000-0000/target"; // TODO
 
 Adafruit_VS1053_FilePlayer musicPlayer =
   Adafruit_VS1053_FilePlayer(VS1053_RESET, VS1053_CS, VS1053_DCS, VS1053_DREQ, CARDCS);
