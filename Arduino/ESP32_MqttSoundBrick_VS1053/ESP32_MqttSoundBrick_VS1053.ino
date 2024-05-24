@@ -1,7 +1,7 @@
 // Copyright (c) 2024 FHNW, Switzerland. All rights reserved.
 // Licensed under MIT License, see LICENSE for details.
 
-// Based on https://learn.adafruit.com/adafruit-music-maker-featherwing/play-music licensed under MIT license.
+// Based on https://github.com/adafruit/Adafruit_VS1053_Library licensed under BSD license.
 
 #include <SPI.h>
 #include <SD.h>
