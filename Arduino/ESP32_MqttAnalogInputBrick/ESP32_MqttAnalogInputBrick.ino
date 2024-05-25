@@ -13,7 +13,7 @@ const char *ssid = "MY_SSID"; // TODO
 const char *password = "MY_PASSWORD"; // TODO
 const char *host = "test.mosquitto.org"; // TODO
 const int port = 8883;
-const char *topicStr = "bricks/0000-0001/actual"; // TODO
+const char *topicStr = "bricks/0000-0000/actual"; // TODO
 
 // See https://test.mosquitto.org/ssl/mosquitto.org.crt
 const char *mqtt_broker_cert_pem = \
@@ -50,7 +50,7 @@ void setup() {
   Serial.begin(115200);
   Serial.print("\nConnecting to network ");
   Serial.println(ssid);
-//  WiFi.mode(WIFI_STA);
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(100); // keeps watchdog happy
@@ -78,7 +78,7 @@ void loop() {
       printf("publish to %s\n", topicStr);
       topic.publish(payload, sizeof(payload)); // best effort
     }
-    delay(100);
+    delay(1000);
   } else {
     int result = mqtt.connect(); // calls client.connect()
     if (result != 0) {
