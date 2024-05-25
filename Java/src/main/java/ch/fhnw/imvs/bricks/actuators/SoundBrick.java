@@ -23,13 +23,13 @@ public final class SoundBrick extends Brick {
         {
             throw new IllegalArgumentException();
         }
-        if (targetTrack != track || 
-            targetVolume != volume) 
-        {
-            targetTrack = track;
-            targetVolume = volume;
-            super.sync();
-        }
+        //if (targetTrack != track || 
+        //    targetVolume != volume) 
+        //{
+        targetTrack = track;
+        targetVolume = volume;
+        super.sync();
+        //}
     }
 
     @Override
