@@ -6,7 +6,7 @@ class SerialTest {
     public static void main(String[] args) {
         String port = "";
         for (String s : NRSerialPort.getAvailableSerialPorts()){
-            System.out.println("Availible port: " + s);
+            System.out.println("Available port: " + s);
             port = s;
         }
 
